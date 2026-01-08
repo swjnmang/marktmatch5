@@ -14,18 +14,10 @@ export default function SpielleiterPage() {
   const [preset, setPreset] = useState<"easy" | "medium" | "hard">("medium");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [groupNames, setGroupNames] = useState<string[]>(["Gruppe 1", "Gruppe 2", "Gruppe 3"]);
   const [existingPin, setExistingPin] = useState("");
 
   const handleNumGroupsChange = (num: number) => {
     setNumGroups(num.toString());
-    setGroupNames(Array.from({ length: num }, (_, i) => `Gruppe ${i + 1}`));
-  };
-
-  const handleGroupNameChange = (index: number, name: string) => {
-    const newNames = [...groupNames];
-    newNames[index] = name;
-    setGroupNames(newNames);
   };
 
   const handleCreateGame = async (e: React.FormEvent) => {
@@ -35,9 +27,9 @@ export default function SpielleiterPage() {
 
     try {
       const generatedPin = generateAdminPin();
-      const groups = groupNames.map((name) => ({
+      const groups = Array.from({ length: parseInt(numGroups) }, () => ({
         id: crypto.randomUUID(),
-        name,
+        name: "", // Gruppe gibt den Namen selbst ein
         joinCode: generateGroupCode(),
         capital: 0,
         inventory: 0,
@@ -162,23 +154,11 @@ export default function SpielleiterPage() {
               </div>
             </div>
 
-            {/* Group Names */}
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold text-slate-700">
-                Gruppennamen
-              </label>
-              <div className="grid gap-2">
-                {groupNames.map((name, idx) => (
-                  <input
-                    key={idx}
-                    type="text"
-                    value={name}
-                    onChange={(e) => handleGroupNameChange(idx, e.target.value)}
-                    placeholder={`Gruppe ${idx + 1}`}
-                    className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
-                  />
-                ))}
-              </div>
+            {/* Group Names - Hinweis */}
+            <div className="rounded-lg bg-blue-50 p-3">
+              <p className="text-sm text-slate-700">
+                <strong>ℹ️ Gruppennamen:</strong> Nach dem Anlegen erhält jede Gruppe einen eigenen Code. Die Gruppen geben ihren Namen selbst ein, wenn sie dem Spiel beitreten.
+              </p>
             </div>
 
             {error && (

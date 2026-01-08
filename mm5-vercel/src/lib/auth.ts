@@ -51,9 +51,16 @@ export function savePinToLocalStorage(pin: string, gameId: string): void {
 
 /**
  * Prüft PIN aus localStorage
+ * Wenn kein pin-Parameter gegeben, nur checken ob PIN existiert
  */
-export function checkPinFromLocalStorage(gameId: string, pin: string): boolean {
-  const pins = JSON.parse(localStorage.getItem("adminPins") || "{}");
-  if (!pins[gameId]) return false;
-  return validatePin(pin, pins[gameId]);
+export function checkPinFromLocalStorage(gameId: string, pin?: string): boolean {
+  try {
+    const pins = JSON.parse(localStorage.getItem("adminPins") || "{}");
+    if (!pins[gameId]) return false;
+    if (!pin) return true; // Nur prüfen ob PIN existiert
+    return validatePin(pin, pins[gameId]);
+  } catch (e) {
+    console.warn("Error checking PIN:", e);
+    return false;
+  }
 }
