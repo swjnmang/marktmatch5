@@ -16,12 +16,15 @@ export function GruppeGameForm() {
   const [groupName, setGroupName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const pinParam = searchParams?.get("pin");
+    // Lese PIN direkt aus searchParams
+    const pinParam = searchParams.get("pin");
     if (pinParam) {
       setPin(pinParam);
     }
+    setMounted(true);
   }, [searchParams]);
 
   const handleJoin = async (e: React.FormEvent) => {
@@ -30,14 +33,21 @@ export function GruppeGameForm() {
     setLoading(true);
 
     try {
-      if (!pin.trim() || !groupName.trim()) {
-        setError("Bitte fülle alle Felder aus.");
+      if (!groupName.trim()) {
+        setError("Bitte gib einen Gruppennamen ein.");
+        setLoading(false);
+        return;
+      }
+
+      // Überprüfe PIN - sie sollte bereits aus der URL geladen sein
+      if (!pin || pin.trim().length === 0) {
+        setError("PIN fehlt. Bitte scanne den QR-Code erneut oder prüfe den Link.");
         setLoading(false);
         return;
       }
 
       if (pin.length !== 5) {
-        setError("PIN muss 5 Zeichen lang sein.");
+        setError(`PIN muss 5 Zeichen lang sein (aktuell: ${pin.length} Zeichen: "${pin}").`);
         setLoading(false);
         return;
       }
@@ -114,10 +124,9 @@ export function GruppeGameForm() {
             <input
               type="text"
               value={pin}
-              onChange={(e) => setPin(e.target.value.toUpperCase())}
-              placeholder="z.B. A3F7K"
-              maxLength={5}
-              className="rounded-lg border border-slate-200 px-3 py-2 text-base text-slate-900 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
+              disabled={true}
+              placeholder="Wird aus QR-Code gelesen..."
+              className="rounded-lg border border-slate-200 px-3 py-2 text-base text-slate-900 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200 disabled:bg-slate-100 disabled:cursor-not-allowed"
             />
           </label>
 
