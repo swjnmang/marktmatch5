@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import QRCode from "qrcode.react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, query, where, onSnapshot } from "firebase/firestore";
 import { checkPinFromLocalStorage } from "@/lib/auth";
@@ -92,19 +93,55 @@ export default function GameDashboardPage() {
           <h1 className="text-4xl font-bold text-slate-900">
             {game.status === "lobby" ? "🎮 Lobby" : "Spiel-Dashboard"}
           </h1>
-          <p className="mt-2 text-slate-600">
-            {game.status === "lobby" ? (
-              <>
-                <span className="font-mono text-lg font-semibold text-sky-700">{game.joinPin}</span>
-                {" "}← Gruppen-PIN zum Beitreten
-              </>
-            ) : (
-              <>
-                Periode <span className="font-semibold text-sky-700">{game.period || 0}</span>
-              </>
-            )}
-          </p>
         </div>
+
+        {/* PIN Display Card */}
+        {game.status === "lobby" && (
+          <div className="rounded-2xl bg-gradient-to-br from-sky-50 to-blue-50 p-8 shadow-lg ring-2 ring-sky-300">
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Lobby-Verbindung</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Gruppen-PIN mit QR */}
+              <div className="flex flex-col items-center gap-4">
+                <div>
+                  <p className="text-sm font-semibold text-slate-600 text-center mb-3">PIN scannen oder eingeben:</p>
+                  <div className="bg-white p-4 rounded-lg border-2 border-sky-300">
+                    <QRCode 
+                      value={game.joinPin} 
+                      size={200}
+                      level="H"
+                      includeMargin={true}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* PIN zum Eingeben */}
+              <div className="flex flex-col justify-center gap-4">
+                <div>
+                  <p className="text-sm font-semibold text-slate-600 mb-2">👥 Beitrittscode:</p>
+                  <div className="flex gap-3 items-center">
+                    <div className="font-mono text-5xl font-bold text-sky-700 bg-white px-6 py-4 rounded-lg border-2 border-sky-300 flex-1 text-center">
+                      {game.joinPin}
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(game.joinPin);
+                        alert("✅ PIN kopiert!");
+                      }}
+                      className="rounded-lg bg-sky-600 px-4 py-3 text-white font-semibold hover:bg-sky-700 transition whitespace-nowrap"
+                    >
+                      📋 Kopieren
+                    </button>
+                  </div>
+                </div>
+                <p className="text-xs text-slate-600 text-center">
+                  Gruppen können QR-Code scannen oder die PIN eingeben
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Game Info */}
         <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200">

@@ -11,13 +11,17 @@ import type { GameParameters } from "@/lib/types";
 
 export default function SpielleiterPage() {
   const router = useRouter();
-  const [view, setView] = useState<"login" | "create">("create");
+  const [view, setView] = useState<"login" | "create" | "pins">("create");
   const [preset, setPreset] = useState<"easy" | "medium" | "hard">("medium");
   const [parameters, setParameters] = useState<GameParameters>(PRESET_PARAMETERS.medium);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [existingPin, setExistingPin] = useState("");
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [gameId, setGameId] = useState<string>("");
+  const [adminPin, setAdminPin] = useState<string>("");
+  const [joinPin, setJoinPin] = useState<string>("");
+  const [showAdminPin, setShowAdminPin] = useState(false);
 
   const handlePresetChange = (newPreset: "easy" | "medium" | "hard") => {
     setPreset(newPreset);
@@ -34,29 +38,25 @@ export default function SpielleiterPage() {
     setError("");
 
     try {
-      const adminPin = generateAdminPin();
-      const joinPin = generateAdminPin(); // 8-stelliger PIN für Gruppen
+      const newAdminPin = generateAdminPin();
+      const newJoinPin = generateAdminPin();
 
       const gameDoc = {
-        joinPin,
+        joinPin: newJoinPin,
         parameters,
-        groups: [], // Gruppen treten dynamisch bei
+        groups: [],
         period: 0,
         status: "lobby" as const,
         createdAt: serverTimestamp(),
       };
 
       const docRef = await addDoc(collection(db, "games"), gameDoc);
-      savePinToLocalStorage(adminPin, docRef.id);
+      savePinToLocalStorage(newAdminPin, docRef.id);
       
-      alert(
-        `✅ Lobby erstellt!\n\n` +
-        `🔑 Admin-PIN: ${adminPin}\n` +
-        `👥 Gruppen-PIN: ${joinPin}\n\n` +
-        `Teile den Gruppen-PIN mit allen Teilnehmern!`
-      );
-      
-      router.push(`/spielleiter/${docRef.id}`);
+      setGameId(docRef.id);
+      setAdminPin(newAdminPin);
+      setJoinPin(newJoinPin);
+      setView("pins");
     } catch (err) {
       console.error("Error creating game:", err);
       setError("Fehler beim Erstellen des Spiels. Versuche es erneut.");
@@ -84,31 +84,101 @@ export default function SpielleiterPage() {
           </p>
         </div>
 
-        {/* View Toggle */}
-        <div className="flex gap-2 rounded-lg bg-slate-100 p-1">
-          <button
-            onClick={() => setView("create")}
-            className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition ${
-              view === "create"
-                ? "bg-white text-sky-700 shadow-sm"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            Neues Spiel
-          </button>
-          <button
-            onClick={() => setView("login")}
-            className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition ${
-              view === "login"
-                ? "bg-white text-sky-700 shadow-sm"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            Zu Spiel beitreten
-          </button>
-        </div>
+        {/* PIN Display View */}
+        {view === "pins" && (
+          <div className="rounded-2xl bg-gradient-to-br from-sky-50 to-blue-50 p-8 shadow-lg ring-2 ring-sky-300">
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">✅ Lobby erstellt!</h2>
+            
+            {/* Gruppen-PIN */}
+            <div className="space-y-4 mb-8">
+              <div>
+                <p className="text-sm font-semibold text-slate-600 mb-2">👥 Gruppen-PIN (zum Beitreten)</p>
+                <div className="flex gap-3 items-center">
+                  <div className="font-mono text-4xl font-bold text-sky-700 bg-white px-6 py-4 rounded-lg border-2 border-sky-300">
+                    {joinPin}
+                  </div>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(joinPin);
+                      alert("✅ PIN kopiert!");
+                    }}
+                    className="rounded-lg bg-sky-600 px-4 py-3 text-white font-semibold hover:bg-sky-700 transition"
+                  >
+                    📋 Kopieren
+                  </button>
+                </div>
+                <p className="text-xs text-slate-600 mt-2">Teile diese PIN mit allen Teilnehmern</p>
+              </div>
+            </div>
 
-        {/* Create Game View */}
+            {/* Admin-PIN Toggle */}
+            <div className="border-t pt-6">
+              <button
+                onClick={() => setShowAdminPin(!showAdminPin)}
+                className="text-sm font-semibold text-slate-700 hover:text-slate-900 flex items-center gap-2"
+              >
+                {showAdminPin ? "▼" : "▶"} 🔑 Admin-PIN (versteckt)
+              </button>
+              
+              {showAdminPin && (
+                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-xs text-slate-600 mb-2">Dein Admin-PIN für dieses Spiel:</p>
+                  <div className="flex gap-3 items-center">
+                    <div className="font-mono text-2xl font-bold text-red-700 bg-white px-4 py-2 rounded border-2 border-red-300">
+                      {adminPin}
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(adminPin);
+                        alert("✅ Admin-PIN kopiert!");
+                      }}
+                      className="rounded-lg bg-red-600 px-3 py-2 text-white text-sm font-semibold hover:bg-red-700 transition"
+                    >
+                      📋 Kopieren
+                    </button>
+                  </div>
+                  <p className="text-xs text-red-700 mt-2 font-semibold">⚠️ Speichere diese PIN sicher ab!</p>
+                </div>
+              )}
+            </div>
+
+            {/* Dashboard Link */}
+            <div className="mt-8">
+              <button
+                onClick={() => router.push(`/spielleiter/${gameId}`)}
+                className="w-full rounded-lg bg-sky-600 px-6 py-3 text-white font-bold text-lg hover:bg-sky-700 transition"
+              >
+                🎮 Zur Lobby
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* View Toggle */}
+        {view !== "pins" && (
+          <div className="flex gap-2 rounded-lg bg-slate-100 p-1">
+            <button
+              onClick={() => setView("create")}
+              className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition ${
+                view === "create"
+                  ? "bg-white text-sky-700 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              Neues Spiel
+            </button>
+            <button
+              onClick={() => setView("login")}
+              className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition ${
+                view === "login"
+                  ? "bg-white text-sky-700 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              Zu Spiel beitreten
+            </button>
+          </div>
+        )}
         {view === "create" && (
           <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200">
             <form onSubmit={handleCreateGame} className="flex flex-col gap-6">

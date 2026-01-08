@@ -1,11 +1,11 @@
 import crypto from "crypto";
 
 /**
- * Generiert einen zufälligen Gruppen-Code (z.B. "GRP-A7F2B")
+ * Generiert einen einfachen Gruppen-Code (z.B. "A3F7K")
  */
 export function generateGroupCode(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let code = "GRP-";
+  let code = "";
   for (let i = 0; i < 5; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length));
   }
@@ -13,16 +13,10 @@ export function generateGroupCode(): string {
 }
 
 /**
- * Generiert eine zufällige Admin-PIN (alphanumerisch, 8 Zeichen)
- * Beispiel: "K7m2P9qL"
+ * Generiert eine einfache Admin-PIN (z.B. "4726" - nur Zahlen)
  */
 export function generateAdminPin(): string {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let pin = "";
-  for (let i = 0; i < 8; i++) {
-    pin += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return pin;
+  return Math.floor(1000 + Math.random() * 9000).toString(); // 4-stellige Zahl
 }
 
 /**
