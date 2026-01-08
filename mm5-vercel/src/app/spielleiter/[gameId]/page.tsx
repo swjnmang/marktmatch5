@@ -5,9 +5,9 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, collection, query, where, onSnapshot } from "firebase/firestore";
+import { doc, collection, onSnapshot } from "firebase/firestore";
 import { checkPinFromLocalStorage } from "@/lib/auth";
-import type { GameDocument } from "@/lib/types";
+import type { GameDocument, GroupState } from "@/lib/types";
 
 export default function GameDashboardPage() {
   const params = useParams();
@@ -15,6 +15,7 @@ export default function GameDashboardPage() {
   const gameId = params.gameId as string;
 
   const [game, setGame] = useState<GameDocument | null>(null);
+  const [groups, setGroups] = useState<GroupState[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isPinValid, setIsPinValid] = useState(false);
@@ -32,7 +33,7 @@ export default function GameDashboardPage() {
     setIsPinValid(true);
 
     // Hole Spiel-Daten
-    const unsubscribe = onSnapshot(
+    const unsubscribeGame = onSnapshot(
       doc(db, "games", gameId),
       (docSnap) => {
         if (docSnap.exists()) {
@@ -49,7 +50,23 @@ export default function GameDashboardPage() {
       }
     );
 
-    return () => unsubscribe();
+    // Hole Gruppen aus Subcollection
+    const unsubscribeGroups = onSnapshot(
+      collection(db, "games", gameId, "groups"),
+      (snapshot) => {
+        const nextGroups = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as GroupState));
+        setGroups(nextGroups);
+      },
+      (err) => {
+        console.error("Error loading groups:", err);
+        setError(`Fehler beim Laden der Gruppen: ${err.message}`);
+      }
+    );
+
+    return () => {
+      unsubscribeGame();
+      unsubscribeGroups();
+    };
   }, [gameId, router]);
 
   if (!isPinValid) {
@@ -153,7 +170,7 @@ export default function GameDashboardPage() {
             </div>
             <div>
               <p className="text-sm text-slate-600">Gruppen</p>
-              <p className="font-semibold text-slate-900">{game.groups?.length || 0}</p>
+              <p className="font-semibold text-slate-900">{groups.length}</p>
             </div>
             <div>
               <p className="text-sm text-slate-600">Spiel-ID</p>
@@ -168,8 +185,8 @@ export default function GameDashboardPage() {
             {game.status === "lobby" ? "Wartende Gruppen" : "Gruppen"}
           </h2>
           <div className="mt-6 space-y-3">
-            {game.groups && game.groups.length > 0 ? (
-              game.groups.map((group, index) => (
+            {groups.length > 0 ? (
+              groups.map((group, index) => (
                 <div
                   key={group.id}
                   className="flex items-center justify-between rounded-lg border border-slate-200 p-4 hover:border-sky-400 hover:bg-sky-50"
@@ -213,7 +230,7 @@ export default function GameDashboardPage() {
             className="mt-4 rounded-lg bg-sky-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:bg-slate-300"
           >
             {game.status === "lobby"
-              ? `🚀 Spiel mit ${game.groups?.length || 0} Gruppe(n) starten (kommt bald)`
+              ? `🚀 Spiel mit ${groups.length} Gruppe(n) starten (kommt bald)`
               : `Periode ${(game.period || 0) + 1} starten (kommt bald)`}
           </button>
         </div>

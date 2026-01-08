@@ -44,11 +44,13 @@ export function GruppeGameForm() {
       const normalizedPin = pin.trim().toUpperCase();
       if (!normalizedPin) {
         setError("PIN fehlt. Bitte scanne den QR-Code erneut oder gib die PIN manuell ein.");
+        setLoading(false);
         return;
       }
 
       if (normalizedPin.length !== 5) {
         setError(`PIN muss 5 Zeichen lang sein (aktuell: ${normalizedPin.length}).`);
+        setLoading(false);
         return;
       }
 
@@ -65,6 +67,7 @@ export function GruppeGameForm() {
       // Validiere PIN
       if (gameData.joinPin.toUpperCase() !== normalizedPin) {
         setError(`Ungültige PIN. Erwartet: "${gameData.joinPin}", erhalten: "${normalizedPin}".`);
+        setLoading(false);
         return;
       }
 
