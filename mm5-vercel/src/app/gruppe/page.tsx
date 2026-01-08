@@ -74,6 +74,10 @@ export default function GruppePage() {
         status: "waiting",
         capital: foundGame.parameters.startingCapital,
         inventory: 0,
+        cumulativeProfit: 0,
+        machines: [],
+        cumulativeRndInvestment: 0,
+        rndBenefitApplied: false,
         joinedAt: serverTimestamp() as any,
       };
 
