@@ -22,7 +22,7 @@ export function GruppeGameForm() {
     // Lese PIN direkt aus searchParams
     const pinParam = searchParams.get("pin");
     if (pinParam) {
-      setPin(pinParam);
+      setPin(pinParam.toUpperCase());
     }
     setMounted(true);
   }, [searchParams]);
@@ -39,16 +39,15 @@ export function GruppeGameForm() {
         return;
       }
 
-      // Überprüfe PIN - sie sollte bereits aus der URL geladen sein
-      if (!pin || pin.trim().length === 0) {
-        setError("PIN fehlt. Bitte scanne den QR-Code erneut oder prüfe den Link.");
-        setLoading(false);
+      // Überprüfe PIN - entweder aus URL oder manuell eingegeben
+      const normalizedPin = pin.trim().toUpperCase();
+      if (!normalizedPin) {
+        setError("PIN fehlt. Bitte scanne den QR-Code erneut oder gib die PIN manuell ein.");
         return;
       }
 
-      if (pin.length !== 5) {
-        setError(`PIN muss 5 Zeichen lang sein (aktuell: ${pin.length} Zeichen: "${pin}").`);
-        setLoading(false);
+      if (normalizedPin.length !== 5) {
+        setError(`PIN muss 5 Zeichen lang sein (aktuell: ${normalizedPin.length}).`);
         return;
       }
 
@@ -63,9 +62,8 @@ export function GruppeGameForm() {
       const gameData = gameDoc.data() as GameDocument;
       
       // Validiere PIN
-      if (gameData.joinPin.toUpperCase() !== pin.toUpperCase()) {
-        setError("Ungültige PIN.");
-        setLoading(false);
+      if (gameData.joinPin.toUpperCase() !== normalizedPin) {
+        setError(`Ungültige PIN. Erwartet: "${gameData.joinPin}", erhalten: "${normalizedPin}".`);
         return;
       }
 
@@ -94,6 +92,7 @@ export function GruppeGameForm() {
     } catch (err: any) {
       console.error("Error joining game:", err);
       setError(`Fehler: ${err.message}`);
+    } finally {
       setLoading(false);
     }
   };
@@ -124,9 +123,10 @@ export function GruppeGameForm() {
             <input
               type="text"
               value={pin}
-              disabled={true}
-              placeholder="Wird aus QR-Code gelesen..."
-              className="rounded-lg border border-slate-200 px-3 py-2 text-base text-slate-900 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200 disabled:bg-slate-100 disabled:cursor-not-allowed"
+              onChange={(e) => setPin(e.target.value.toUpperCase())}
+              placeholder="PIN aus QR-Code oder manuell eingeben"
+              maxLength={5}
+              className="rounded-lg border border-slate-200 px-3 py-2 text-base text-slate-900 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
             />
           </label>
 
