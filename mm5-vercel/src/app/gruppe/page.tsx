@@ -3,6 +3,9 @@
 import { Suspense } from "react";
 import { GruppeJoinForm } from "./join-form";
 
+// Dynamisch rendern statt statisch
+export const dynamic = "force-dynamic";
+
 export default function GruppePage() {
   return (
     <Suspense
