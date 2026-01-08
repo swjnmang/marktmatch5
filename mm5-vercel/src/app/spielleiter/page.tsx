@@ -11,10 +11,11 @@ export default function SpielleiterPage() {
   const router = useRouter();
   const [view, setView] = useState<"login" | "create">("create");
   const [numGroups, setNumGroups] = useState("3");
-  const [preset, setPreset] = useState<"easy" | "medium" | "hard">("easy");
+  const [preset, setPreset] = useState<"easy" | "medium" | "hard">("medium");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [groupNames, setGroupNames] = useState<string[]>(["Gruppe 1", "Gruppe 2", "Gruppe 3"]);
+  const [existingPin, setExistingPin] = useState("");
 
   const handleNumGroupsChange = (num: number) => {
     setNumGroups(num.toString());
@@ -48,46 +49,43 @@ export default function SpielleiterPage() {
       }));
 
       const gameDoc = {
-        name: `Spiel ${new Date().toLocaleDateString("de-DE")}`,
-        status: "setup" as const,
-        adminPinHash: "",
         preset,
-        currentPeriod: 0,
-        maxGroups: parseInt(numGroups),
-        createdAt: serverTimestamp(),
         groups,
+        period: 0,
+        status: "waiting" as const,
+        createdAt: serverTimestamp(),
       };
 
       const docRef = await addDoc(collection(db, "games"), gameDoc);
-      
-      // Speichere PIN lokal (in Produktion würde das auf dem Server laufen)
       savePinToLocalStorage(generatedPin, docRef.id);
-
-      // Zeige PIN dem Spielleiter
-      alert(`🎉 Spiel erstellt!\n\nAdmin-PIN: ${generatedPin}\n\nBitte notiere diese PIN sicher!`);
-
-      // Leite zum Dashboard weiter
+      alert(`✅ Spiel erstellt!\n\nAdmin-PIN: ${generatedPin}\n\nSpeichere diese PIN sicher ab!`);
       router.push(`/spielleiter/${docRef.id}`);
     } catch (err) {
-      setError("Fehler beim Erstellen des Spiels: " + (err instanceof Error ? err.message : "Unbekannter Fehler"));
+      console.error("Error creating game:", err);
+      setError("Fehler beim Erstellen des Spiels. Versuche es erneut.");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleJoinGame = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    // TODO: Implement PIN validation
+    alert("Funktion kommt bald!");
+    setLoading(false);
+  };
+
   return (
-    <main className="mx-auto flex max-w-2xl flex-col gap-10 px-6 py-14 sm:px-10">
-      <header className="flex flex-col gap-2">
-        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-sky-600">
-          Spielleitung
-        </p>
-        <h1 className="text-3xl font-semibold text-slate-900 sm:text-4xl">
-          Spiel erstellen & verwalten
-        </h1>
-        <p className="text-base text-slate-600">
-          Lege ein neues Spiel an, verteile Gruppen-Codes und steuere jede Periode zentral.
-        </p>
-      </header>
+    <main className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-sky-100 px-4 py-10">
+      <section className="mx-auto max-w-2xl space-y-8">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-slate-900">Spiel erstellen & verwalten</h1>
+          <p className="mt-2 text-slate-600">
+            Starten Sie ein neues Planspiel oder treten Sie einem bestehenden bei
+          </p>
+        </div>
 
       {/* View Toggle */}
       <div className="flex gap-2 rounded-lg bg-slate-100 p-1">
@@ -203,21 +201,26 @@ export default function SpielleiterPage() {
       {/* Login View */}
       {view === "login" && (
         <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200">
-          <form className="flex flex-col gap-4">
+          <form onSubmit={handleJoinGame} className="flex flex-col gap-4">
             <label className="flex flex-col gap-2 text-sm text-slate-700">
               Admin-PIN
               <input
                 type="password"
                 placeholder="z.B. K7m2P9qL"
+                value={existingPin}
+                onChange={(e) => setExistingPin(e.target.value)}
                 className="rounded-lg border border-slate-200 px-3 py-2 text-base text-slate-900 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
               />
             </label>
 
+            {error && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+
             <button
-              type="button"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700"
+              type="submit"
+              disabled={loading}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:bg-sky-400"
             >
-              Zu Spiel beitreten (Stub)
+              {loading ? "Wird überprüft..." : "Zu Spiel beitreten"}
             </button>
           </form>
         </div>
@@ -229,14 +232,7 @@ export default function SpielleiterPage() {
       >
         ← Zurück zur Startseite
       </Link>
-                className="rounded-lg border border-slate-200 px-3 py-2 text-base text-slate-900 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
-                defaultValue="MM5-AB12CD"
-              />
-            </label>
-
-            <div className="sm:col-span-2">
-              <p className="mb-3 text-sm font-semibold text-slate-800">Schwierigkeitsgrad</p>
-              <div className="grid gap-3 sm:grid-cols-3">
-    </main>
+    </section>
+  </main>
   );
 }
