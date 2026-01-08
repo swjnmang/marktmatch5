@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import QRCode from "qrcode.react";
+import { QRCodeSVG } from "qrcode.react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, query, where, onSnapshot } from "firebase/firestore";
 import { checkPinFromLocalStorage } from "@/lib/auth";
@@ -106,7 +106,7 @@ export default function GameDashboardPage() {
                 <div>
                   <p className="text-sm font-semibold text-slate-600 text-center mb-3">PIN scannen oder eingeben:</p>
                   <div className="bg-white p-4 rounded-lg border-2 border-sky-300">
-                    <QRCode 
+                    <QRCodeSVG 
                       value={game.joinPin} 
                       size={200}
                       level="H"
