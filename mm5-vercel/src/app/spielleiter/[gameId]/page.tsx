@@ -89,10 +89,20 @@ export default function GameDashboardPage() {
       <section className="mx-auto max-w-4xl space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-4xl font-bold text-slate-900">Spiel-Dashboard</h1>
+          <h1 className="text-4xl font-bold text-slate-900">
+            {game.status === "lobby" ? "🎮 Lobby" : "Spiel-Dashboard"}
+          </h1>
           <p className="mt-2 text-slate-600">
-            Periode <span className="font-semibold text-sky-700">{game.period || 0}</span> · 
-            Schwierigkeitsstufe: <span className="font-semibold capitalize text-sky-700">{game.preset}</span>
+            {game.status === "lobby" ? (
+              <>
+                <span className="font-mono text-lg font-semibold text-sky-700">{game.joinPin}</span>
+                {" "}← Gruppen-PIN zum Beitreten
+              </>
+            ) : (
+              <>
+                Periode <span className="font-semibold text-sky-700">{game.period || 0}</span>
+              </>
+            )}
           </p>
         </div>
 
@@ -117,7 +127,9 @@ export default function GameDashboardPage() {
 
         {/* Groups Section */}
         <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200">
-          <h2 className="text-xl font-semibold text-slate-900">Gruppen & Join-Codes</h2>
+          <h2 className="text-xl font-semibold text-slate-900">
+            {game.status === "lobby" ? "Wartende Gruppen" : "Gruppen"}
+          </h2>
           <div className="mt-6 space-y-3">
             {game.groups && game.groups.length > 0 ? (
               game.groups.map((group, index) => (
@@ -131,29 +143,41 @@ export default function GameDashboardPage() {
                     </p>
                     <p className="text-sm text-slate-600">Status: {group.status}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="font-mono text-lg font-bold text-sky-700">{group.joinCode}</p>
-                    <p className="text-xs text-slate-500">Beitrittscode</p>
-                  </div>
+                  {game.status !== "lobby" && (
+                    <div className="text-right">
+                      <p className="text-sm text-slate-600">Kapital: €{group.capital}</p>
+                      <p className="text-xs text-slate-500">Lager: {group.inventory}</p>
+                    </div>
+                  )}
                 </div>
               ))
             ) : (
-              <p className="text-slate-600">Keine Gruppen vorhanden</p>
+              <p className="text-slate-600 text-center py-8">
+                {game.status === "lobby" 
+                  ? "Noch keine Gruppen beigetreten. Teile den Gruppen-PIN oben!" 
+                  : "Keine Gruppen vorhanden"}
+              </p>
             )}
           </div>
         </div>
 
         {/* Actions */}
         <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200">
-          <h2 className="text-xl font-semibold text-slate-900">Periode starten</h2>
+          <h2 className="text-xl font-semibold text-slate-900">
+            {game.status === "lobby" ? "Spiel starten" : "Periode verwalten"}
+          </h2>
           <p className="mt-2 text-sm text-slate-600">
-            Aktiviere die Entscheidungsphase für alle Gruppen.
+            {game.status === "lobby"
+              ? "Warte bis alle Gruppen beigetreten sind, dann starte das Spiel."
+              : "Aktiviere die Entscheidungsphase für die nächste Periode."}
           </p>
           <button
             disabled
             className="mt-4 rounded-lg bg-sky-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:bg-slate-300"
           >
-            Periode {(game.period || 0) + 1} starten (kommt bald)
+            {game.status === "lobby"
+              ? `🚀 Spiel mit ${game.groups?.length || 0} Gruppe(n) starten (kommt bald)`
+              : `Periode ${(game.period || 0) + 1} starten (kommt bald)`}
           </button>
         </div>
 

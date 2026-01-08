@@ -2,6 +2,7 @@ export type MarketPreset = "easy" | "medium" | "hard";
 
 export interface GameParameters {
   startingCapital: number;
+  periodDurationMinutes: number;
   marketAnalysisCost: number;
   negativeCashInterestRate: number;
   initialMarketSaturationFactor: number;
@@ -26,14 +27,14 @@ export interface Machine {
 export interface GroupState {
   id: string;
   name: string;
-  joinCode: string;
   capital: number;
   inventory: number;
   cumulativeProfit: number;
   machines: Machine[];
   cumulativeRndInvestment: number;
   rndBenefitApplied: boolean;
-  status: "pending" | "submitted" | "calculated";
+  status: "waiting" | "ready" | "submitted" | "calculated";
+  joinedAt?: any; // Firestore Timestamp
 }
 
 export interface PeriodDecision {
@@ -58,9 +59,10 @@ export interface PeriodResult {
 }
 
 export interface GameDocument {
-  preset: MarketPreset;
+  joinPin: string; // Ein gemeinsamer PIN für alle Gruppen
+  parameters: GameParameters;
   groups: GroupState[];
   period: number;
-  status: "waiting" | "in_progress" | "finished";
+  status: "lobby" | "in_progress" | "finished";
   createdAt?: any; // Firestore Timestamp
 }
