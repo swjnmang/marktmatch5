@@ -33,6 +33,7 @@ export interface GroupState {
   machines: Machine[];
   cumulativeRndInvestment: number;
   rndBenefitApplied: boolean;
+  status: "pending" | "submitted" | "calculated";
 }
 
 export interface PeriodDecision {
@@ -57,11 +58,9 @@ export interface PeriodResult {
 }
 
 export interface GameDocument {
-  name: string;
-  status: "setup" | "machine_selection" | "in_progress" | "finished";
-  adminPinHash: string;
   preset: MarketPreset;
-  currentPeriod: number;
-  maxGroups: number;
-  createdAt: number;
+  groups: GroupState[];
+  period: number;
+  status: "waiting" | "in_progress" | "finished";
+  createdAt?: any; // Firestore Timestamp
 }
