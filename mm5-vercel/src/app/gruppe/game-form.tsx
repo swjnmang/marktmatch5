@@ -63,7 +63,7 @@ export function GruppeGameForm() {
       const gameData = gameDoc.data() as GameDocument;
       
       // Validiere PIN
-      if (gameData.joinPin !== pin) {
+      if (gameData.joinPin.toUpperCase() !== pin.toUpperCase()) {
         setError("Ungültige PIN.");
         setLoading(false);
         return;
@@ -90,7 +90,7 @@ export function GruppeGameForm() {
       localStorage.setItem(`gameId_${docRef.id}`, gameId);
 
       // Navigiere zum Gruppen-Dashboard
-      router.push(`/gruppe/${gameId}/dashboard`);
+      router.push(`/gruppe/${gameId}`);
     } catch (err: any) {
       console.error("Error joining game:", err);
       setError(`Fehler: ${err.message}`);
