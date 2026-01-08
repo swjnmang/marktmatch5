@@ -107,7 +107,7 @@ export default function GameDashboardPage() {
                   <p className="text-sm font-semibold text-slate-600 text-center mb-3">PIN scannen oder eingeben:</p>
                   <div className="bg-white p-4 rounded-lg border-2 border-sky-300">
                     <QRCodeSVG 
-                      value={game.joinPin} 
+                      value={`${typeof window !== 'undefined' ? window.location.origin : 'https://marktmatch5.vercel.app'}/gruppe/${gameId}?pin=${game.joinPin}`} 
                       size={200}
                       level="H"
                       includeMargin={true}
