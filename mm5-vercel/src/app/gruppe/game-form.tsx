@@ -16,6 +16,7 @@ export function GruppeGameForm() {
   const [groupName, setGroupName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [joined, setJoined] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -87,8 +88,8 @@ export function GruppeGameForm() {
       localStorage.setItem(`group_${gameId}`, docRef.id);
       localStorage.setItem(`gameId_${docRef.id}`, gameId);
 
-      // Navigiere zum Gruppen-Dashboard
-      router.push(`/gruppe/${gameId}`);
+      // Markiere Erfolg (kein Redirect, da Dashboard noch fehlt)
+      setJoined(true);
     } catch (err: any) {
       console.error("Error joining game:", err);
       setError(`Fehler: ${err.message}`);
@@ -126,7 +127,8 @@ export function GruppeGameForm() {
               onChange={(e) => setPin(e.target.value.toUpperCase())}
               placeholder="PIN aus QR-Code oder manuell eingeben"
               maxLength={5}
-              className="rounded-lg border border-slate-200 px-3 py-2 text-base text-slate-900 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
+              disabled={joined}
+              className="rounded-lg border border-slate-200 px-3 py-2 text-base text-slate-900 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200 disabled:bg-slate-100 disabled:cursor-not-allowed"
             />
           </label>
 
@@ -137,7 +139,8 @@ export function GruppeGameForm() {
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
               placeholder="z.B. Team Alpha"
-              className="rounded-lg border border-slate-200 px-3 py-2 text-base text-slate-900 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
+              disabled={joined}
+              className="rounded-lg border border-slate-200 px-3 py-2 text-base text-slate-900 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200 disabled:bg-slate-100 disabled:cursor-not-allowed"
             />
           </label>
 
@@ -147,10 +150,10 @@ export function GruppeGameForm() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || joined}
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-sky-200"
           >
-            {loading ? "Wird beigetreten..." : "Beitreten"}
+            {joined ? "Beitritt erfolgreich" : loading ? "Wird beigetreten..." : "Beitreten"}
           </button>
         </form>
 
