@@ -43,7 +43,7 @@ export default function GameDashboardPage() {
       },
       (err) => {
         console.error("Error loading game:", err);
-        setError("Fehler beim Laden des Spiels");
+        setError(`Fehler beim Laden des Spiels: ${err.message}`);
         setLoading(false);
       }
     );

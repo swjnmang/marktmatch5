@@ -1,0 +1,9 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow all read/write for MVP (custom PIN auth handled in code)
+    match /games/{document=**} {
+      allow read, write;
+    }
+  }
+}
