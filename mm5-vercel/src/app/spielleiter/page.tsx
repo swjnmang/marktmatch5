@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { generateAdminPin, savePinToLocalStorage } from "@/lib/auth";
+import { generateAdminPin, generateGroupCode, savePinToLocalStorage } from "@/lib/auth";
 import { PRESET_PARAMETERS } from "@/lib/presets";
 import type { GameParameters } from "@/lib/types";
 
@@ -39,7 +39,7 @@ export default function SpielleiterPage() {
 
     try {
       const newAdminPin = generateAdminPin();
-      const newJoinPin = generateAdminPin();
+      const newJoinPin = generateGroupCode();
 
       const gameDoc = {
         joinPin: newJoinPin,
