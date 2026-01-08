@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, collection, addDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 import type { GameDocument, GroupState } from "@/lib/types";
 
 export function GruppeGameForm() {
@@ -15,8 +15,11 @@ export function GruppeGameForm() {
   const [pin, setPin] = useState("");
   const [groupName, setGroupName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [readyLoading, setReadyLoading] = useState(false);
   const [error, setError] = useState("");
   const [joined, setJoined] = useState(false);
+  const [groupId, setGroupId] = useState<string | null>(null);
+  const [groupStatus, setGroupStatus] = useState<GroupState["status"] | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -25,8 +28,21 @@ export function GruppeGameForm() {
     if (pinParam) {
       setPin(pinParam.toUpperCase());
     }
+    // Falls bereits beigetreten, lade Status
+    const storedGroupId = localStorage.getItem(`group_${gameId}`);
+    if (storedGroupId) {
+      setGroupId(storedGroupId);
+      setJoined(true);
+      getDoc(doc(db, "games", gameId, "groups", storedGroupId)).then((groupSnap) => {
+        if (groupSnap.exists()) {
+          const data = groupSnap.data() as GroupState;
+          setGroupStatus(data.status);
+        }
+      });
+    }
+
     setMounted(true);
-  }, [searchParams]);
+  }, [searchParams, gameId]);
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,6 +107,9 @@ export function GruppeGameForm() {
       localStorage.setItem(`group_${gameId}`, docRef.id);
       localStorage.setItem(`gameId_${docRef.id}`, gameId);
 
+      setGroupId(docRef.id);
+      setGroupStatus("waiting");
+
       // Markiere Erfolg (kein Redirect, da Dashboard noch fehlt)
       setJoined(true);
     } catch (err: any) {
@@ -98,6 +117,21 @@ export function GruppeGameForm() {
       setError(`Fehler: ${err.message}`);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleReady = async () => {
+    if (!groupId) return;
+    setReadyLoading(true);
+    setError("");
+    try {
+      await updateDoc(doc(db, "games", gameId, "groups", groupId), { status: "ready" });
+      setGroupStatus("ready");
+    } catch (err: any) {
+      console.error("Error setting ready:", err);
+      setError(`Fehler beim Bereit-Melden: ${err.message}`);
+    } finally {
+      setReadyLoading(false);
     }
   };
 
@@ -161,12 +195,34 @@ export function GruppeGameForm() {
         </form>
 
         <div className="mt-6 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-4 text-sm text-slate-600">
-          Nach dem Beitritt siehst du hier:
-          <ul className="mt-2 list-disc pl-5 text-slate-600">
-            <li>Eigenes Kapital, Lager, Maschinen</li>
-            <li>Entscheidungsformular pro Periode</li>
-            <li>Ergebnisse deiner Gruppe nach Freigabe</li>
-          </ul>
+          {joined ? (
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-2 text-slate-800">
+                <span className="font-semibold">Status:</span>
+                <span className="font-mono text-sm">{groupStatus || "waiting"}</span>
+              </div>
+              <button
+                type="button"
+                onClick={handleReady}
+                disabled={readyLoading || groupStatus === "ready"}
+                className="inline-flex w-fit items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {groupStatus === "ready" ? "Bereit gemeldet" : readyLoading ? "Melde bereit..." : "Bereit melden"}
+              </button>
+              <p className="text-xs text-slate-500">
+                Sobald alle Gruppen bereit sind, kann die Spielleitung das Spiel starten.
+              </p>
+            </div>
+          ) : (
+            <>
+              Nach dem Beitritt siehst du hier:
+              <ul className="mt-2 list-disc pl-5 text-slate-600">
+                <li>Eigenes Kapital, Lager, Maschinen</li>
+                <li>Entscheidungsformular pro Periode</li>
+                <li>Ergebnisse deiner Gruppe nach Freigabe</li>
+              </ul>
+            </>
+          )}
         </div>
       </div>
 

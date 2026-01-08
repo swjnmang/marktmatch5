@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { db } from "@/lib/firebase";
-import { doc, collection, onSnapshot } from "firebase/firestore";
+import { doc, collection, onSnapshot, updateDoc } from "firebase/firestore";
 import { checkPinFromLocalStorage } from "@/lib/auth";
 import type { GameDocument, GroupState } from "@/lib/types";
 
@@ -19,6 +19,8 @@ export default function GameDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isPinValid, setIsPinValid] = useState(false);
+  const [startLoading, setStartLoading] = useState(false);
+  const [startError, setStartError] = useState("");
 
   useEffect(() => {
     if (!gameId) return;
@@ -177,6 +179,16 @@ export default function GameDashboardPage() {
               <p className="font-mono text-xs text-slate-900">{gameId.substring(0, 8)}...</p>
             </div>
           </div>
+          {game.status === "lobby" && (
+            <div className="mt-4 flex flex-wrap gap-4 text-sm text-slate-700">
+              <span className="rounded-lg bg-emerald-50 px-3 py-1 text-emerald-700 border border-emerald-200">
+                Bereit: {groups.filter((g) => g.status === "ready").length}
+              </span>
+              <span className="rounded-lg bg-amber-50 px-3 py-1 text-amber-700 border border-amber-200">
+                Wartend: {groups.filter((g) => g.status !== "ready").length}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Groups Section */}
@@ -222,15 +234,32 @@ export default function GameDashboardPage() {
           </h2>
           <p className="mt-2 text-sm text-slate-600">
             {game.status === "lobby"
-              ? "Warte bis alle Gruppen beigetreten sind, dann starte das Spiel."
+              ? "Starte das Spiel, wenn alle Gruppen bereit sind."
               : "Aktiviere die Entscheidungsphase für die nächste Periode."}
           </p>
+          {startError && (
+            <div className="mt-3 rounded-lg bg-red-50 p-3 text-sm text-red-700">{startError}</div>
+          )}
           <button
-            disabled
+            disabled={game.status !== "lobby" || groups.length === 0 || groups.some((g) => g.status !== "ready") || startLoading}
+            onClick={async () => {
+              setStartLoading(true);
+              setStartError("");
+              try {
+                await updateDoc(doc(db, "games", gameId), { status: "in_progress", period: 1 });
+              } catch (err: any) {
+                console.error("Error starting game:", err);
+                setStartError(`Fehler beim Starten: ${err.message}`);
+              } finally {
+                setStartLoading(false);
+              }
+            }}
             className="mt-4 rounded-lg bg-sky-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:bg-slate-300"
           >
             {game.status === "lobby"
-              ? `🚀 Spiel mit ${groups.length} Gruppe(n) starten (kommt bald)`
+              ? startLoading
+                ? "Startet..."
+                : `🚀 Spiel mit ${groups.length} Gruppe(n) starten`
               : `Periode ${(game.period || 0) + 1} starten (kommt bald)`}
           </button>
         </div>
