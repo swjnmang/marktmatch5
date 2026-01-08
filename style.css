@@ -1,0 +1,769 @@
+        /* CSS Variablen für Light Mode - Modern Blue Theme */
+        :root {
+            --font-family-sans: 'Inter', sans-serif;
+            font-size: 16px; /* Basis für REM-Einheiten */
+
+            /* Light Mode Palette */
+            --body-bg-color: #F4F7F9; /* Sehr helles Blau-Grau */
+            --body-text-color: #334155; /* Dunkles Schiefergrau */
+            --container-bg-color: #FFFFFF;
+            --container-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08), 0 0.125rem 0.375rem rgba(0, 0, 0, 0.06); /* 8px, 16px, 2px, 6px */
+            --heading-color: #0A2540; /* Sehr dunkles Marineblau */
+            --heading-border-color: #E2E8F0; /* Helles Grau für Trennlinien */
+            --subheading-color: #1E3A8A; /* Kräftiges Blau */
+            --label-color: #475569; /* Mittleres Schiefergrau */
+            --input-border-color: #CBD5E1; /* Helleres Grau für Ränder */
+            --input-focus-border-color: #2563EB; /* Fokus-Blau */
+            --input-bg-color: #FFFFFF;
+            --input-text-color: #334155;
+            --button-bg-color: #64748B; /* Mittleres Blau-Grau für Standard */
+            --button-text-color: #FFFFFF;
+            --button-hover-bg-color: #475569; /* Dunkleres Blau-Grau im Hover */
+            --button-active-bg-color: #334155;
+
+            --action-button-positive-bg-color: #16A34A; /* Klares Grün */
+            --action-button-positive-text-color: #FFFFFF;
+            --action-button-positive-hover-bg-color: #15803D; /* Dunkleres Grün */
+            --action-button-positive-svg-fill: #FFFFFF;
+
+            --action-button-negative-bg-color: #DC2626; /* Klares Rot */
+            --action-button-negative-text-color: #FFFFFF;
+            --action-button-negative-hover-bg-color: #B91C1C; /* Dunkleres Rot */
+            --action-button-negative-svg-fill: #FFFFFF;
+
+            --instruction-button-bg-color: #3B82F6; /* Helles Blau */
+            --instruction-button-text-color: #FFFFFF;
+            --instruction-button-hover-bg-color: #2563EB; /* Dunkleres Blau */
+
+            --secondary-action-button-bg-color: #E2E8F0; /* Helles Grau */
+            --secondary-action-button-text-color: #334155; /* Dunkler Text */
+            --secondary-action-button-hover-bg-color: #CBD5E1; /* Etwas dunkleres Grau */
+
+            --info-button-bg-color: #0EA5E9; /* Himmelblau für Info */
+            --info-button-text-color: #FFFFFF;
+            --info-button-hover-bg-color: #0284C7;
+
+            --table-border-color: #E2E8F0;
+            --table-header-bg-color: #F1F5F9; /* Sehr helles Grau */
+            --table-header-cell-bg-color: #E2E8F0;
+            --table-header-cell-text-color: #334155;
+            --table-cell-bg-color: #FFFFFF;
+            --table-cell-even-bg-color: #F8FAFC;
+
+            --modal-content-bg-color: #FFFFFF;
+            --modal-content-border-color: #E2E8F0;
+            --modal-content-shadow: 0 0.625rem 1.5625rem rgba(0,0,0,0.1), 0 0.3125rem 0.625rem rgba(0,0,0,0.04); /* 10px, 25px, 5px, 10px */
+            --close-button-color: #64748B;
+            --close-button-hover-color: #1E293B;
+
+            --footer-text-color: #64748B;
+            --footer-border-color: #E2E8F0;
+            --profit-color: #16A34A;
+            --loss-color: #DC2626;
+            --info-box-bg-color: #EFF6FF; /* Sehr helles Blau für Info-Box */
+            --info-box-border-color: #BFDBFE;
+            --info-box-heading-color: #1E3A8A;
+            --info-box-heading-border-color: #93C5FD;
+            --info-box-text-color: #334155;
+            --notification-error-bg: #FEE2E2;
+            --notification-error-text: #B91C1C;
+            --notification-error-border: #FECACA;
+            --notification-success-bg: #DCFCE7;
+            --notification-success-text: #166534;
+            --notification-success-border: #BBF7D0;
+        }
+
+        /* CSS Variablen für Dark Mode - Modern Blue Theme */
+        body.dark-mode {
+            --body-bg-color: #0F172A; /* Sehr dunkles Marineblau */
+            --body-text-color: #E2E8F0; /* Helles Grau-Blau */
+            --container-bg-color: #1E293B; /* Dunkles Schieferblau */
+            --container-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.25), 0 0.125rem 0.375rem rgba(0, 0, 0, 0.2);
+            --heading-color: #94A3B8; /* Helles Schiefergrau */
+            --heading-border-color: #334155;
+            --subheading-color: #60A5FA; /* Helles Himmelblau */
+            --label-color: #94A3B8;
+            --input-border-color: #475569;
+            --input-focus-border-color: #60A5FA;
+            --input-bg-color: #334155;
+            --input-text-color: #E2E8F0;
+            --button-bg-color: #475569;
+            --button-text-color: #E2E8F0;
+            --button-hover-bg-color: #64748B;
+            --button-active-bg-color: #334155;
+
+            --action-button-positive-bg-color: #22C55E; /* Lebendiges Grün */
+            --action-button-positive-text-color: #FFFFFF;
+            --action-button-positive-hover-bg-color: #16A34A;
+            --action-button-positive-svg-fill: #FFFFFF;
+
+            --action-button-negative-bg-color: #EF4444; /* Lebendiges Rot */
+            --action-button-negative-text-color: #FFFFFF;
+            --action-button-negative-hover-bg-color: #DC2626;
+            --action-button-negative-svg-fill: #FFFFFF;
+
+            --instruction-button-bg-color: #3B82F6; /* Helles Blau */
+            --instruction-button-text-color: #FFFFFF;
+            --instruction-button-hover-bg-color: #2563EB;
+
+            --secondary-action-button-bg-color: #475569;
+            --secondary-action-button-text-color: #E2E8F0;
+            --secondary-action-button-hover-bg-color: #64748B;
+
+            --info-button-bg-color: #38BDF8; /* Helleres Himmelblau */
+            --info-button-text-color: #0F172A;
+            --info-button-hover-bg-color: #0EA5E9;
+
+            --table-border-color: #334155;
+            --table-header-bg-color: #1E293B;
+            --table-header-cell-bg-color: #334155;
+            --table-header-cell-text-color: #E2E8F0;
+            --table-cell-bg-color: #1E293B;
+            --table-cell-even-bg-color: #273344; /* Etwas hellerer Hintergrund für Zebra */
+
+            --modal-content-bg-color: #1E293B;
+            --modal-content-border-color: #334155;
+            --modal-content-shadow: 0 0.625rem 1.5625rem rgba(0,0,0,0.3), 0 0.3125rem 0.625rem rgba(0,0,0,0.2);
+            --close-button-color: #94A3B8;
+            --close-button-hover-color: #E2E8F0;
+
+            --footer-text-color: #94A3B8;
+            --footer-border-color: #334155;
+            --profit-color: #4ADE80; /* Helleres Grün für Profit */
+            --loss-color: #F87171;   /* Helleres Rot für Verlust */
+            --info-box-bg-color: #1E293B;
+            --info-box-border-color: #334155;
+            --info-box-heading-color: #94A3B8;
+            --info-box-heading-border-color: #475569;
+            --info-box-text-color: #CBD5E1;
+            --notification-error-bg: #7F1D1D; /* Dunkelrot */
+            --notification-error-text: #FEE2E2;
+            --notification-error-border: #B91C1C;
+            --notification-success-bg: #14532D; /* Dunkelgrün */
+            --notification-success-text: #DCFCE7;
+            --notification-success-border: #166534;
+        }
+
+        body {
+            font-family: var(--font-family-sans);
+            line-height: 1.6;
+            color: var(--body-text-color);
+            background-color: var(--body-bg-color);
+            padding: 1.25rem; /* 20px */
+            transition: background-color 0.3s ease, color 0.3s ease;
+            font-size: 1rem; /* Basis für rem-Einheiten (16px) */
+        }
+        main.container {
+            max-width: 75rem; /* 1200px */
+            margin: 0 auto;
+            background-color: var(--container-bg-color);
+            padding: 1.875rem; /* 30px */
+            border-radius: 1rem; /* 16px */
+            box-shadow: var(--container-shadow);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        h1 {
+            color: var(--heading-color);
+            border-bottom: 0.125rem solid var(--heading-border-color); /* 2px */
+            padding-bottom: 0.9375rem; /* 15px */
+            margin-bottom: 1.875rem; /* 30px */
+            font-weight: 700;
+            font-size: 1.875rem; /* Tailwind text-3xl, ca. 30px */
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+        h2 {
+            color: var(--heading-color);
+            border-bottom: 0.0625rem solid var(--heading-border-color); /* 1px */
+            padding-bottom: 0.625rem; /* 10px */
+            margin-top: 1.875rem; /* 30px */
+            margin-bottom: 1.25rem; /* 20px */
+            font-weight: 600;
+            font-size: 1.5rem; /* Tailwind text-2xl, ca. 24px */
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+        h3 {
+            color: var(--subheading-color);
+            margin-top: 1.5625rem; /* 25px */
+            margin-bottom: 0.625rem; /* 10px - Reduzierter Abstand nach h3 */
+            font-weight: 600;
+            font-size: 1.25rem; /* Tailwind text-xl, ca. 20px */
+            transition: color 0.3s ease;
+        }
+         h4 { /* Für Anleitung */
+            color: var(--subheading-color);
+            margin-top: 0.9375rem; /* 15px - Reduzierter Abstand */
+            margin-bottom: 0.3125rem; /* 5px - Reduzierter Abstand */
+            font-weight: 600;
+            font-size: 1.125rem; /* Tailwind text-lg, ca. 18px */
+            transition: color 0.3s ease;
+        }
+        #instructions-content p, #instructions-content ul, #instructions-content ol {
+            margin-bottom: 0.5rem; /* 8px - Reduzierter Abstand für Absätze und Listen in der Anleitung */
+            font-size: 0.9375rem; /* ca. 15px */
+        }
+        #instructions-content h3, #instructions-content h4 {
+            font-size: 1.125rem; /* ca. 18px für Überschriften in der Anleitung */
+        }
+
+
+        .form-group {
+            margin-bottom: 1.25rem; /* 20px */
+        }
+        .form-group .input-hint {
+            font-size: 0.85rem; /* ca. 13.6px */
+            color: var(--label-color);
+            margin-top: 0.25rem; /* 4px */
+            display: block;
+            opacity: 0.8;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem; /* 8px */
+            font-weight: 600;
+            color: var(--label-color);
+            font-size: 1rem; /* 16px */
+            transition: color 0.3s ease;
+        }
+        input[type="number"], input[type="text"], select {
+            width: 100%;
+            padding: 0.75rem 0.9375rem; /* 12px 15px */
+            border: 0.0625rem solid var(--input-border-color); /* 1px */
+            border-radius: 0.5rem; /* 8px */
+            box-sizing: border-box;
+            font-size: 1rem; /* 16px */
+            background-color: var(--input-bg-color);
+            color: var(--input-text-color);
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.2s ease;
+        }
+        input[type="number"]:focus, input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: var(--input-focus-border-color);
+            box-shadow: 0 0 0 0.1875rem color-mix(in srgb, var(--input-focus-border-color) 30%, transparent); /* 3px */
+        }
+        input[type="checkbox"] {
+            margin-right: 0.5rem; /* 8px */
+            vertical-align: middle;
+            width: 1.125rem; /* 18px */
+            height: 1.125rem; /* 18px */
+            accent-color: var(--action-button-positive-bg-color); /* Färbt die Checkbox grün, wenn aktiv */
+        }
+        button {
+            background-color: var(--button-bg-color);
+            color: var(--button-text-color);
+            padding: 0.75rem 1.5625rem; /* 12px 25px */
+            border: none;
+            border-radius: 0.5rem; /* 8px */
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+            font-size: 1rem; /* 16px */
+            font-weight: 600;
+            box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.05); /* 2px 4px */
+        }
+        button:hover {
+            background-color: var(--button-hover-bg-color);
+            color: var(--button-hover-text-color);
+            box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.07); /* 4px 8px */
+            transform: translateY(-0.0625rem); /* -1px */
+        }
+        button:active {
+            background-color: var(--button-active-bg-color);
+            color: var(--button-active-text-color);
+            transform: translateY(0px);
+            box-shadow: 0 0.0625rem 0.125rem rgba(0,0,0,0.05); /* 1px 2px */
+        }
+        .button-group {
+            display: flex;
+            gap: 0.9375rem; /* 15px */
+            margin-top: 1.5625rem; /* 25px */
+            flex-wrap: wrap;
+            justify-content: center; /* Default to center */
+        }
+        .button-group button {
+            flex-grow: 0;
+            min-width: 7.5rem; /* 120px */
+        }
+        .button-group.group-selection {
+            border: 0.0625rem solid var(--button-group-selection-border-color); /* 1px */
+            border-radius: 0.5rem; /* 8px */
+            padding: 0.9375rem; /* 15px */
+            background-color: var(--button-group-selection-bg-color);
+            justify-content: center; /* Geändert von flex-start */
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .button-group.group-selection button {
+            flex-grow: 0;
+            width: 3.125rem; /* 50px */
+            padding: 0.625rem 0.3125rem; /* 10px 5px */
+            font-weight: normal;
+            background-color: var(--button-group-selection-item-bg-color);
+            color: var(--button-group-selection-item-text-color);
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .button-group.group-selection button:hover {
+            background-color: var(--button-group-selection-item-hover-bg-color);
+        }
+        .button-group.group-selection button.selected {
+            background-color: var(--action-button-positive-bg-color); /* Grün für Auswahl */
+            color: var(--action-button-positive-text-color);
+            font-weight: bold;
+        }
+        .group-decisions {
+            border: 0.0625rem solid var(--group-decisions-border-color); /* 1px */
+            padding: 1.25rem; /* 20px */
+            margin-bottom: 1.5625rem; /* 25px */
+            border-radius: 0.75rem; /* 12px */
+            background-color: var(--group-decisions-bg-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            box-shadow: 0 0.1875rem 0.375rem rgba(0,0,0,0.04); /* 3px 6px */
+        }
+        .group-decisions h3 {
+            margin-top: 0;
+            color: var(--group-decisions-heading-color);
+            border-bottom: 0.0625rem solid var(--group-decisions-heading-border-color); /* 1px */
+            padding-bottom: 0.625rem; /* 10px */
+            transition: color 0.3s ease, border-color 0.3s ease;
+            font-size: 1.25rem; /* Größere Überschrift für Gruppennamen, ca. 20px */
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 1.25rem; /* 20px */
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+            border: 0.0625rem solid var(--table-border-color); /* 1px */
+            border-radius: 0.75rem; /* 12px */
+            transition: border-color 0.3s ease;
+            box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.03); /* 2px 4px */
+        }
+        table thead {
+            background-color: var(--table-header-bg-color);
+            transition: background-color 0.3s ease;
+        }
+        table thead th:first-child { border-top-left-radius: 0.6875rem; } /* 11px */
+        table thead th:last-child { border-top-right-radius: 0.6875rem; } /* 11px */
+        table tbody tr:last-child td:first-child { border-bottom-left-radius: 0.6875rem; } /* 11px */
+        table tbody tr:last-child td:last-child { border-bottom-right-radius: 0.6875rem; } /* 11px */
+
+        th, td {
+            border: 0.0625rem solid var(--table-border-color); /* 1px */
+            padding: 0.75rem 0.9375rem; /* 12px 15px */
+            text-align: left;
+            min-width: 6.25rem; /* 100px */
+            font-size: 0.9375rem; /* ca. 15px */
+            transition: border-color 0.3s ease;
+        }
+        th {
+            background-color: var(--table-header-cell-bg-color);
+            font-weight: 600;
+            color: var(--table-header-cell-text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        td {
+            background-color: var(--table-cell-bg-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        tr:nth-child(even) td {
+            background-color: var(--table-cell-even-bg-color);
+            transition: background-color 0.3s ease;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(15, 23, 42, 0.7); /* Dunkleres Overlay für Dark Mode */
+            backdrop-filter: blur(0.5rem); /* 8px */
+        }
+        body.dark-mode .modal {
+            background-color: rgba(15, 23, 42, 0.85);
+        }
+        .modal-content {
+            background-color: var(--modal-content-bg-color);
+            margin: 5% auto;
+            padding: 2.1875rem; /* 35px */
+            border: 0.0625rem solid var(--modal-content-border-color); /* 1px */
+            width: 90%;
+            max-width: 56.25rem; /* 900px */
+            border-radius: 1rem; /* 16px */
+            box-shadow: var(--modal-content-shadow);
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .close-button {
+            color: var(--close-button-color);
+            float: right;
+            font-size: 2rem; /* 32px */
+            font-weight: bold;
+            line-height: 1;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: var(--close-button-hover-color);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Positive Action Buttons (Green) */
+        #start-game-button,
+        #show-next-period-task-button,
+        #process-period-button,
+        #process-machine-selection-button,
+        #start-next-period-button {
+            background-color: var(--action-button-positive-bg-color);
+            color: var(--action-button-positive-text-color);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem; /* 8px */
+            padding: 0.75rem 1.5625rem; /* 12px 25px - Konsistentes Padding */
+        }
+        #start-game-button {
+            font-size: 1.3rem; /* ca. 20.8px */
+            padding: 0.9375rem 1.875rem; /* 15px 30px */
+        }
+        #process-machine-selection-button {
+             padding: 0.75rem 1.5625rem; /* 12px 25px */
+        }
+        #start-game-button:hover,
+        #show-next-period-task-button:hover,
+        #process-period-button:hover,
+        #process-machine-selection-button:hover,
+        #start-next-period-button:hover {
+            background-color: var(--action-button-positive-hover-bg-color);
+        }
+        #start-game-button svg,
+        #show-next-period-task-button svg,
+        #process-period-button svg,
+        #process-machine-selection-button svg,
+        #start-next-period-button svg {
+            fill: var(--action-button-positive-svg-fill);
+            display: inline-block;
+        }
+
+        /* Negative Action Buttons (Reddish) */
+        .button-with-left-arrow,
+        #game-end .button-group button:nth-child(2) {
+            background-color: var(--action-button-negative-bg-color);
+            color: var(--action-button-negative-text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem; /* 8px */
+            padding: 0.75rem 1.5625rem; /* 12px 25px - Konsistentes Padding */
+        }
+        .button-with-left-arrow:hover,
+        #game-end .button-group button:nth-child(2):hover {
+            background-color: var(--action-button-negative-hover-bg-color);
+        }
+        .button-with-left-arrow svg {
+            fill: var(--action-button-negative-svg-fill);
+        }
+
+
+        .button-group.instruction-buttons {
+            justify-content: center; /* Geändert von flex-start */
+            gap: 0.9375rem; /* 15px */
+            margin-bottom: 1.5625rem; /* 25px */
+        }
+        .button-group.instruction-buttons button {
+            background-color: var(--instruction-button-bg-color);
+            color: var(--instruction-button-text-color);
+            padding: 0.75rem 1.5625rem; /* 12px 25px */
+            font-size: 1rem; /* 16px */
+        }
+        .button-group.instruction-buttons button:hover {
+            background-color: var(--instruction-button-hover-bg-color);
+        }
+        #print-student-template-button,
+        #show-group-results-button,
+        .print-button,
+        #supporting-material-button-ingame { /* Style for ingame supporting material button */
+            background-color: var(--secondary-action-button-bg-color);
+            color: var(--secondary-action-button-text-color);
+            font-weight: 600;
+        }
+        #print-student-template-button:hover,
+        #show-group-results-button:hover,
+        .print-button:hover,
+        #supporting-material-button-ingame:hover {
+            background-color: var(--secondary-action-button-hover-bg-color);
+        }
+        #print-student-template-button, #show-group-results-button, #supporting-material-button-ingame {
+             padding: 0.75rem 1.5625rem; /* 12px 25px */
+             font-size: 1rem; /* 16px */
+             margin-bottom: 0;
+        }
+        #show-group-results-button {
+            margin-top: 1.25rem; /* 20px */
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 1.5625rem; /* 25px */
+        }
+        .print-button {
+            padding: 0.625rem 1.25rem; /* 10px 20px */
+            font-size: 0.95rem; /* ca. 15.2px */
+            margin-bottom: 1.25rem; /* 20px */
+            display: inline-block;
+        }
+        .period-action-buttons {
+            display: flex;
+            gap: 0.9375rem; /* 15px */
+            margin-top: 2.1875rem; /* 35px */
+            padding-top: 1.5625rem; /* 25px */
+            border-top: 0.0625rem solid var(--heading-border-color); /* 1px */
+            flex-wrap: wrap;
+            justify-content: center; /* Geändert von flex-end */
+        }
+        .period-action-buttons button {
+            flex-grow: 0;
+            min-width: 11.875rem; /* 190px */
+            padding: 0.75rem 1.5625rem; /* 12px 25px - Angepasst für mehr Platz */
+        }
+        #show-next-period-task-button,
+        #start-next-period-button { /* Gilt auch für den Button im Modal */
+            min-width: 14.375rem; /* 230px */
+            padding: 0.75rem 1.5625rem; /* 12px 25px - Konsistentes Padding */
+        }
+        #load-game-button-initial { /* Button für Spiel laden im Startbereich */
+            background-color: var(--secondary-action-button-bg-color);
+            color: var(--secondary-action-button-text-color);
+            font-size: 1.3rem; /* ca. 20.8px - Match start-game-button */
+            padding: 0.9375rem 1.875rem; /* 15px 30px - Match start-game-button */
+            display: flex; /* Für konsistente Höhenberechnung */
+            align-items: center;
+            justify-content: center;
+        }
+        #load-game-button-initial:hover {
+            background-color: var(--secondary-action-button-hover-bg-color);
+        }
+
+
+        footer {
+            margin-top: 2.5rem; /* 40px */
+            text-align: center;
+            font-size: 0.9rem; /* ca. 14.4px */
+            color: var(--footer-text-color);
+            padding-top: 1.25rem; /* 20px */
+            border-top: 0.0625rem solid var(--footer-border-color); /* 1px */
+        }
+        @media (max-width: 48rem) { /* 768px */
+            main.container {
+                padding: 1.25rem; /* 20px */
+            }
+            h1 { font-size: 1.6rem; margin-bottom:1.25rem; padding-bottom:0.625rem;} /* ca. 25.6px, 20px, 10px */
+            h2 { font-size: 1.4rem; margin-top:1.25rem; margin-bottom:0.9375rem; padding-bottom:0.5rem;} /* ca. 22.4px, 20px, 15px, 8px */
+            h3 { font-size: 1.2rem; margin-top:0.9375rem; margin-bottom:0.625rem;} /* ca. 19.2px, 15px, 10px */
+            button { padding: 0.625rem 1.125rem; font-size: 0.9rem; } /* 10px 18px */
+            .button-group { gap: 0.625rem; } /* 10px */
+            .period-action-buttons button { min-width: unset; flex-grow: 1; }
+            #show-next-period-task-button { margin-left: 0; flex-grow: 1; }
+            .modal-content { width: 95%; margin: 5% auto; padding: 1.25rem; } /* 20px */
+            th, td { padding: 0.625rem; min-width: 4.375rem; font-size:0.875rem; } /* 10px, 70px, ca. 14px */
+            .button-group.instruction-buttons { gap: 0.625rem; } /* 10px */
+            .button-group.instruction-buttons button { padding: 0.625rem 0.9375rem; font-size: 0.9rem; } /* 10px 15px */
+            #show-group-results-button { padding: 0.625rem 0.9375rem; font-size: 0.95rem; } /* 10px 15px, ca. 15.2px */
+        }
+        #group-results-modal-content .group-result-block {
+            margin-bottom: 1.5625rem; /* 25px */
+            border: 0.0625rem solid var(--group-decisions-border-color); /* 1px */
+            padding: 0.9375rem; /* 15px */
+            border-radius: 0.75rem; /* 12px */
+            background-color: var(--group-decisions-bg-color);
+        }
+        #group-results-modal-content .group-result-block h4 {
+            color: var(--group-decisions-heading-color);
+            margin-top: 0;
+            margin-bottom: 0.625rem; /* 10px */
+            border-bottom: 0.0625rem solid var(--group-decisions-heading-border-color); /* 1px */
+            padding-bottom: 0.3125rem; /* 5px */
+        }
+        /* Styling für die Ergebnistabelle in der Modalansicht */
+        #group-results-modal-content .results-table {
+            width: 100%;
+            margin-top: 0.625rem; /* 10px */
+            border-collapse: collapse;
+        }
+        #group-results-modal-content .results-table td {
+            border: 0.0625rem solid var(--table-border-color); /* 1px */
+            padding: 0.5rem 0.625rem; /* 8px 10px */
+            font-size: 1rem; /* 16px - Angepasst von ul li */
+            color: var(--label-color);
+            background-color: var(--table-cell-bg-color); /* Konsistenter Hintergrund */
+        }
+        #group-results-modal-content .results-table tr:nth-child(even) td {
+            background-color: var(--table-cell-even-bg-color);
+        }
+        #group-results-modal-content .results-table td:first-child {
+            font-weight: bold;
+            color: var(--body-text-color);
+            width: 60%; /* Mehr Platz für die Beschreibung */
+        }
+        #group-results-modal-content .results-table td:last-child {
+            text-align: right;
+            width: 40%;
+        }
+        #group-results-modal-content .market-analysis-section table td:first-child {
+            width: auto; /* Zurücksetzen für Konkurrenztabelle */
+        }
+         #group-results-modal-content .market-analysis-section table td:last-child {
+            text-align: left; /* Zurücksetzen für Konkurrenztabelle */
+            width: auto;
+        }
+
+
+        .profit { color: var(--profit-color); font-weight: bold; }
+        .loss { color: var(--loss-color); font-weight: bold; }
+
+        aside#info-box {
+            position: fixed;
+            bottom: 1.25rem; /* 20px */
+            right: 1.25rem; /* 20px */
+            width: 18.75rem; /* 300px */
+            background-color: var(--info-box-bg-color);
+            border: 0.0625rem solid var(--info-box-border-color); /* 1px */
+            border-radius: 0.75rem; /* 12px */
+            padding: 1.25rem; /* 20px */
+            box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.1); /* 4px 12px */
+            z-index: 1001;
+            display: none;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+        aside#info-box h4 {
+            margin-top: 0;
+            color: var(--info-box-heading-color);
+            font-size: 1.1rem; /* ca. 17.6px */
+            border-bottom: 0.0625rem solid var(--info-box-heading-border-color); /* 1px */
+            padding-bottom: 0.5rem; /* 8px */
+            margin-bottom: 0.75rem; /* 12px */
+        }
+        aside#info-box p {
+            font-size: 0.95rem; /* ca. 15.2px */
+            color: var(--info-box-text-color);
+        }
+        @media (max-width: 48rem) { /* 768px */
+            aside#info-box {
+                width: calc(100% - 2.5rem); /* 40px */
+                left: 1.25rem; /* 20px */
+                right: 1.25rem; /* 20px */
+                bottom: 0.625rem; /* 10px */
+            }
+        }
+
+        /* Notification Area Styles */
+        #notification-area {
+            position: fixed;
+            bottom: 1.25rem; /* 20px */
+            right: 1.25rem; /* 20px */
+            min-width: 15.625rem; /* 250px */
+            max-width: 25rem; /* 400px */
+            padding: 0.9375rem; /* 15px */
+            border-radius: 0.5rem; /* 8px */
+            box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.15); /* 4px 12px */
+            z-index: 2000;
+            font-size: 0.95rem; /* ca. 15.2px */
+            display: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        #notification-area.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #notification-area.hidden-start {
+            opacity: 0;
+            transform: translateY(1.25rem); /* 20px */
+        }
+        #notification-area.error {
+            background-color: var(--notification-error-bg);
+            color: var(--notification-error-text);
+            border: 0.0625rem solid var(--notification-error-border); /* 1px */
+        }
+        #notification-area.success {
+            background-color: var(--notification-success-bg);
+            color: var(--notification-success-text);
+            border: 0.0625rem solid var(--notification-success-border); /* 1px */
+        }
+        #notification-area p {
+            margin: 0;
+        }
+        #notification-close-button {
+            float: right;
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 1.2em; /* Relative to parent */
+            line-height: 1;
+            cursor: pointer;
+            padding: 0 0 0 0.625rem; /* 10px */
+            opacity: 0.7;
+        }
+        #notification-close-button:hover {
+            opacity: 1;
+        }
+
+        /* Fullscreen Modal Text Adjustments */
+        #nextPeriodTaskModal.fullscreen-modal .modal-content {
+            display: flex; /* Hinzugefügt */
+            flex-direction: column; /* Hinzugefügt */
+            height: 100vh;
+            width: 100vw;
+            max-width: 100vw;
+            margin: 0;
+            border-radius: 0;
+            padding: 1rem; /* Padding für den Inhalt */
+            /* overflow-y: auto; Entfernt, da der Content-Bereich scrollen soll */
+        }
+        #nextPeriodTaskModal.fullscreen-modal #period-task-timer {
+            font-size: 5vw; /* Responsive font size */
+        }
+        #nextPeriodTaskModal.fullscreen-modal #next-period-task-content {
+            font-size: 2.5vw; /* Responsive font size */
+            flex-grow: 1; /* Lässt diesen Bereich wachsen */
+            overflow-y: auto; /* Nur dieser Bereich scrollt */
+            margin-bottom: 1rem; /* Abstand zu den Buttons */
+        }
+         #nextPeriodTaskModal.fullscreen-modal #next-period-task-content ul li,
+         #nextPeriodTaskModal.fullscreen-modal #next-period-task-content p {
+            font-size: 2vw; /* Responsive font size for list items and paragraphs */
+            margin-bottom: 1.5vh;
+        }
+        #nextPeriodTaskModal.fullscreen-modal #next-period-task-content h3 {
+            font-size: 3vw;
+        }
+        #nextPeriodTaskModal.fullscreen-modal .button-group {
+            flex-shrink: 0; /* Verhindert, dass die Button-Gruppe schrumpft */
+        }
+
+
+        @media print {
+            .page-break {
+                page-break-after: always;
+                height: 0;
+                display: block;
+            }
+            /* Spezifische Druckstile für die Ergebnistabellen */
+            #group-results-modal-content .results-table {
+                font-size: 0.8em; /* Kleinere Schrift im Druck */
+            }
+            #group-results-modal-content .results-table td {
+                padding: 5px; /* Weniger Padding im Druck */
+            }
+            #group-results-modal-content .market-analysis-section table {
+                font-size: 0.7em;
+            }
+             #group-results-modal-content .market-analysis-section table td {
+                padding: 3px;
+            }
+            .no-analysis-message-print { /* Styling für die "Keine Analyse" Nachricht im Druck */
+                text-align: center;
+                font-style: italic;
+                color: #888; /* Etwas dunkler als im Web für bessere Lesbarkeit im Druck */
+                margin-top: 30mm; /* Mehr Abstand oben auf der Seite */
+                font-size: 1em;
+            }
+        }

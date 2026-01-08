@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markt-Match 5 – ein Wirtschaftsplanspiel für Einsteiger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#FFFFFF">
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+    <main class="container"> <h1 class="text-2xl font-bold mb-6">Markt-Match 5 – ein Wirtschaftsplanspiel für Einsteiger</h1>
+
+        <section id="initial-setup"> <h2 class="text-xl font-semibold mb-4">Spiel vorbereiten</h2>
+            <p class="mb-2">Als Spielleitung sind Ihre Hauptaufgaben: Spielparameter über "Einstellungen" anpassen, das Spiel mit der festgelegten Gruppenanzahl starten, die Periodenentscheidungen der Gruppen entgegennehmen und in das System eingeben, sowie die Ergebnisse und Begleitmaterialien für die Schüler bereitzustellen und Reflexionsphasen zu moderieren.</p>
+            <p class="mb-2">Bei Bedarf können Sie zunächst Einstellungen für das Spiel vornehmen. Öffnen und drucken Sie anschließend die Anleitung für die Spielerinnen und Spieler.</p>
+            <div class="button-group instruction-buttons">
+                <button onclick="showSettingsModal()">Einstellungen</button>
+                <button onclick="showInstructions('student')">Anleitung für Gruppen</button>
+                <button onclick="showInstructions('teacher')">Anleitung für Spielleitung</button>
+                <button onclick="showSupportingMaterialMenuModal()">Begleitmaterial</button>
+            </div>
+
+            <p class="mb-4 mt-6">Wählen Sie zunächst die Anzahl der Gruppen aus, mit denen Sie spielen möchten. Nach Bedarf können Sie die Namen der Gruppen eingeben.</p>
+            <div class="form-group">
+                <label for="num-groups-select">Anzahl der Gruppen:</label>
+                <select id="num-groups-select" onchange="selectNumberOfGroups(this.value)"></select>
+            </div>
+
+            <div id="group-name-inputs" class="mt-6">
+                </div>
+
+            <div class="button-group">
+                <button id="load-game-button-initial" onclick="document.getElementById('load-game-input').click()">Spiel laden</button>
+                <input type="file" id="load-game-input" accept=".json" style="display: none;">
+                <button id="start-game-button" onclick="startGame()">
+                    Spiel starten
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path></svg>
+                </button>
+            </div>
+        </section>
+
+        <section id="game-in-progress" class="hidden">
+            <div class="button-group instruction-buttons mb-6">
+                <button id="supporting-material-button-ingame" onclick="showSupportingMaterialMenuModal()" class="hidden">Begleitmaterial anzeigen</button>
+                <button onclick="saveGameToFile()">Spiel speichern</button> </div>
+
+            <h2 class="text-xl font-semibold mb-4">Periode <span id="current-period">1</span></h2>
+
+            <div id="machine-selection" class="hidden">
+                <h3 class="text-lg font-semibold mb-3">Maschinenauswahl (Vor Periode 1)</h3>
+                <p class="mb-4">Wählen Sie für jede Gruppe die erste Produktionsmaschine aus, die sie mit ihrem Startkapital kaufen möchte.</p>
+                <div id="machine-selection-groups">
+                    </div>
+                <div class="button-group">
+                    <button class="button-with-left-arrow" onclick="goToInitialSetup()">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path d="M7.82843 10.9999H20V12.9999H7.82843L13.1924 18.3638L11.7782 19.778L4 11.9999L11.7782 4.22168L13.1924 5.63589L7.82843 10.9999Z"></path></svg>
+                        Zurück zum Start
+                    </button>
+                    <button id="process-machine-selection-button" onclick="processMachineSelection()">
+                        Maschinen auswählen & starten
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="period-decisions" class="hidden">
+                <h3 class="text-lg font-semibold mb-3">Entscheidungen pro Gruppe</h3>
+                <div id="rnd-machine-info" class="hidden bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-6" role="alert">
+                    <p class="font-bold">Wichtige Information für Periode <span id="info-period-number"></span>:</p>
+                    <p>Ab Periode 3 können die Gruppen in Forschung & Entwicklung (F&E) investieren. Kumulierte F&E-Investitionen von <span id="rnd-threshold-info"></span> führen zu einer permanenten Reduzierung der variablen Produktionskosten um <span id="rnd-reduction-info"></span>.</p>
+                    <p class="mt-2">Zusätzlich können die Gruppen ab Periode 3 und danach alle 3 Perioden (Periode 6, 9, ...) eine weitere Maschine kaufen, falls sie über ausreichend Kapital verfügen.</p>
+                </div>
+                <div id="group-decision-inputs">
+                    </div>
+                <div class="button-group">
+                    <button class="button-with-left-arrow" onclick="goToMachineSelection()">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path d="M7.82843 10.9999H20V12.9999H7.82843L13.1924 18.3638L11.7782 19.778L4 11.9999L11.7782 4.22168L13.1924 5.63589L7.82843 10.9999Z"></path></svg>
+                        Zurück zur Maschinenauswahl
+                    </button>
+                    <button id="process-period-button" onclick="processPeriod()">
+                        Periode abschließen & spielen
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="period-results" class="hidden mt-8">
+                <h3 class="text-lg font-semibold mb-3">Ergebnisse Periode <span id="results-period-number"></span></h3>
+                <div id="results-summary">
+                    </div>
+                <button id="show-group-results-button" onclick="showGroupResultsModal()">Ergebnisse und Marktanalyse pro Gruppe anzeigen & drucken</button>
+                <div class="period-action-buttons">
+                    <button onclick="endGame()">Spiel beenden & Rangliste anzeigen</button>
+                    <button onclick="showResetToPeriod()">Zurücksetzen auf Periode...</button>
+                    <button onclick="showManualCorrection()">Manuelle Korrektur</button>
+                    <button id="show-next-period-task-button" onclick="showNextPeriodTaskModal(gameState.period + 1)">
+                        Nächste Periode vorbereiten
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="game-end" class="hidden"> <h2 class="text-xl font-semibold mb-4">Spiel beendet!</h2>
+            <div id="final-ranking">
+                </div>
+            <div class="button-group">
+                <button onclick="restartGame()">Neues Spiel starten</button>
+                <button onclick="goToLastPeriodResults()">Zurück zur letzten Periode</button> </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2025 Jonathan Mangold | Version: <span id="app-version">1.9.16 (25.05.2025 13:01)</span></p> </footer>
+    </main>
+
+    <aside id="info-box" class="hidden-start"> <h4 id="info-box-title">Information</h4>
+        <p id="info-box-content"></p>
+    </aside>
+
+    <div id="notification-area" class="hidden-start">
+        <button id="notification-close-button" onclick="hideNotification()">&times;</button>
+        <p id="notification-message"></p>
+    </div>
+
+
+    <div id="instructionsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="hideInstructions()">&times;</span>
+            <h2 id="instructions-title"></h2>
+            <button class="print-button" onclick="printInstructions()">Anleitung drucken</button>
+            <div id="instructions-content"></div>
+        </div>
+    </div>
+
+    <div id="resetModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="hideResetToPeriod()">&times;</span>
+            <h2 class="text-xl font-semibold mb-4">Spiel zurücksetzen auf Periode</h2>
+            <div class="form-group">
+                <label for="reset-period-select">Periode auswählen:</label>
+                <select id="reset-period-select"></select>
+            </div>
+            <button onclick="resetToSelectedPeriod()">Zurücksetzen</button>
+        </div>
+    </div>
+
+    <div id="manualCorrectionModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="hideManualCorrection()">&times;</span>
+            <h2 class="text-xl font-semibold mb-4">Manuelle Korrektur</h2>
+            <div class="form-group">
+                <label for="correction-group-select">Gruppe auswählen:</label>
+                <select id="correction-group-select"></select>
+            </div>
+            <div id="manual-correction-fields"></div>
+            <button onclick="applyManualCorrection()">Korrektur anwenden</button>
+        </div>
+    </div>
+
+    <div id="groupResultsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="hideGroupResultsModal()">&times;</span>
+            <h2 id="group-results-modal-title">Ergebnisse für Periode <span id="modal-period-number"></span></h2>
+            <button class="print-button" onclick="printGroupResults()">Ergebnisse drucken</button>
+            <div id="group-results-modal-content"></div>
+        </div>
+    </div>
+
+    <div id="nextPeriodTaskModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="hideNextPeriodTaskModal()">&times;</span>
+            <h2 id="next-period-task-title"></h2>
+            <div id="period-task-timer" class="text-2xl font-bold my-4 text-center">00:00</div>
+            <div id="next-period-task-content"></div>
+            <div class="button-group" style="justify-content: center; margin-top: 15px;"> <button onclick="toggleFullscreenNextPeriodTask()" class="bg-gray-500 hover:bg-gray-600 text-white">Vollbild</button>
+                <button id="start-next-period-button" onclick="advanceToNextPeriodDecisions()">
+                    Nächste Periode starten
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="hideSettingsModal()">&times;</span>
+            <h2 class="text-xl font-semibold mb-4">Einstellungen</h2>
+            <div id="settings-inputs">
+                </div>
+            <div class="form-group mt-6">
+                <label for="dark-mode-toggle">Dark Mode:</label>
+                <input type="checkbox" id="dark-mode-toggle">
+            </div>
+            <button onclick="saveSettings()">Einstellungen speichern</button>
+        </div>
+    </div>
+
+    <div id="supportingMaterialMenuModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="hideSupportingMaterialMenuModal()">&times;</span>
+            <h2 class="text-xl font-semibold mb-4">Begleitmaterial auswählen</h2>
+            <p class="mb-4 text-sm">Hier finden Sie passendes Unterrichtsmaterial, das Sie Ihren Gruppen austeilen können. Die Gruppen können diese Aufträge zwischen den Perioden bearbeiten. Es ist möglich, das Spiel ohne das Begleitmaterial zu spielen!</p>
+            <div class="button-group" style="flex-direction: column; align-items: stretch; gap: 10px;">
+                <button class="w-full" onclick="generateAndPrintStudentTemplates(); hideSupportingMaterialMenuModal();">1. Schülervorlage: Entscheidungen & Ergebnisse</button>
+                <button class="w-full" onclick="showVorstellungsrundeModal()">2. Arbeitsauftrag: Vorstellungsrunde</button>
+                <button class="w-full" onclick="showMarketingConceptModal()">3. Arbeitsauftrag: Marketingkonzept</button>
+                <button class="w-full" onclick="showReflectionPhasesModal()">4. Reflexionsphasen & Auswertung</button>
+                <button class="w-full" onclick="showGlossaryModal()">5. Glossar wirtschaftlicher Begriffe</button>
+                <button class="w-full" onclick="showKennenlernspieleModal()">6. Kennenlernspiele Vorschläge</button>
+            </div>
+        </div>
+    </div>
+     <div id="vorstellungsrundeModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="hideVorstellungsrundeModal()">&times;</span>
+            <h2 class="text-xl font-semibold mb-4">Arbeitsauftrag: Vorstellungsrunde - "Unsere Smartwatch-Schmiede!"</h2>
+            <button class="print-button" onclick="printModalContent('vorstellungsrundeModal')">Material drucken</button>
+            <div id="vorstellungsrunde-content">
+                <p class="mb-3">Herzlich willkommen, junge Smartwatch-Tycoons! Bevor ihr den Markt erobert, lernt euch und eure Konkurrenz kennen. Jede Gruppe stellt sich und ihr neu gegründetes Unternehmen den anderen vor.</p>
+                <p class="mb-4"><strong>Aufgabe:</strong> Gestaltet ein kreatives Plakat (oder ein großes Blatt Papier), das eure Gruppe und euer Unternehmen präsentiert. Ihr habt dafür ca. 15-20 Minuten Zeit. Anschließend stellt jede Gruppe ihr Plakat kurz vor (max. 2 Minuten pro Gruppe).</p>
+
+                <h4 class="font-semibold mt-3 mb-1">Was könnte auf eurem Plakat stehen? Lasst eurer Kreativität freien Lauf! Hier ein paar Ideen:</h4>
+                <ul class="list-disc list-inside ml-4 mb-3">
+                    <li><strong>Unser Unternehmensname:</strong> Wie heißt eure Smartwatch-Firma? (z.B. "PixelPioniere", "SpeedySmartwatches AG", "JugendMobile GmbH")</li>
+                    <li><strong>Unser Logo/Slogan (Idee):</strong> Entwerft ein einfaches Logo oder einen coolen Slogan für eure Marke.</li>
+                    <li><strong>Das Team hinter dem Erfolg:</strong>
+                        <ul class="list-disc list-inside ml-6">
+                            <li>Namen der Gruppenmitglieder.</li>
+                            <li>"Über uns": Eine kurze, kreative Beschreibung eurer Gruppe. Was verbindet euch? Habt ihr eine fiktive Gründungsgeschichte? Welche Superkräfte bringt jeder ins Team ein? (z.B. "Die kreativen Köpfe", "Die Zahlenjongleure", "Die Marketing-Gurus")</li>
+                        </ul>
+                    </li>
+                    <li><strong>Unsere Smartwatch-Vision:</strong> Was macht eure (günstigen) Smartwatches für die junge Zielgruppe besonders? (z.B. "Stylisch & Bezahlbar", "Gaming-Power für alle", "Immer verbunden, ohne Pleite zu gehen")</li>
+                    <li><strong>Unser Ziel für Markt-Match 5:</strong> Was wollt ihr in diesem Planspiel erreichen? (z.B. "Marktführer werden!", "Den höchsten Gewinn erzielen!", "Die innovativsten Smartwatches bauen!")</li>
+                    <li><strong>Ein Fun Fact oder eine kleine Zeichnung/Skizze, die zu eurem Unternehmen passt.</strong></li>
+                </ul>
+                <p class="mt-4 text-sm"><em>Tipp: Nutzt Farben, macht es ansprechend und habt Spaß dabei! Es geht darum, euch als Team zu präsentieren und einen ersten Eindruck von eurer Unternehmensidentität zu vermitteln.</em></p>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="marketingConceptModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="hideMarketingConceptModal()">&times;</span>
+            <h2 class="text-xl font-semibold mb-4">Euer Weg zum Verkaufserfolg: Das Marketingkonzept</h2>
+            <button class="print-button" onclick="printModalContent('marketingConceptModal')">Material drucken</button>
+            <div id="marketing-concept-content">
+                <p class="mb-2">Gute Produkte verkaufen sich nicht von allein! Ein cleveres Marketingkonzept hilft euch dabei, eure günstigen Smartwatches für eine junge Zielgruppe bekannt zu machen und Kunden zu überzeugen.</p>
+                <p class="mb-4"><strong>Wichtig:</strong> Diese Aufgabe könnt ihr laufend zwischen den Spielperioden bearbeiten. Euer finales Konzept (max. 3 Minuten Präsentation pro Gruppe) stellt ihr vor Beginn der 5. Periode eurer Spielleitung vor.</p>
+
+                <h3 class="text-lg font-semibold mt-4 mb-2">Aufgabe: Entwickelt eine einfache Marketingidee für euer Smartwatch.</h3>
+
+                <h4 class="font-semibold mt-3 mb-1">Denkanstöße (Was macht euer Smartwatch besonders?):</h4>
+                <ul class="list-disc list-inside ml-4 mb-3">
+                    <li>Welchen Namen hat euer Smartwatch-Modell? (Kann identisch mit Firmennamen sein oder ein eigener Produktname)</li>
+                    <li>Was ist das Besondere an eurem Smartwatch? (z.B. super Design, neueste Technik, besonders robust, unschlagbar günstiger Preis, umweltfreundliche Herstellung)</li>
+                    <li>Wer soll euer Smartwatch kaufen? (Eure Zielgruppe: z.B. junge Leute, Schüler, Studenten, preisbewusste Käufer, Social-Media-affine Nutzer)</li>
+                </ul>
+
+                <h4 class="font-semibold mt-3 mb-1">Ideen für eure Werbung (Wie macht ihr auf euch aufmerksam?):</h4>
+                <ul class="list-disc list-inside ml-4 mb-3">
+                    <li>Entwerft einen kurzen Werbeslogan (ein cooler Spruch, der im Kopf bleibt).</li>
+                    <li>Skizziert ein einfaches Werbeplakat (Was ist darauf zu sehen? Welche Farben? Welche Schrift?).</li>
+                    <li>Überlegt euch einen kleinen Werbespot (Was passiert darin? Welche Musik? – nur als Idee, muss nicht gedreht werden).</li>
+                    <li>Welche anderen Ideen habt ihr, um euer Smartwatch bekannt zu machen (z.B. Social Media Posts, Influencer-Kooperationen, Rabattaktionen)?</li>
+                </ul>
+                <p class="mt-4 text-sm"><em>Hinweis: Haltet es einfach und kreativ! Es geht darum, erste Ideen zu entwickeln.</em></p>
+                <h4 class="font-semibold mt-4 mb-1">Präsentation:</h4>
+                <p>Bereitet eine kurze Präsentation (max. 3 Minuten pro Gruppe) vor, in der ihr eurer Spielleitung und den anderen Gruppen eure Marketingidee vorstellt.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="reflectionPhasesModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="hideReflectionPhasesModal()">&times;</span>
+            <h2 class="text-xl font-semibold mb-4">Reflexionsphasen & Auswertung</h2>
+            <button class="print-button" onclick="printModalContent('reflectionPhasesModal')">Material drucken</button>
+            <div id="reflection-phases-content">
+                <p class="mb-4">Nutzt die Zeit zwischen den Perioden und am Ende des Spiels, um eure Strategien zu überdenken und aus euren Erfahrungen zu lernen.</p>
+
+                <h3 class="text-lg font-semibold mt-4 mb-2">Nach jeder Periode:</h3>
+                <ul class="list-disc list-inside ml-4 mb-4">
+                    <li>Wie zufrieden seid ihr mit eurem Periodenergebnis (Gewinn/Verlust, Kapitalentwicklung)?</li>
+                    <li>Welche eurer Entscheidungen (Preis, Produktionsmenge, Marketing etc.) waren erfolgreich? Welche weniger? Warum?</li>
+                    <li>Wie haben sich die Entscheidungen der Konkurrenz auf euer Ergebnis ausgewirkt?</li>
+                    <li>Habt ihr eure Produktionskapazität optimal genutzt? Hattet ihr zu viel oder zu wenig Ware auf Lager? (Denkt an die Lagerkosten!)</li>
+                    <li>Was wollt ihr in der nächsten Periode anders machen? Welche Ziele setzt ihr euch?</li>
+                    <li>(Falls Marktanalyse gekauft) Welche Erkenntnisse habt ihr aus der Marktanalyse gewonnen? Wie könnt ihr diese nutzen?</li>
+                </ul>
+
+                <h3 class="text-lg font-semibold mt-4 mb-2">Nach wichtigen Ereignissen (z.B. Maschinenkauf, F&E-Vorteil):</h3>
+                <ul class="list-disc list-inside ml-4 mb-4">
+                    <li>Wie hat sich der Kauf der neuen Maschine auf eure Produktionskosten und -kapazität ausgewirkt?</li>
+                    <li>(Falls F&E aktiviert) Hat sich die Investition in F&E gelohnt? Wie wirkt sich der Kostenvorteil aus?</li>
+                    <li>Müsst ihr eure Preisstrategie oder Produktionsplanung aufgrund dieser Ereignisse anpassen?</li>
+                </ul>
+
+                <h3 class="text-lg font-semibold mt-4 mb-2">Am Spielende (Abschlussreflexion):</h3>
+                <ul class="list-disc list-inside ml-4 mb-4">
+                    <li>Welche Strategie hat eure Gruppe insgesamt verfolgt? War sie erfolgreich?</li>
+                    <li>Was waren die größten Herausforderungen im Spiel? Wie seid ihr damit umgegangen?</li>
+                    <li>Was habt ihr über wirtschaftliche Zusammenhänge (z.B. Angebot & Nachfrage, Kosten, Preisbildung, Wettbewerb) gelernt?</li>
+                    <li>Wie hat die Zusammenarbeit im Team funktioniert? Was lief gut, was könnte man verbessern?</li>
+                    <li>Welche Entscheidung einer anderen Gruppe fandet ihr besonders clever oder überraschend?</li>
+                    <li>Wenn ihr das Spiel noch einmal spielen würdet, was würdet ihr von Anfang an anders machen?</li>
+                </ul>
+                <p class="mt-6 font-semibold">Nutzt diese Fragen als Grundlage für eure Diskussionen und lernt voneinander!</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="glossaryModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="hideGlossaryModal()">&times;</span>
+            <h2 class="text-xl font-semibold mb-4">Glossar wirtschaftlicher Begriffe</h2>
+            <button class="print-button" onclick="printModalContent('glossaryModal')">Material drucken</button>
+            <div id="glossary-content">
+                <p class="mb-4">Hier findest du Erklärungen zu wichtigen Begriffen, die im Planspiel vorkommen:</p>
+                <dl>
+                    <dt class="font-semibold mt-3">Umsatz (Erlös):</dt>
+                    <dd class="ml-4 mb-2">Die gesamten Einnahmen, die ein Unternehmen durch den Verkauf seiner Produkte oder Dienstleistungen in einer Periode erzielt (Verkaufte Menge x Preis).</dd>
+
+                    <dt class="font-semibold mt-3">Kosten:</dt>
+                    <dd class="ml-4 mb-2">Alle Ausgaben, die einem Unternehmen entstehen, um seine Produkte herzustellen und zu verkaufen.</dd>
+
+                    <dt class="font-semibold mt-3 ml-4">Variable Kosten:</dt>
+                    <dd class="ml-8 mb-2">Kosten, die sich direkt mit der Produktionsmenge ändern (z.B. Materialkosten pro Stück). In diesem Spiel sind das die Kosten pro produzierter Einheit, abhängig vom Maschinentyp.</dd>
+
+                    <dt class="font-semibold mt-3 ml-4">Fixkosten (implizit):</dt>
+                    <dd class="ml-8 mb-2">Kosten, die unabhängig von der Produktionsmenge anfallen (z.B. Miete für die Fabrik). Im Spiel sind dies z.B. die Kosten für die Marktanalyse oder F&E-Investitionen, die nicht direkt von der Stückzahl abhängen.</dd>
+
+                    <dt class="font-semibold mt-3">Lagerkosten:</dt>
+                    <dd class="ml-4 mb-2">Kosten, die für die Aufbewahrung von nicht verkauften Produkten im Lager anfallen (pro Stück und pro Periode).</dd>
+
+                    <dt class="font-semibold mt-3">Gewinn / Verlust:</dt>
+                    <dd class="ml-4 mb-2">Gewinn entsteht, wenn der Umsatz höher ist als die gesamten Kosten. Verlust entsteht, wenn die Kosten höher sind als der Umsatz. (Formel: Umsatz - Variable Kosten - Lagerkosten - Marketingkosten - F&E-Kosten - Marktanalysekosten - Zinskosten = Gewinn/Verlust)</dd>
+
+                    <dt class="font-semibold mt-3">Kapital:</dt>
+                    <dd class="ml-4 mb-2">Das Geldvermögen des Unternehmens. Es erhöht sich durch Gewinne und verringert sich durch Verluste und Investitionen (z.B. Maschinenkauf).</dd>
+
+                    <dt class="font-semibold mt-3">Marktanteil (vereinfacht):</dt>
+                    <dd class="ml-4 mb-2">Der Anteil, den ein Unternehmen am gesamten Verkaufsvolumen des Marktes hat. Im Spiel ergibt sich dies daraus, wie viele Einheiten eine Gruppe im Vergleich zu allen anderen Gruppen verkaufen konnte.</dd>
+
+                    <dt class="font-semibold mt-3">Preiselastizität der Nachfrage:</dt>
+                    <dd class="ml-4 mb-2">Zeigt an, wie stark die Nachfrage nach einem Produkt auf Preisänderungen reagiert. Eine hohe Elastizität bedeutet, dass schon kleine Preisänderungen große Auswirkungen auf die verkaufte Menge haben.</dd>
+
+                    <dt class="font-semibold mt-3">Marktanalyse:</dt>
+                    <dd class="ml-4 mb-2">Eine Untersuchung des Marktes, um Informationen über Kunden, Konkurrenten und Markttrends zu gewinnen. Im Spiel liefert sie Daten über die Entscheidungen und Ergebnisse der Konkurrenz.</dd>
+
+                    <dt class="font-semibold mt-3">Forschung & Entwicklung (F&E):</dt>
+                    <dd class="ml-4 mb-2">Investitionen, um Produkte zu verbessern, neue Produkte zu entwickeln oder Produktionsprozesse effizienter zu gestalten. Im Spiel kann F&E (wenn aktiviert) die variablen Produktionskosten senken.</dd>
+
+                    <dt class="font-semibold mt-3">Kapazität (Produktionskapazität):</dt>
+                    <dd class="ml-4 mb-2">Die maximale Menge, die ein Unternehmen mit seinen vorhandenen Maschinen in einer Periode herstellen kann.</dd>
+
+                    <dt class="font-semibold mt-3">Lagerbestand:</dt>
+                    <dd class="ml-4 mb-2">Die Menge an unverkauften Produkten, die ein Unternehmen am Ende einer Periode noch hat.</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+     <div id="kennenlernspieleModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="hideKennenlernspieleModal()">&times;</span>
+            <h2 class="text-xl font-semibold mb-4">Arbeitsauftrag: Kennenlernspiele Vorschläge</h2>
+            <button class="print-button" onclick="printModalContent('kennenlernspieleModal')">Material drucken</button>
+            <div id="kennenlernspiele-content">
+                <p class="mb-3">Um das Eis zu brechen und euch besser kennenzulernen, bevor ihr euch in den Smartwatch-Markt stürzt, hier ein paar Spielideen!</p>
+
+                <h3 class="text-lg font-semibold mt-4 mb-2">Phase 1: Innerhalb eurer Gruppe (Team-Building & Kennenlernen)</h3>
+                <p class="mb-2"><em>Ziel: Stärkt euren Teamgeist und lernt die Stärken jedes Mitglieds kennen.</em></p>
+                <ul class="list-disc list-inside ml-4 mb-3">
+                    <li class="mb-1"><strong>"Zwei Wahrheiten, eine Lüge":</strong> Jedes Gruppenmitglied überlegt sich drei Aussagen über sich selbst – zwei davon sind wahr, eine ist eine Lüge. Reihum erzählt jeder seine drei Aussagen, und die anderen raten, welche die Lüge ist. Das sorgt oft für Lacher und erste persönliche Einblicke!</li>
+                    <li class="mb-1"><strong>"Gemeinsamkeiten-Jagd":</strong> Eure Gruppe hat 5 Minuten Zeit, um so viele (nicht-offensichtliche!) Gemeinsamkeiten wie möglich zu finden. Das können Hobbys, Lieblingsessen, besuchte Orte oder kuriose Fähigkeiten sein. Schreibt sie auf! Welche Gruppe findet die meisten?</li>
+                    <li class="mb-1"><strong>"Unsere Smartwatch-Superkräfte":</strong> Jedes Mitglied überlegt, welche "Superkraft" (Stärke, Fähigkeit, Eigenschaft) es in euer Smartwatch-Unternehmen einbringt. Ist jemand besonders kreativ, ein Zahlen-Genie, ein Organisationstalent oder ein Überzeugungskünstler? Stellt euch gegenseitig eure Superkräfte vor.</li>
+                    <li class="mb-1"><strong>"Wüsteninsel-Smartwatch":</strong> Stellt euch vor, ihr strandet als Gruppe auf einer einsamen Insel. Ihr dürft nur 3 Smartwatch-Apps mitnehmen (kein Internetzugang!). Welche wären das und warum? Diskutiert und einigt euch als Gruppe.</li>
+                </ul>
+
+                <h3 class="text-lg font-semibold mt-6 mb-2">Phase 2: Zwischen den Gruppen (Lockeres Kennenlernen der "Konkurrenz")</h3>
+                <p class="mb-2"><em>Ziel: Lernt die anderen Unternehmen kennen und knüpft erste Kontakte.</em></p>
+                <ul class="list-disc list-inside ml-4 mb-3">
+                    <li class="mb-1"><strong>"Markt-Speed-Dating":</strong> Jede Gruppe schickt einen "Botschafter" zu einer anderen Gruppe. Der Botschafter hat 2-3 Minuten Zeit, das eigene Unternehmen (Name, Smartwatch-Idee, vielleicht ein lustiger Fakt) vorzustellen und etwas über das andere Unternehmen zu erfahren. Nach der Zeit wechseln die Botschafter zur nächsten Gruppe, bis jede Gruppe einmal mit jeder anderen gesprochen hat.</li>
+                    <li class="mb-1"><strong>"Smartwatch-Markt-Bingo":</strong> Die Spielleitung bereitet Bingo-Karten vor mit Feldern wie:
+                        <ul class="list-disc list-inside ml-6 my-1">
+                            <li>"Triff eine Gruppe, deren Smartwatch-Name mit 'i' beginnt."</li>
+                            <li>"Finde ein Unternehmen, das auf besonders umweltfreundliche Produktion setzt."</li>
+                            <li>"Sprich mit einer Gruppe, die schon einen coolen Werbeslogan hat."</li>
+                            <li>"Entdecke ein Team, das die Farbe Blau in seinem Logo hat."</li>
+                        </ul>
+                        Die Gruppen mischen sich und versuchen, durch Gespräche mit anderen Gruppen ihre Bingo-Felder zu füllen. Wer zuerst "BINGO!" ruft (und es beweisen kann), bekommt eine kleine Anerkennung.
+                    </li>
+                    <li class="mb-1"><strong>"Elevator Pitch – Das Killer-Feature":</strong> Jede Gruppe hat 60 Sekunden Zeit, den anderen Gruppen ein absolut einzigartiges (vielleicht auch verrücktes oder besonders innovatives) Feature ihres günstigen Smartwatches für junge Leute vorzustellen. Die anderen Gruppen hören zu und können danach (symbolische) "Innovationspunkte" vergeben.</li>
+                </ul>
+                <p class="mt-4">Viel Spaß beim Kennenlernen und beim anschließenden Erobern des Smartwatch-Marktes!</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="autoSaveModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="discardAutoSave()">&times;</span>
+            <h2 class="text-xl font-semibold mb-4">Automatisch gespeicherter Spielstand</h2>
+            <p id="autoSaveTimestamp" class="mb-4">Es wurde ein automatisch gespeicherter Spielstand vom [DATUM] um [ZEIT] Uhr gefunden.</p>
+            <p class="mb-6">Möchten Sie diesen Spielstand laden?</p>
+            <div class="button-group">
+                <button onclick="discardAutoSave()" class="bg-gray-300 hover:bg-gray-400 text-gray-800">Nein, verwerfen</button>
+                <button onclick="loadAutoSavedGame()" class="bg-green-500 hover:bg-green-600 text-white">Ja, laden</button>
+            </div>
+        </div>
+    </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
