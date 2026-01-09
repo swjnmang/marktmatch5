@@ -60,15 +60,22 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="rounded-2xl bg-slate-900 px-6 py-7 text-slate-50 shadow-lg">
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-300">Quick Facts</p>
-            <ul className="mt-4 space-y-3 text-sm leading-relaxed text-slate-100/90">
-              <li>• Bis zu 10 Gruppen pro Spiel</li>
-              <li>• Presets: Easy, Medium, Hard</li>
-              <li>• PIN für Spielleitung, Codes für Gruppen</li>
-              <li>• Ergebnisse & Ranking steuerbar vom Dashboard</li>
-              <li>• Optional: Marktanalyse nur für Gruppen mit Kauf</li>
-            </ul>
+          <div className="rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 px-6 py-7 text-slate-50 shadow-lg ring-1 ring-white/10">
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Letzte Aktualisierung</p>
+            <div className="mt-4 space-y-2">
+              <p className="text-2xl font-bold text-white">v1.2.0</p>
+              <p className="text-sm text-slate-300">
+                09. Januar 2026, 08:30 Uhr
+              </p>
+              <div className="mt-4 rounded-lg bg-white/5 px-3 py-2.5 text-xs text-slate-200">
+                <p className="font-semibold text-white mb-1">Neue Features:</p>
+                <ul className="space-y-1">
+                  <li>• Maschinenauswahl mit Timer</li>
+                  <li>• Live-Status für alle Gruppen</li>
+                  <li>• Periode-Timer im Dashboard</li>
+                </ul>
+              </div>
+            </div>
           </div>
         </section>
       </div>

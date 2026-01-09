@@ -8,10 +8,10 @@ import { doc, getDoc, collection, addDoc, serverTimestamp, updateDoc, onSnapshot
 import type { GameDocument, GroupState, Machine } from "@/lib/types";
 
 const MACHINE_OPTIONS: Machine[] = [
-  { name: "Basis", cost: 12000, capacity: 100, variableCostPerUnit: 60 },
-  { name: "Effizienz", cost: 18000, capacity: 140, variableCostPerUnit: 55 },
-  { name: "Turbo", cost: 24000, capacity: 180, variableCostPerUnit: 52 },
-  { name: "Premium", cost: 30000, capacity: 210, variableCostPerUnit: 50 },
+  { name: "SmartMini-Fertiger", cost: 5000, capacity: 100, variableCostPerUnit: 6 },
+  { name: "KompaktPro-Produzent", cost: 12000, capacity: 250, variableCostPerUnit: 5 },
+  { name: "FlexiTech-Assembler", cost: 18000, capacity: 350, variableCostPerUnit: 4.5 },
+  { name: "MegaFlow-Manufaktur", cost: 25000, capacity: 500, variableCostPerUnit: 4 },
 ];
 
 export function GruppeGameForm() {
