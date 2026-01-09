@@ -131,6 +131,32 @@ export function GruppeGameForm() {
       };
       await setDoc(doc(db, "games", gameId, "decisions", groupId), decision);
       await updateDoc(doc(db, "games", gameId, "groups", groupId), { status: "submitted" });
+
+      // Check if this is Solo mode
+      const isSoloMode = localStorage.getItem(`solo_mode_${gameId}`);
+      if (isSoloMode) {
+        // Generate AI decisions
+        const { generateAIDecision } = await import("@/lib/ai-opponent");
+        const groupsRef = collection(db, "games", gameId, "groups");
+        const allGroupsSnapshot = await getDocs(groupsRef);
+        const aiGroups = allGroupsSnapshot.docs.filter(d => d.data().isAI === true);
+
+        // Submit decisions for all AI groups
+        for (const aiDoc of aiGroups) {
+          const aiGroup = { id: aiDoc.id, ...aiDoc.data() } as GroupState;
+          const aiDecision = generateAIDecision(aiGroup, game, game.period);
+          await setDoc(doc(db, "games", gameId, "decisions", aiDoc.id), {
+            ...aiDecision,
+            submittedAt: serverTimestamp()
+          });
+          await updateDoc(doc(db, "games", gameId, "groups", aiDoc.id), { status: "submitted" });
+        }
+
+        // Transition to results phase (calculation will happen separately)
+        await updateDoc(doc(db, "games", gameId), {
+          phase: "results"
+        });
+      }
     } catch (err: any) {
       setError(`Fehler beim Einreichen: ${err.message}`);
     } finally {
@@ -406,6 +432,62 @@ export function GruppeGameForm() {
                     </button>
                   </form>
                 )}
+
+              {/* Waiting for Results */}
+              {game?.status === "in_progress" &&
+                game.phase === "results" && (
+                  <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-6 text-center">
+                    <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-purple-200 border-t-purple-600"></div>
+                    <h3 className="text-lg font-semibold text-slate-800">
+                      Berechnung läuft...
+                    </h3>
+                    <p className="text-sm text-slate-600">
+                      Die KI-Gegner haben ihre Entscheidungen getroffen. Die Marktberechnung wird durchgeführt.
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      Dies kann einige Sekunden dauern...
+                    </p>
+                  </div>
+                )}
+
+              {/* Show results if available */}
+              {groupData?.lastResult && (
+                <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4">
+                  <h3 className="text-lg font-semibold text-slate-800">
+                    Ergebnisse Periode {groupData.lastResult.period}
+                  </h3>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="rounded bg-slate-50 p-3">
+                      <p className="text-xs text-slate-600">Verkaufte Einheiten</p>
+                      <p className="text-xl font-semibold text-slate-900">
+                        {groupData.lastResult.soldUnits}
+                      </p>
+                    </div>
+                    <div className="rounded bg-slate-50 p-3">
+                      <p className="text-xs text-slate-600">Umsatz</p>
+                      <p className="text-xl font-semibold text-emerald-600">
+                        €{groupData.lastResult.revenue.toLocaleString("de-DE")}
+                      </p>
+                    </div>
+                    <div className="rounded bg-slate-50 p-3">
+                      <p className="text-xs text-slate-600">Gesamtkosten</p>
+                      <p className="text-xl font-semibold text-red-600">
+                        €{groupData.lastResult.totalCosts.toLocaleString("de-DE")}
+                      </p>
+                    </div>
+                    <div className="rounded bg-sky-50 p-3">
+                      <p className="text-xs text-sky-800">Gewinn</p>
+                      <p className="text-xl font-semibold text-sky-900">
+                        €{groupData.lastResult.profit.toLocaleString("de-DE")}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-sm text-slate-600">
+                    <p>Endkapital: €{groupData.lastResult.endingCapital.toLocaleString("de-DE")}</p>
+                    <p>Lagerbestand: {groupData.lastResult.endingInventory} Einheiten</p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
