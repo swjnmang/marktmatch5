@@ -37,6 +37,8 @@ export interface GroupState {
   selectedMachine?: string;
   joinedAt?: any; // Firestore Timestamp
   lastResult?: PeriodResult;
+  isAI?: boolean; // Flag for AI-controlled groups in Solo mode
+  aiStrategy?: "aggressive" | "conservative" | "balanced" | "innovative";
 }
 
 export interface PeriodDecision {
@@ -83,4 +85,6 @@ export interface GameDocument {
   phase?: "machine_selection" | "decisions" | "results";
   phaseEndsAt?: number;
   createdAt?: any; // Firestore Timestamp
+  isSoloMode?: boolean; // Flag for Solo mode games
+  humanGroupId?: string; // ID of the human player's group in Solo mode
 }

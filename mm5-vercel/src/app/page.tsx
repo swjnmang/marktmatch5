@@ -29,7 +29,7 @@ export default function Home() {
             <p className="text-slate-600">
               Starte als Spielleitung ein neues Spiel oder tritt als Gruppe per Code bei.
             </p>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <Link
                 href="/spielleiter"
                 className="group flex flex-col gap-2 rounded-xl bg-sky-50 px-5 py-4 ring-1 ring-sky-100 transition hover:-translate-y-0.5 hover:shadow-md"
@@ -58,6 +58,20 @@ export default function Home() {
                   Eigenes Gerät nutzen, Code eingeben, Entscheidungen abgeben und Ergebnisse sehen.
                 </p>
               </Link>
+              <Link
+                href="/solo"
+                className="group flex flex-col gap-2 rounded-xl bg-gradient-to-br from-purple-50 to-indigo-50 px-5 py-4 ring-1 ring-purple-200 transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-base font-semibold text-purple-900">Solo-Modus</span>
+                  <span className="text-xs font-medium text-purple-700 group-hover:translate-x-0.5 transition">
+                    Spielen →
+                  </span>
+                </div>
+                <p className="text-sm text-purple-900/80">
+                  Alleine gegen 4 KI-Gegner spielen. Perfekt zum Üben oder Lernen!
+                </p>
+              </Link>
             </div>
             <div className="mt-4">
               <Link
@@ -83,10 +97,10 @@ export default function Home() {
               <div className="mt-4 rounded-lg bg-white/5 px-3 py-2.5 text-xs text-slate-200">
                 <p className="font-semibold text-white mb-1">Neue Features:</p>
                 <ul className="space-y-1">
+                  <li>• Solo-Modus gegen KI-Gegner</li>
                   <li>• Vollständige Spielmechanik</li>
                   <li>• Marktberechnung mit Elastizität</li>
                   <li>• Begleitmaterial-Seite</li>
-                  <li>• Auto-Update Versionierung</li>
                 </ul>
               </div>
             </div>
