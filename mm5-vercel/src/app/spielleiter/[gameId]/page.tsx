@@ -460,15 +460,7 @@ export default function GameDashboardPage() {
             >
               {startLoading ? "Startet..." : `⏭️ Periode ${game.period + 1} starten`}
             </button>
-          )}rtLoading
-                ? "Startet..."
-                : `🚀 Spiel mit ${groups.length} Gruppe(n) starten`
-              : canAdvanceAfterSelection
-              ? startLoading
-                ? "Nächste Phase..."
-                : "▶️ Periode starten"
-              : `Periode ${(game.period || 0) + 1} starten (kommt bald)`}
-          </button>
+          )}
         </div>
 
         <Link href="/spielleiter" className="text-sm font-semibold text-sky-700 hover:underline">
