@@ -92,6 +92,16 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* Admin Link - versteckt am unteren Rand */}
+        <div className="text-center">
+          <Link
+            href="/admin"
+            className="text-xs text-slate-400 hover:text-slate-600 transition"
+          >
+            Master Admin
+          </Link>
+        </div>
       </div>
     </main>
   );

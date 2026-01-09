@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { db } from "@/lib/firebase";
@@ -13,7 +13,9 @@ import { calculateMarket, type MarketCalculationInput } from "@/lib/gameLogic";
 export default function GameDashboardPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const gameId = params.gameId as string;
+  const showPinsParam = searchParams.get('showPins');
 
   const [game, setGame] = useState<GameDocument | null>(null);
   const [groups, setGroups] = useState<GroupState[]>([]);
@@ -24,6 +26,7 @@ export default function GameDashboardPage() {
   const [startError, setStartError] = useState("");
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [calculateLoading, setCalculateLoading] = useState(false);
+  const [showAdminPin, setShowAdminPin] = useState(showPinsParam === 'true');
 
   const allGroupsReady = groups.length > 0 && groups.every((g) => g.status === "ready");
   const allGroupsSubmitted = groups.length > 0 && groups.every((g) => g.status === "submitted");
@@ -196,6 +199,37 @@ export default function GameDashboardPage() {
                   Gruppen können QR-Code scannen oder die PIN eingeben
                 </p>
               </div>
+            </div>
+
+            {/* Admin-PIN Bereich */}
+            <div className="mt-6 border-t pt-6">
+              <button
+                onClick={() => setShowAdminPin(!showAdminPin)}
+                className="text-sm font-semibold text-slate-700 hover:text-slate-900 flex items-center gap-2"
+              >
+                {showAdminPin ? "▼" : "▶"} 🔑 Admin-PIN anzeigen
+              </button>
+              
+              {showAdminPin && game.adminPin && (
+                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-xs text-slate-600 mb-2">Dein Admin-PIN für dieses Spiel:</p>
+                  <div className="flex gap-3 items-center">
+                    <div className="font-mono text-2xl font-bold text-red-700 bg-white px-4 py-2 rounded border-2 border-red-300">
+                      {game.adminPin}
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(game.adminPin);
+                        alert("✅ Admin-PIN kopiert!");
+                      }}
+                      className="rounded-lg bg-red-600 px-3 py-2 text-white text-sm font-semibold hover:bg-red-700 transition"
+                    >
+                      📋 Kopieren
+                    </button>
+                  </div>
+                  <p className="text-xs text-red-700 mt-2 font-semibold">⚠️ Nur für Spielleitung - nicht mit Gruppen teilen!</p>
+                </div>
+              )}
             </div>
           </div>
         )}

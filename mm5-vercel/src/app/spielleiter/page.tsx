@@ -12,8 +12,8 @@ import type { GameParameters } from "@/lib/types";
 export default function SpielleiterPage() {
   const router = useRouter();
   const [view, setView] = useState<"login" | "create" | "pins" | "list">("list");
-  const [preset, setPreset] = useState<"easy" | "medium" | "hard">("medium");
-  const [parameters, setParameters] = useState<GameParameters>(PRESET_PARAMETERS.medium);
+  const [preset, setPreset] = useState<"easy" | "medium" | "hard">("easy");
+  const [parameters, setParameters] = useState<GameParameters>(PRESET_PARAMETERS.easy);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [existingPin, setExistingPin] = useState("");
@@ -76,10 +76,8 @@ export default function SpielleiterPage() {
       const docRef = await addDoc(collection(db, "games"), gameDoc);
       savePinToLocalStorage(newAdminPin, docRef.id);
       
-      setGameId(docRef.id);
-      setAdminPin(newAdminPin);
-      setJoinPin(newJoinPin);
-      setView("pins");
+      // Navigiere direkt zum Game-Dashboard
+      router.push(`/spielleiter/${docRef.id}?showPins=true`);
     } catch (err) {
       console.error("Error creating game:", err);
       setError("Fehler beim Erstellen des Spiels. Versuche es erneut.");
