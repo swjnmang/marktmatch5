@@ -226,7 +226,11 @@ export default function GameDashboardPage() {
                 Wartend: {groups.filter((g) => g.status !== "ready").length}
               </span>
             </div>
-          )}eriode: {game.period}
+          )}
+          {game.status === "in_progress" && (
+            <div className="mt-4 flex flex-wrap gap-4 text-sm text-slate-700">
+              <span className="rounded-lg bg-sky-50 px-3 py-1 text-sky-700 border border-sky-200">
+                Periode: {game.period}
               </span>
               <span className="rounded-lg bg-indigo-50 px-3 py-1 text-indigo-700 border border-indigo-200">
                 Phase: {game.phase === "machine_selection" ? "Maschinenauswahl" : game.phase === "decisions" ? "Entscheidungen" : "Ergebnisse"}

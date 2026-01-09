@@ -221,7 +221,17 @@ export function GruppeGameForm() {
       const newCapital = groupData.capital - machine.cost;
       await updateDoc(doc(db, "games", gameId, "groups", groupId), {
         status: "ready",
-    
+        selectedMachine: machine.name,
+        machines: [machine],
+        capital: newCapital,
+      });
+    } catch (err: any) {
+      console.error("Error setting machine ready:", err);
+      setError(`Fehler beim Bestätigen: ${err.message}`);
+    } finally {
+      setMachineLoading(false);
+    }
+  };
 
   const handleDecisionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
