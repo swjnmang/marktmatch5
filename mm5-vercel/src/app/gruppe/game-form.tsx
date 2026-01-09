@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, collection, addDoc, serverTimestamp, updateDoc, onSnapshot, setDoc } from "firebase/firestore";
+import { doc, getDoc, collection, addDoc, serverTimestamp, updateDoc, onSnapshot, setDoc, getDocs } from "firebase/firestore";
 import type { GameDocument, GroupState, Machine, PeriodDecision } from "@/lib/types";
 
 const MACHINE_OPTIONS: Machine[] = [
@@ -152,6 +152,44 @@ export function GruppeGameForm() {
         capital: groupData!.capital - selectedMachine.cost,
         status: "ready"
       });
+
+      // Check if this is Solo mode
+      const isSoloMode = localStorage.getItem(`solo_mode_${gameId}`);
+      if (isSoloMode) {
+        // Auto-select machines for AI opponents and transition to decisions phase
+        const groupsSnapshot = await getDoc(doc(db, "games", gameId));
+        if (groupsSnapshot.exists()) {
+          const groupsRef = collection(db, "games", gameId, "groups");
+          const groupsQuery = await getDoc(doc(db, "games", gameId));
+          
+          // Get all groups
+          const allGroupsSnapshot = await getDocs(groupsRef);
+          const aiGroups = allGroupsSnapshot.docs.filter(
+            d => d.data().isAI === true && d.data().status !== "ready"
+          );
+
+          // Set machines for AI groups
+          const { selectAIMachine } = await import("@/lib/ai-opponent");
+          for (const aiDoc of aiGroups) {
+            const aiGroup = { id: aiDoc.id, ...aiDoc.data() } as GroupState;
+            const aiMachineName = selectAIMachine(aiGroup, aiGroup.aiStrategy!);
+            const aiMachine = MACHINE_OPTIONS.find(m => m.name === aiMachineName);
+            if (aiMachine) {
+              await updateDoc(doc(db, "games", gameId, "groups", aiDoc.id), {
+                machines: [aiMachine],
+                capital: aiGroup.capital - aiMachine.cost,
+                status: "ready"
+              });
+            }
+          }
+
+          // Transition game to decisions phase
+          await updateDoc(doc(db, "games", gameId), {
+            phase: "decisions",
+            period: 1
+          });
+        }
+      }
     } catch (err: any) {
       setError(`Fehler beim Maschinenkauf: ${err.message}`);
     } finally {
