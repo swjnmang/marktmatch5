@@ -146,42 +146,39 @@ export default function GameDashboardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-sky-100 px-4 py-10">
-      <section className="mx-auto max-w-4xl space-y-8">
+    <main className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-sky-100 px-4 py-6">
+      <section className="mx-auto max-w-4xl space-y-4">
         {/* Header */}
         <div>
-          <h1 className="text-4xl font-bold text-slate-900">
+          <h1 className="text-3xl font-bold text-slate-900">
             {game.status === "lobby" ? "🎮 Lobby" : "Spiel-Dashboard"}
           </h1>
         </div>
 
         {/* PIN Display Card */}
         {game.status === "lobby" && (
-          <div className="rounded-2xl bg-gradient-to-br from-sky-50 to-blue-50 p-8 shadow-lg ring-2 ring-sky-300">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">Lobby-Verbindung</h2>
+          <div className="rounded-xl bg-gradient-to-br from-sky-50 to-blue-50 p-4 shadow-lg ring-2 ring-sky-300">
+            <h2 className="text-lg font-bold text-slate-900 mb-3">Lobby-Verbindung</h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4 items-center">
               {/* Gruppen-PIN mit QR */}
-              <div className="flex flex-col items-center gap-4">
-                <div>
-                  <p className="text-sm font-semibold text-slate-600 text-center mb-3">PIN scannen oder eingeben:</p>
-                  <div className="bg-white p-4 rounded-lg border-2 border-sky-300">
-                    <QRCodeSVG 
-                      value={`${typeof window !== 'undefined' ? window.location.origin : 'https://marktmatch5.vercel.app'}/gruppe/${gameId}?pin=${game.joinPin}`} 
-                      size={200}
-                      level="H"
-                      includeMargin={true}
-                    />
-                  </div>
+              <div className="flex justify-center">
+                <div className="bg-white p-2 rounded-lg border-2 border-sky-300">
+                  <QRCodeSVG 
+                    value={`${typeof window !== 'undefined' ? window.location.origin : 'https://marktmatch5.vercel.app'}/gruppe/${gameId}?pin=${game.joinPin}`} 
+                    size={140}
+                    level="H"
+                    includeMargin={false}
+                  />
                 </div>
               </div>
 
               {/* PIN zum Eingeben */}
-              <div className="flex flex-col justify-center gap-4">
+              <div className="flex flex-col gap-3">
                 <div>
-                  <p className="text-sm font-semibold text-slate-600 mb-2">👥 Beitrittscode:</p>
-                  <div className="flex gap-3 items-center">
-                    <div className="font-mono text-5xl font-bold text-sky-700 bg-white px-6 py-4 rounded-lg border-2 border-sky-300 flex-1 text-center">
+                  <p className="text-xs font-semibold text-slate-600 mb-2">👥 Beitrittscode für Gruppen:</p>
+                  <div className="flex gap-2 items-center">
+                    <div className="font-mono text-3xl font-bold text-sky-700 bg-white px-4 py-2 rounded-lg border-2 border-sky-300">
                       {game.joinPin}
                     </div>
                     <button
@@ -189,156 +186,146 @@ export default function GameDashboardPage() {
                         navigator.clipboard.writeText(game.joinPin);
                         alert("✅ PIN kopiert!");
                       }}
-                      className="rounded-lg bg-sky-600 px-4 py-3 text-white font-semibold hover:bg-sky-700 transition whitespace-nowrap"
+                      className="rounded-lg bg-sky-600 px-3 py-2 text-sm text-white font-semibold hover:bg-sky-700 transition whitespace-nowrap"
                     >
-                      📋 Kopieren
+                      📋
                     </button>
                   </div>
+                  <p className="text-xs text-slate-500 mt-1">
+                    QR-Code scannen oder PIN eingeben
+                  </p>
                 </div>
-                <p className="text-xs text-slate-600 text-center">
-                  Gruppen können QR-Code scannen oder die PIN eingeben
-                </p>
-              </div>
-            </div>
 
-            {/* Admin-PIN Bereich */}
-            <div className="mt-6 border-t pt-6">
-              <button
-                onClick={() => setShowAdminPin(!showAdminPin)}
-                className="text-sm font-semibold text-slate-700 hover:text-slate-900 flex items-center gap-2"
-              >
-                {showAdminPin ? "▼" : "▶"} 🔑 Admin-PIN anzeigen
-              </button>
-              
-              {showAdminPin && game.adminPin && (
-                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-xs text-slate-600 mb-2">Dein Admin-PIN für dieses Spiel:</p>
-                  <div className="flex gap-3 items-center">
-                    <div className="font-mono text-2xl font-bold text-red-700 bg-white px-4 py-2 rounded border-2 border-red-300">
-                      {game.adminPin}
+                {/* Admin-PIN Bereich inline */}
+                <div className="border-t pt-3">
+                  <button
+                    onClick={() => setShowAdminPin(!showAdminPin)}
+                    className="text-xs font-semibold text-slate-700 hover:text-slate-900 flex items-center gap-2"
+                  >
+                    {showAdminPin ? "▼" : "▶"} 🔑 Admin-PIN
+                  </button>
+                  
+                  {showAdminPin && game.adminPin && (
+                    <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="flex gap-2 items-center">
+                        <div className="font-mono text-lg font-bold text-red-700 bg-white px-3 py-1 rounded border border-red-300">
+                          {game.adminPin}
+                        </div>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(game.adminPin);
+                            alert("✅ Admin-PIN kopiert!");
+                          }}
+                          className="rounded bg-red-600 px-2 py-1 text-xs text-white font-semibold hover:bg-red-700 transition"
+                        >
+                          📋
+                        </button>
+                      </div>
+                      <p className="text-xs text-red-700 mt-1">⚠️ Nur für Spielleitung</p>
                     </div>
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(game.adminPin);
-                        alert("✅ Admin-PIN kopiert!");
-                      }}
-                      className="rounded-lg bg-red-600 px-3 py-2 text-white text-sm font-semibold hover:bg-red-700 transition"
-                    >
-                      📋 Kopieren
-                    </button>
-                  </div>
-                  <p className="text-xs text-red-700 mt-2 font-semibold">⚠️ Nur für Spielleitung - nicht mit Gruppen teilen!</p>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           </div>
         )}
 
-        {/* Game Info */}
-        <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200">
-          <h2 className="text-xl font-semibold text-slate-900">Spielinformationen</h2>
-          <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
-            <div>
-              <p className="text-sm text-slate-600">Status</p>
-              <p className="font-semibold text-slate-900 capitalize">{game.status}</p>
-            </div>
-            <div>
-              <p className="text-sm text-slate-600">Gruppen</p>
-              <p className="font-semibold text-slate-900">{groups.length}</p>
-            </div>
-            <div>
-              <p className="text-sm text-slate-600">Spiel-ID</p>
-              <p className="font-mono text-xs text-slate-900">{gameId.substring(0, 8)}...</p>
+        {/* Game Info + Groups Combined */}
+        <div className="rounded-xl bg-white p-4 shadow-lg ring-1 ring-slate-200">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold text-slate-900">
+              {game.status === "lobby" ? "Wartende Gruppen" : "Spielstand"}
+            </h2>
+            <div className="flex gap-2 text-xs">
+              {game.status === "lobby" && (
+                <>
+                  <span className="rounded-lg bg-emerald-50 px-2 py-1 text-emerald-700 border border-emerald-200">
+                    ✓ {groups.filter((g) => g.status === "ready").length}
+                  </span>
+                  <span className="rounded-lg bg-amber-50 px-2 py-1 text-amber-700 border border-amber-200">
+                    ⏳ {groups.filter((g) => g.status !== "ready").length}
+                  </span>
+                </>
+              )}
+              {game.status === "in_progress" && (
+                <>
+                  <span className="rounded-lg bg-sky-50 px-2 py-1 text-sky-700 border border-sky-200">
+                    P{game.period}
+                  </span>
+                  <span className="rounded-lg bg-indigo-50 px-2 py-1 text-indigo-700 border border-indigo-200">
+                    {game.phase === "machine_selection" ? "Maschinen" : game.phase === "decisions" ? "Entscheidungen" : "Ergebnisse"}
+                  </span>
+                  {timeLeft != null && (
+                    <span className="rounded-lg bg-amber-50 px-2 py-1 text-amber-700 border border-amber-200">
+                      {formattedTimeLeft()}
+                    </span>
+                  )}
+                  {game.phase === "decisions" && (
+                    <span className="rounded-lg bg-emerald-50 px-2 py-1 text-emerald-700 border border-emerald-200">
+                      {groups.filter((g) => g.status === "submitted").length}/{groups.length}
+                    </span>
+                  )}
+                </>
+              )}
             </div>
           </div>
-          {game.status === "lobby" && (
-            <div className="mt-4 flex flex-wrap gap-4 text-sm text-slate-700">
-              <span className="rounded-lg bg-emerald-50 px-3 py-1 text-emerald-700 border border-emerald-200">
-                Bereit: {groups.filter((g) => g.status === "ready").length}
-              </span>
-              <span className="rounded-lg bg-amber-50 px-3 py-1 text-amber-700 border border-amber-200">
-                Wartend: {groups.filter((g) => g.status !== "ready").length}
-              </span>
-            </div>
-          )}
-          {game.status === "in_progress" && (
-            <div className="mt-4 flex flex-wrap gap-4 text-sm text-slate-700">
-              <span className="rounded-lg bg-sky-50 px-3 py-1 text-sky-700 border border-sky-200">
-                Periode: {game.period}
-              </span>
-              <span className="rounded-lg bg-indigo-50 px-3 py-1 text-indigo-700 border border-indigo-200">
-                Phase: {game.phase === "machine_selection" ? "Maschinenauswahl" : game.phase === "decisions" ? "Entscheidungen" : "Ergebnisse"}
-              </span>
-              {timeLeft != null && (
-                <span className="rounded-lg bg-amber-50 px-3 py-1 text-amber-700 border border-amber-200">
-                  Timer: {formattedTimeLeft()}
-                </span>
-              )}
-              {game.phase === "decisions" && (
-                <span className="rounded-lg bg-emerald-50 px-3 py-1 text-emerald-700 border border-emerald-200">
-                  Eingereicht: {groups.filter((g) => g.status === "submitted").length}/{groups.length}
-                </span>
-              )}
-            </div>
-          )}
-        </div>
 
-        {/* Groups Section */}
-        <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200">
-          <h2 className="text-xl font-semibold text-slate-900">
-            {game.status === "lobby" ? "Wartende Gruppen" : "Gruppen"}
-          </h2>
-          <div className="mt-6 space-y-3">
+          <div className="space-y-2">
             {groups.length > 0 ? (
               groups.map((group, index) => (
                 <div
                   key={group.id}
-                  className="flex items-center justify-between rounded-lg border border-slate-200 p-4 hover:border-sky-400 hover:bg-sky-50"
+                  className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 hover:border-sky-400 hover:bg-sky-50 transition"
                 >
                   <div>
-                    <p className="font-semibold text-slate-900">
+                    <p className="font-semibold text-sm text-slate-900">
                       {group.name || `Gruppe ${index + 1}`}
                     </p>
-                    <p className="text-sm text-slate-600">Status: {group.status}</p>
-                    {group.selectedMachine && (
-                      <p className="text-xs text-slate-500">Maschine: {group.selectedMachine}</p>
-                    )}
+                    <div className="flex gap-3 text-xs text-slate-600">
+                      <span>{group.status === "ready" ? "✓ Bereit" : group.status === "submitted" ? "✓ Eingereicht" : "⏳ Wartend"}</span>
+                      {group.selectedMachine && (
+                        <span>• {group.selectedMachine}</span>
+                      )}
+                    </div>
                   </div>
                   {game.status !== "lobby" && (
-                    <div className="text-right">
-                      <p className="text-sm text-slate-600">Kapital: €{group.capital}</p>
-                      <p className="text-xs text-slate-500">Lager: {group.inventory}</p>
+                    <div className="text-right text-xs text-slate-600">
+                      <p>€{group.capital.toLocaleString("de-DE")}</p>
+                      <p className="text-slate-500">Lager: {group.inventory}</p>
                     </div>
                   )}
                 </div>
               ))
             ) : (
-              <p className="text-slate-600 text-center py-8">
+              <p className="text-center text-slate-600 py-4 text-sm">
                 {game.status === "lobby" 
-                  ? "Noch keine Gruppen beigetreten. Teile den Gruppen-PIN oben!" 
+                  ? "Noch keine Gruppen beigetreten. Teile den Gruppen-PIN!" 
                   : "Keine Gruppen vorhanden"}
               </p>
             )}
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200">
-          <h2 className="text-xl font-semibold text-slate-900 mb-3">Aktionen</h2>
-          <p className="text-sm text-slate-600 mb-4">
-            {game.status === "lobby"
-              ? "Starte das Spiel, wenn alle Gruppen bereit sind."
-              : game.phase === "machine_selection"
-              ? "Aktiviere die Entscheidungsphase, wenn alle Gruppen ihre Maschine gewählt haben."
-              : game.phase === "decisions"
-              ? "Berechne die Ergebnisse, wenn alle Gruppen eingereicht haben."
-              : game.phase === "results"
-              ? "Starte die nächste Periode."
-              : "Verwalte den Spielablauf."}
-          </p>
-          {startError && (
-            <div className="mt-3 rounded-lg bg-red-50 p-3 text-sm text-red-700">{startError}</div>
-          )}
+        {/* Actions - Kompakt */}
+        <div className="rounded-xl bg-white p-4 shadow-lg ring-1 ring-slate-200">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold text-slate-900">Aktionen</h2>
+              <p className="text-xs text-slate-600 mt-1">
+                {game.status === "lobby"
+                  ? "Starte das Spiel, wenn alle Gruppen bereit sind."
+                  : game.phase === "machine_selection"
+                  ? "Aktiviere die Entscheidungsphase, wenn alle Gruppen ihre Maschine gewählt haben."
+                  : game.phase === "decisions"
+                  ? "Berechne die Ergebnisse, wenn alle Gruppen eingereicht haben."
+                  : game.phase === "results"
+                  ? "Starte die nächste Periode."
+                  : "Verwalte den Spielablauf."}
+              </p>
+              {startError && (
+                <div className="mt-2 rounded bg-red-50 p-2 text-xs text-red-700">{startError}</div>
+              )}
+            </div>
 
           {/* Lobby Start Button */}
           {game.status === "lobby" && (
@@ -372,9 +359,9 @@ export default function GameDashboardPage() {
                   setStartLoading(false);
                 }
               }}
-              className="mt-4 rounded-lg bg-sky-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
+              className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
             >
-              {startLoading ? "Startet..." : `🚀 Spiel mit ${groups.length} Gruppe(n) starten`}
+              {startLoading ? "Startet..." : `🚀 Spiel starten`}
             </button>
           )}
 
@@ -404,9 +391,9 @@ export default function GameDashboardPage() {
                   setStartLoading(false);
                 }
               }}
-              className="mt-4 rounded-lg bg-emerald-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
+              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
             >
-              {startLoading ? "Nächste Phase..." : "▶️ Zur Entscheidungsphase"}
+              {startLoading ? "Nächste..." : "▶️ Entscheidungsphase"}
             </button>
           )}
 
@@ -465,9 +452,9 @@ export default function GameDashboardPage() {
                   setCalculateLoading(false);
                 }
               }}
-              className="mt-4 rounded-lg bg-purple-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-purple-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
+              className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
             >
-              {calculateLoading ? "Berechne..." : "🔢 Ergebnisse berechnen"}
+              {calculateLoading ? "Berechne..." : "🔢 Ergebnisse"}
             </button>
           )}
 
@@ -498,11 +485,12 @@ export default function GameDashboardPage() {
                   setStartLoading(false);
                 }
               }}
-              className="mt-4 rounded-lg bg-sky-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
+              className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
             >
-              {startLoading ? "Startet..." : `⏭️ Periode ${game.period + 1} starten`}
+              {startLoading ? "Startet..." : `⏭️ Periode ${game.period + 1}`}
             </button>
           )}
+          </div>
         </div>
 
         <Link href="/spielleiter" className="text-sm font-semibold text-sky-700 hover:underline">
