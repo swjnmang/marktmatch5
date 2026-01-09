@@ -6,14 +6,14 @@ export default function Home() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(14,165,233,0.08),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(37,99,235,0.08),transparent_25%)]" />
       <div className="relative mx-auto flex max-w-6xl flex-col gap-12 px-6 py-16 sm:px-10">
         <header className="flex flex-col gap-3 sm:gap-4">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-sky-600">
-            Markt-Match 5
-          </p>
-          <h1 className="text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl">
-            Unternehmensplanspiel – digital für Spielleitung und Gruppen
+          <h1 className="text-3xl font-bold leading-tight text-slate-900 sm:text-4xl lg:text-5xl">
+            Markt-Match 5 – ein Wirtschaftsplanspiel für Einsteiger
           </h1>
-          <p className="max-w-2xl text-base text-slate-600 sm:text-lg">
-            Erstelle eine Spiel-Lobby, teile Codes mit bis zu 10 Gruppen und steuere jede Periode direkt im Browser. Gruppen geben ihre Entscheidungen selbst ein – du behältst das Dashboard im Blick.
+          <p className="max-w-3xl text-base text-slate-700 sm:text-lg leading-relaxed">
+            Willkommen bei Markt-Match 5! In diesem digitalen Unternehmensplanspiel gründet ihr eure eigene Firma zur Produktion günstiger Smartwatches für eine junge Zielgruppe. Als Unternehmer trefft ihr wichtige Entscheidungen: Welche Produktionsmaschine kaufen? Wie viele Einheiten produzieren? Zu welchem Preis verkaufen? Investieren in Marketing oder Forschung & Entwicklung?
+          </p>
+          <p className="max-w-3xl text-base text-slate-600 sm:text-lg">
+            Wetteifert mit anderen Gruppen am Markt, optimiert eure Strategie über mehrere Perioden und versucht, den größten Gewinn zu erzielen. Die Spielleitung steuert das Spiel über ein Dashboard, verteilt Codes und gibt die Ergebnisse frei – alles digital im Browser.
           </p>
           <div className="flex flex-wrap gap-3 text-sm text-slate-600">
             <span className="rounded-full bg-white px-3 py-1 shadow-sm ring-1 ring-slate-200">Next.js + Firebase</span>
