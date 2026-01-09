@@ -30,6 +30,8 @@ export function GruppeGameForm() {
   const [price, setPrice] = useState(0);
   const [buyMarketAnalysis, setBuyMarketAnalysis] = useState(false);
   const [decisionLoading, setDecisionLoading] = useState(false);
+  const [machineChoice, setMachineChoice] = useState("");
+  const [machineLoading, setMachineLoading] = useState(false);
 
   // Check localStorage on mount for existing group
   useEffect(() => {
@@ -136,6 +138,27 @@ export function GruppeGameForm() {
     }
   };
 
+  const handleMachineSelect = async () => {
+    if (!groupId || !gameId || !machineChoice) return;
+    setMachineLoading(true);
+    setError("");
+    try {
+      const selectedMachine = MACHINE_OPTIONS.find(m => m.name === machineChoice);
+      if (!selectedMachine) throw new Error("Maschine nicht gefunden");
+      
+      // Update group with selected machine
+      await updateDoc(doc(db, "games", gameId, "groups", groupId), {
+        machines: [selectedMachine],
+        capital: groupData!.capital - selectedMachine.cost,
+        status: "ready"
+      });
+    } catch (err: any) {
+      setError(`Fehler beim Maschinenkauf: ${err.message}`);
+    } finally {
+      setMachineLoading(false);
+    }
+  };
+
   return (
     <>
       <main className="mx-auto flex max-w-3xl flex-col gap-10 px-6 py-14 sm:px-10">
@@ -199,6 +222,69 @@ export function GruppeGameForm() {
 
           {joined && (
             <div className="flex flex-col gap-4">
+              {/* Machine Selection Phase */}
+              {game?.status === "in_progress" &&
+                game.phase === "machine_selection" &&
+                groupData &&
+                groupData.status !== "ready" && (
+                  <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-4">
+                    <h3 className="text-lg font-semibold text-slate-800">
+                      Maschine auswählen
+                    </h3>
+                    <p className="text-sm text-slate-600">
+                      Wähle eine Produktionsmaschine für dein Unternehmen. Jede Maschine hat unterschiedliche Kosten, Kapazität und variable Stückkosten.
+                    </p>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {MACHINE_OPTIONS.map((m) => (
+                        <label
+                          key={m.name}
+                          className={`flex cursor-pointer flex-col gap-2 rounded-lg border p-3 shadow-sm transition ${
+                            machineChoice === m.name
+                              ? "border-sky-500 ring-2 ring-sky-100"
+                              : "border-slate-200 hover:border-sky-300"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="radio"
+                                name="machine"
+                                value={m.name}
+                                checked={machineChoice === m.name}
+                                onChange={() => setMachineChoice(m.name)}
+                                className="accent-sky-600"
+                              />
+                              <span className="font-semibold text-slate-900">{m.name}</span>
+                            </div>
+                            <span className="text-xs font-mono text-slate-600">
+                              Kapazität: {m.capacity}
+                            </span>
+                          </div>
+                          <div className="text-xs text-slate-600">
+                            Kosten: €{m.cost.toLocaleString("de-DE")}, Variable Stückkosten: €
+                            {m.variableCostPerUnit.toLocaleString("de-DE")}
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                    <div className="flex flex-col gap-2 text-sm text-slate-700">
+                      <span>
+                        Verfügbares Kapital: €
+                        {groupData ? groupData.capital.toLocaleString("de-DE") : "—"}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleMachineSelect}
+                        disabled={machineLoading || !machineChoice}
+                        className="inline-flex w-fit items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        {machineLoading ? "Wird gekauft..." : "Maschine kaufen"}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+              {/* Decisions Phase */}
               {game?.status === "in_progress" &&
                 game.phase === "decisions" &&
                 groupData &&
