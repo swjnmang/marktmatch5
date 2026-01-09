@@ -73,12 +73,14 @@ export interface PeriodResult {
 }
 
 export interface GameDocument {
+  gameName: string; // Name des Spiels/der Lobby
+  adminPin: string; // Admin-PIN für Spielleiter
   joinPin: string; // Ein gemeinsamer PIN für alle Gruppen
   parameters: GameParameters;
   groups: GroupState[];
   period: number;
-  status: "lobby" | "in_progress" | "finish | "results"ed";
-  phase?: "machine_selection" | "decisions";
+  status: "lobby" | "in_progress" | "finished";
+  phase?: "machine_selection" | "decisions" | "results";
   phaseEndsAt?: number;
   createdAt?: any; // Firestore Timestamp
 }

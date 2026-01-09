@@ -1,17 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, query, where, onSnapshot, getDocs } from "firebase/firestore";
 import { generateAdminPin, generateGroupCode, savePinToLocalStorage } from "@/lib/auth";
 import { PRESET_PARAMETERS } from "@/lib/presets";
 import type { GameParameters } from "@/lib/types";
 
 export default function SpielleiterPage() {
   const router = useRouter();
-  const [view, setView] = useState<"login" | "create" | "pins">("create");
+  const [view, setView] = useState<"login" | "create" | "pins" | "list">("list");
   const [preset, setPreset] = useState<"easy" | "medium" | "hard">("medium");
   const [parameters, setParameters] = useState<GameParameters>(PRESET_PARAMETERS.medium);
   const [loading, setLoading] = useState(false);
@@ -22,6 +22,8 @@ export default function SpielleiterPage() {
   const [adminPin, setAdminPin] = useState<string>("");
   const [joinPin, setJoinPin] = useState<string>("");
   const [showAdminPin, setShowAdminPin] = useState(false);
+  const [gameName, setGameName] = useState("");
+  const [activeGames, setActiveGames] = useState<Array<{id: string, gameName: string, status: string, period: number}>>([]);
 
   const handlePresetChange = (newPreset: "easy" | "medium" | "hard") => {
     setPreset(newPreset);
@@ -31,6 +33,25 @@ export default function SpielleiterPage() {
   const handleParameterChange = (key: keyof GameParameters, value: number | boolean) => {
     setParameters((prev) => ({ ...prev, [key]: value }));
   };
+
+  // Lade aktive Spiele
+  useEffect(() => {
+    const q = query(collection(db, "games"), where("status", "in", ["lobby", "in_progress"]));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const games = snapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          gameName: data.gameName || "Unbenanntes Spiel",
+          status: data.status,
+          period: data.period || 0,
+        };
+      });
+      setActiveGames(games);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleCreateGame = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,6 +63,8 @@ export default function SpielleiterPage() {
       const newJoinPin = generateGroupCode();
 
       const gameDoc = {
+        gameName: gameName.trim() || "Mein Planspiel",
+        adminPin: newAdminPin,
         joinPin: newJoinPin,
         parameters,
         groups: [],
@@ -69,9 +92,41 @@ export default function SpielleiterPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    // TODO: Implement PIN validation
-    alert("Funktion kommt bald!");
-    setLoading(false);
+    
+    try {
+      const normalizedPin = existingPin.trim();
+      if (!normalizedPin || normalizedPin.length < 4) {
+        setError("Bitte gib eine gültige Admin-PIN ein.");
+        setLoading(false);
+        return;
+      }
+
+      // Suche nach Spiel mit dieser Admin-PIN
+      const gamesSnapshot = await getDocs(collection(db, "games"));
+      let foundGameId = "";
+      
+      gamesSnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.adminPin === normalizedPin) {
+          foundGameId = doc.id;
+        }
+      });
+
+      if (!foundGameId) {
+        setError("Ungültige Admin-PIN. Kein Spiel gefunden.");
+        setLoading(false);
+        return;
+      }
+
+      // Speichere PIN und leite weiter
+      savePinToLocalStorage(normalizedPin, foundGameId);
+      router.push(`/spielleiter/${foundGameId}`);
+    } catch (err: any) {
+      console.error("Error joining game:", err);
+      setError(`Fehler: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -158,6 +213,16 @@ export default function SpielleiterPage() {
         {view !== "pins" && (
           <div className="flex gap-2 rounded-lg bg-slate-100 p-1">
             <button
+              onClick={() => setView("list")}
+              className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition ${
+                view === "list"
+                  ? "bg-white text-sky-700 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              Aktive Spiele
+            </button>
+            <button
               onClick={() => setView("create")}
               className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition ${
                 view === "create"
@@ -175,13 +240,73 @@ export default function SpielleiterPage() {
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              Zu Spiel beitreten
+              Mit PIN beitreten
             </button>
           </div>
         )}
+
+        {/* Active Games List */}
+        {view === "list" && (
+          <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200">
+            <h2 className="text-xl font-semibold text-slate-900 mb-4">Aktive Spiele</h2>
+            {activeGames.length > 0 ? (
+              <div className="space-y-3">
+                {activeGames.map((game) => (
+                  <div
+                    key={game.id}
+                    className="flex items-center justify-between rounded-lg border border-slate-200 p-4 hover:border-sky-400 hover:bg-sky-50 transition"
+                  >
+                    <div>
+                      <p className="font-semibold text-slate-900">{game.gameName}</p>
+                      <p className="text-sm text-slate-600">
+                        Status: {game.status === "lobby" ? "Lobby" : "Läuft"} • Periode: {game.period}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        // Prüfe ob Admin-PIN im localStorage ist
+                        const storedPin = localStorage.getItem(`admin_pin_${game.id}`);
+                        if (storedPin) {
+                          router.push(`/spielleiter/${game.id}`);
+                        } else {
+                          setError("Bitte gib die Admin-PIN ein, um diesem Spiel beizutreten.");
+                          setView("login");
+                        }
+                      }}
+                      className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 transition"
+                    >
+                      Öffnen
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-slate-600 py-8">
+                Keine aktiven Spiele gefunden. Erstelle ein neues Spiel!
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Create View */}
         {view === "create" && (
           <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200">
             <form onSubmit={handleCreateGame} className="flex flex-col gap-6">
+              {/* Game Name */}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-semibold text-slate-700">
+                  Name des Spiels / der Lobby
+                </label>
+                <input
+                  type="text"
+                  value={gameName}
+                  onChange={(e) => setGameName(e.target.value)}
+                  placeholder="z.B. Klasse 10a - Wirtschaft 2026"
+                  className="rounded-lg border border-slate-200 px-3 py-2 text-base text-slate-900 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
+                />
+                <p className="text-xs text-slate-500">Dieser Name hilft dir, deine Spiele zu organisieren.</p>
+              </div>
+
               {/* Preset */}
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-semibold text-slate-700">
