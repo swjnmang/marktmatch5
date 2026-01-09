@@ -52,6 +52,34 @@ export function GruppeGameForm() {
     }
   }, [gameId]);
 
+  // Load game data and listen to changes
+  useEffect(() => {
+    if (!gameId) return;
+    
+    const gameRef = doc(db, "games", gameId);
+    const unsubscribe = onSnapshot(gameRef, (snapshot) => {
+      if (snapshot.exists()) {
+        setGame({ id: snapshot.id, ...snapshot.data() } as GameDocument);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [gameId]);
+
+  // Listen to group data changes
+  useEffect(() => {
+    if (!gameId || !groupId) return;
+
+    const groupRef = doc(db, "games", gameId, "groups", groupId);
+    const unsubscribe = onSnapshot(groupRef, (snapshot) => {
+      if (snapshot.exists()) {
+        setGroupData({ id: snapshot.id, ...snapshot.data() } as GroupState);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [gameId, groupId]);
+
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
