@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/firebase";
@@ -33,15 +33,20 @@ export function GruppeGameForm() {
   const [machineChoice, setMachineChoice] = useState("");
   const [machineLoading, setMachineLoading] = useState(false);
   const [calculating, setCalculating] = useState(false);
+  const calculatedPeriods = useRef<Set<number>>(new Set());
 
-  // Auto-calculate results in Solo mode when phase is "results"
+  // Auto-calculate results in Solo mode when phase is "results" - only once per period
   useEffect(() => {
     const autoCalculate = async () => {
       if (!game || !gameId || game.phase !== "results" || calculating) return;
       
+      // Check if we already calculated this period
+      if (calculatedPeriods.current.has(game.period)) return;
+      
       const isSoloMode = localStorage.getItem(`solo_mode_${gameId}`);
       if (!isSoloMode) return;
 
+      calculatedPeriods.current.add(game.period);
       setCalculating(true);
       try {
         // Get all groups and decisions
@@ -76,9 +81,6 @@ export function GruppeGameForm() {
             status: "waiting"
           });
         }
-
-        // Wait a moment to show results
-        await new Promise(resolve => setTimeout(resolve, 1000));
       } catch (err) {
         console.error("Calculation error:", err);
       } finally {
@@ -87,7 +89,7 @@ export function GruppeGameForm() {
     };
 
     autoCalculate();
-  }, [game?.phase, gameId, calculating]);
+  }, [game?.period, gameId, calculating]);
 
   // Check localStorage on mount for existing group
   useEffect(() => {
