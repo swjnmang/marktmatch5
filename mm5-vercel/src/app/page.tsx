@@ -58,6 +58,18 @@ export default function Home() {
                 </p>
               </Link>
             </div>
+            <div className="mt-4">
+              <Link
+                href="/materialien"
+                className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 px-5 py-3 ring-1 ring-emerald-200 transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <span className="text-xl">📚</span>
+                <span className="text-base font-semibold text-emerald-800">Begleitmaterial</span>
+                <span className="text-xs font-medium text-emerald-700">
+                  Vorlagen & Anleitungen
+                </span>
+              </Link>
+            </div>
           </div>
 
           <div className="rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 px-6 py-7 text-slate-50 shadow-lg ring-1 ring-white/10">
