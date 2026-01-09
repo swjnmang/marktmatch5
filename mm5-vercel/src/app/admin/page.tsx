@@ -7,7 +7,7 @@ import { db } from "@/lib/firebase";
 import { collection, query, onSnapshot, doc, updateDoc, deleteDoc, getDocs } from "firebase/firestore";
 import type { GameDocument } from "@/lib/types";
 
-const MASTER_PIN = process.env.NEXT_PUBLIC_MASTER_ADMIN_PIN || "ADMIN2026";
+const MASTER_PIN = process.env.NEXT_PUBLIC_MASTER_ADMIN_PIN || "2#Wadlstrumpf";
 
 export default function MasterAdminPage() {
   const router = useRouter();
