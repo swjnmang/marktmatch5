@@ -37,11 +37,14 @@ export function GruppeGameForm() {
     setError("");
     try {
       const groupsRef = collection(db, "games", gameId, "groups");
-      const newGroup: GroupState = {
+      const newGroup: Omit<GroupState, "id"> = {
         name: groupName,
         capital: 50000,
         inventory: 0,
+        cumulativeProfit: 0,
         machines: [],
+        cumulativeRndInvestment: 0,
+        rndBenefitApplied: false,
         status: "waiting",
       };
       const docRef = await addDoc(groupsRef, newGroup);
