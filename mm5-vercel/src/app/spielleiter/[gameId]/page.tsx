@@ -242,11 +242,7 @@ export default function GameDashboardPage() {
               )}
               {game.phase === "decisions" && (
                 <span className="rounded-lg bg-emerald-50 px-3 py-1 text-emerald-700 border border-emerald-200">
-                  Eingereicht: {groups.filter((g) => g.status === "submitted").length}/{groups.lengthne_selection" ? "Maschinenauswahl" : "Entscheidungen"}
-              </span>
-              {timeLeft != null && (
-                <span className="rounded-lg bg-indigo-50 px-3 py-1 text-indigo-700 border border-indigo-200">
-                  Timer: {formattedTimeLeft()}
+                  Eingereicht: {groups.filter((g) => g.status === "submitted").length}/{groups.length}
                 </span>
               )}
             </div>

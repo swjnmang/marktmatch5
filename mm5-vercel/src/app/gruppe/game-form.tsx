@@ -299,16 +299,6 @@ export function GruppeGameForm() {
     } finally {
       setDecisionLoading(false);
     }
-  };    selectedMachine: machine.name,
-        machines: [machine],
-        capital: newCapital,
-      });
-    } catch (err: any) {
-      console.error("Error setting machine ready:", err);
-      setError(`Fehler beim Bestätigen: ${err.message}`);
-    } finally {
-      setMachineLoading(false);
-    }
   };
 
   return (
