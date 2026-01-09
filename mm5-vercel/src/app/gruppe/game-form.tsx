@@ -281,10 +281,10 @@ export function GruppeGameForm() {
         production,
         sellFromInventory,
         price,
-        marketingEffort: game.period === 5 ? marketingEffort : undefined,
+        marketingEffort: game.period >= 5 ? marketingEffort : 0,
         buyMarketAnalysis,
         rndInvestment: game.parameters.isRndEnabled && game.period >= 3 ? rndInvestment : 0,
-        newMachine: newMachine || undefined,
+        newMachine: newMachine || "",
         submittedAt: serverTimestamp() as any,
       };
 
@@ -383,10 +383,11 @@ export function GruppeGameForm() {
                       Produktionsmenge
                       <input
                         type="number"
-                        value={production}
-                        onChange={(e) => setProduction(Number(e.target.value))}
+                        value={production === 0 ? "" : production}
+                        onChange={(e) => setProduction(e.target.value === "" ? 0 : Number(e.target.value))}
                         min={0}
                         max={groupData?.machines?.reduce((sum, m) => sum + m.capacity, 0) || 0}
+                        placeholder="0"
                         className="rounded-lg border border-slate-200 px-3 py-2 text-base shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
                       />
                       <span className="text-xs text-slate-500">
@@ -398,10 +399,11 @@ export function GruppeGameForm() {
                       Verkauf aus Lager
                       <input
                         type="number"
-                        value={sellFromInventory}
-                        onChange={(e) => setSellFromInventory(Number(e.target.value))}
+                        value={sellFromInventory === 0 ? "" : sellFromInventory}
+                        onChange={(e) => setSellFromInventory(e.target.value === "" ? 0 : Number(e.target.value))}
                         min={0}
                         max={groupData?.inventory || 0}
+                        placeholder="0"
                         className="rounded-lg border border-slate-200 px-3 py-2 text-base shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
                       />
                       <span className="text-xs text-slate-500">Lagerbestand: {groupData?.inventory || 0}</span>
@@ -442,10 +444,11 @@ export function GruppeGameForm() {
                         F&E-Investition (€)
                         <input
                           type="number"
-                          value={rndInvestment}
-                          onChange={(e) => setRndInvestment(Number(e.target.value))}
+                          value={rndInvestment === 0 ? "" : rndInvestment}
+                          onChange={(e) => setRndInvestment(e.target.value === "" ? 0 : Number(e.target.value))}
                           min={0}
                           step={100}
+                          placeholder="0"
                           className="rounded-lg border border-slate-200 px-3 py-2 text-base shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
                         />
                         <span className="text-xs text-slate-500">

@@ -63,9 +63,9 @@ export function calculateMarket(
 
   const adjustedDemand = baseDemand * priceElasticityMultiplier;
 
-  // 5. Berechne Marketing-Scores (nur in Periode 5)
+  // 5. Berechne Marketing-Scores (ab Periode 5)
   const marketingScores: { [groupId: string]: number } = {};
-  const isMarketingPeriod = period === 5;
+  const isMarketingPeriod = period >= 5;
 
   if (isMarketingPeriod) {
     const totalMarketing = inputs.reduce((sum, input) => sum + (input.decision.marketingEffort || 0), 0);
@@ -204,7 +204,7 @@ function calculateSalesShares(
     // Preis-Attraktivität (inverse Beziehung: niedriger Preis = höher)
     const priceAttractiveness = 1 / input.decision.price;
     
-    // Marketing-Bonus (nur in Periode 5)
+    // Marketing-Bonus (ab Periode 5)
     const marketingBonus = marketingScores[input.groupId] 
       ? marketingScores[input.groupId] * parameters.marketingEffectivenessFactor 
       : 0;

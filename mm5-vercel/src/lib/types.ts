@@ -45,10 +45,10 @@ export interface PeriodDecision {
   production: number;
   sellFromInventory: number;
   price: number;
-  marketingEffort?: number;
+  marketingEffort: number;
   buyMarketAnalysis: boolean;
   rndInvestment: number;
-  newMachine?: string;
+  newMachine: string;
   submittedAt?: any; // Firestore Timestamp
 }
 
