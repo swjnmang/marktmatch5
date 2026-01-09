@@ -32,6 +32,62 @@ export function GruppeGameForm() {
   const [decisionLoading, setDecisionLoading] = useState(false);
   const [machineChoice, setMachineChoice] = useState("");
   const [machineLoading, setMachineLoading] = useState(false);
+  const [calculating, setCalculating] = useState(false);
+
+  // Auto-calculate results in Solo mode when phase is "results"
+  useEffect(() => {
+    const autoCalculate = async () => {
+      if (!game || !gameId || game.phase !== "results" || calculating) return;
+      
+      const isSoloMode = localStorage.getItem(`solo_mode_${gameId}`);
+      if (!isSoloMode) return;
+
+      setCalculating(true);
+      try {
+        // Get all groups and decisions
+        const groupsSnapshot = await getDocs(collection(db, "games", gameId, "groups"));
+        const allGroups = groupsSnapshot.docs.map(d => ({ id: d.id, ...d.data() } as GroupState));
+        
+        const decisionsSnapshot = await getDocs(collection(db, "games", gameId, "decisions"));
+        const allDecisions: Record<string, PeriodDecision> = {};
+        decisionsSnapshot.docs.forEach(d => {
+          allDecisions[d.id] = d.data() as PeriodDecision;
+        });
+
+        // Calculate market results
+        const { calculateMarketResults } = await import("@/lib/market-calculation");
+        const results = await calculateMarketResults(game, allGroups, allDecisions);
+
+        // Update each group with results
+        for (const group of allGroups) {
+          const result = results[group.id];
+          if (!result) continue;
+
+          const newCumulativeRnd = group.cumulativeRndInvestment + (allDecisions[group.id]?.rndInvestment || 0);
+          const rndBenefitApplied = newCumulativeRnd >= game.parameters.rndBenefitThreshold;
+
+          await updateDoc(doc(db, "games", gameId, "groups", group.id), {
+            capital: result.endingCapital,
+            inventory: result.endingInventory,
+            cumulativeProfit: group.cumulativeProfit + result.profit,
+            cumulativeRndInvestment: newCumulativeRnd,
+            rndBenefitApplied,
+            lastResult: result,
+            status: "waiting"
+          });
+        }
+
+        // Wait a moment to show results
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } catch (err) {
+        console.error("Calculation error:", err);
+      } finally {
+        setCalculating(false);
+      }
+    };
+
+    autoCalculate();
+  }, [game?.phase, gameId, calculating]);
 
   // Check localStorage on mount for existing group
   useEffect(() => {
@@ -220,6 +276,57 @@ export function GruppeGameForm() {
       setError(`Fehler beim Maschinenkauf: ${err.message}`);
     } finally {
       setMachineLoading(false);
+    }
+  };
+
+  const handleNextPeriod = async () => {
+    if (!gameId) return;
+    setLoading(true);
+    try {
+      // Reset all groups to waiting status
+      const groupsSnapshot = await getDocs(collection(db, "games", gameId, "groups"));
+      for (const groupDoc of groupsSnapshot.docs) {
+        await updateDoc(doc(db, "games", gameId, "groups", groupDoc.id), {
+          status: "waiting"
+        });
+      }
+
+      // Increment period and go back to decisions
+      await updateDoc(doc(db, "games", gameId), {
+        period: game!.period + 1,
+        phase: "decisions"
+      });
+
+      // Reset form
+      setProduction(0);
+      setSellFromInventory(0);
+      setPrice(0);
+      setBuyMarketAnalysis(false);
+    } catch (err: any) {
+      setError(`Fehler: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEndGame = async () => {
+    if (!gameId || !confirm("Spiel wirklich beenden?")) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, "games", gameId), {
+        status: "finished"
+      });
+      
+      // Clear localStorage
+      localStorage.removeItem(`group_${gameId}`);
+      localStorage.removeItem(`solo_mode_${gameId}`);
+      
+      // Redirect to home
+      window.location.href = "/";
+    } catch (err: any) {
+      setError(`Fehler: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -451,11 +558,17 @@ export function GruppeGameForm() {
                 )}
 
               {/* Show results if available */}
-              {groupData?.lastResult && (
-                <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4">
-                  <h3 className="text-lg font-semibold text-slate-800">
-                    Ergebnisse Periode {groupData.lastResult.period}
-                  </h3>
+              {groupData?.lastResult && game?.phase === "results" && (
+                <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-slate-800">
+                      Ergebnisse Periode {groupData.lastResult.period}
+                    </h3>
+                    <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-800">
+                      Periode abgeschlossen
+                    </span>
+                  </div>
+                  
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div className="rounded bg-slate-50 p-3">
                       <p className="text-xs text-slate-600">Verkaufte Einheiten</p>
@@ -475,16 +588,56 @@ export function GruppeGameForm() {
                         €{groupData.lastResult.totalCosts.toLocaleString("de-DE")}
                       </p>
                     </div>
-                    <div className="rounded bg-sky-50 p-3">
-                      <p className="text-xs text-sky-800">Gewinn</p>
-                      <p className="text-xl font-semibold text-sky-900">
+                    <div className="rounded bg-sky-50 p-3 ring-2 ring-sky-200">
+                      <p className="text-xs text-sky-800 font-semibold">Gewinn / Verlust</p>
+                      <p className={`text-xl font-bold ${groupData.lastResult.profit >= 0 ? 'text-sky-900' : 'text-red-600'}`}>
                         €{groupData.lastResult.profit.toLocaleString("de-DE")}
                       </p>
                     </div>
                   </div>
-                  <div className="text-sm text-slate-600">
-                    <p>Endkapital: €{groupData.lastResult.endingCapital.toLocaleString("de-DE")}</p>
-                    <p>Lagerbestand: {groupData.lastResult.endingInventory} Einheiten</p>
+                  
+                  <div className="grid gap-2 rounded bg-slate-50 p-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">Neues Kapital:</span>
+                      <span className="font-semibold text-slate-900">
+                        €{groupData.lastResult.endingCapital.toLocaleString("de-DE")}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">Lagerbestand:</span>
+                      <span className="font-semibold text-slate-900">
+                        {groupData.lastResult.endingInventory} Einheiten
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">Marktanteil:</span>
+                      <span className="font-semibold text-slate-900">
+                        {groupData.lastResult.marketShare?.toFixed(1)}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">Kumulierter Gewinn:</span>
+                      <span className={`font-semibold ${groupData.cumulativeProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                        €{groupData.cumulativeProfit.toLocaleString("de-DE")}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2 sm:flex-row sm:gap-3 pt-2">
+                    <button
+                      onClick={handleNextPeriod}
+                      disabled={loading}
+                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {loading ? "Lädt..." : "Nächste Periode starten →"}
+                    </button>
+                    <button
+                      onClick={handleEndGame}
+                      disabled={loading}
+                      className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      Spiel beenden
+                    </button>
                   </div>
                 </div>
               )}
