@@ -10,17 +10,12 @@ export default function Home() {
           <h1 className="text-3xl font-bold leading-tight text-slate-900 sm:text-4xl lg:text-5xl">
             Markt-Match 5 – ein Wirtschaftsplanspiel für Einsteiger
           </h1>
-          <p className="max-w-3xl text-base text-slate-700 sm:text-lg leading-relaxed">
+          <p className="text-base text-slate-700 sm:text-lg leading-relaxed">
             Willkommen bei Markt-Match 5! In diesem digitalen Unternehmensplanspiel gründet ihr eure eigene Firma zur Produktion günstiger Smartwatches für eine junge Zielgruppe. Als Unternehmer trefft ihr wichtige Entscheidungen: Welche Produktionsmaschine kaufen? Wie viele Einheiten produzieren? Zu welchem Preis verkaufen? Investieren in Marketing oder Forschung & Entwicklung?
           </p>
-          <p className="max-w-3xl text-base text-slate-600 sm:text-lg">
+          <p className="text-base text-slate-600 sm:text-lg">
             Wetteifert mit anderen Gruppen am Markt, optimiert eure Strategie über mehrere Perioden und versucht, den größten Gewinn zu erzielen. Die Spielleitung steuert das Spiel über ein Dashboard, verteilt Codes und gibt die Ergebnisse frei – alles digital im Browser.
           </p>
-          <div className="flex flex-wrap gap-3 text-sm text-slate-600">
-            <span className="rounded-full bg-white px-3 py-1 shadow-sm ring-1 ring-slate-200">Next.js + Firebase</span>
-            <span className="rounded-full bg-white px-3 py-1 shadow-sm ring-1 ring-slate-200">Gruppen-Codes & PIN</span>
-            <span className="rounded-full bg-white px-3 py-1 shadow-sm ring-1 ring-slate-200">Echtzeit-Dashboard</span>
-          </div>
         </header>
 
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
