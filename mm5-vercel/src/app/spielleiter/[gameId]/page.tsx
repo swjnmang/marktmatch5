@@ -26,7 +26,7 @@ export default function GameDashboardPage() {
   const [startError, setStartError] = useState("");
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [calculateLoading, setCalculateLoading] = useState(false);
-  const [showAdminPin, setShowAdminPin] = useState(showPinsParam === 'true');
+  const [showAdminPin, setShowAdminPin] = useState(false);
 
   const allGroupsReady = groups.length > 0 && groups.every((g) => g.status === "ready");
   const allGroupsSubmitted = groups.length > 0 && groups.every((g) => g.status === "submitted");
