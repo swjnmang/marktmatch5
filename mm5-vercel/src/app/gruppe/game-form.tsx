@@ -31,6 +31,27 @@ export function GruppeGameForm() {
   const [buyMarketAnalysis, setBuyMarketAnalysis] = useState(false);
   const [decisionLoading, setDecisionLoading] = useState(false);
 
+  // Check localStorage on mount for existing group
+  useEffect(() => {
+    const storedGroupId = localStorage.getItem(`group_${gameId}`);
+    if (storedGroupId) {
+      setGroupId(storedGroupId);
+      setJoined(true);
+      // Load group data from Firestore
+      const loadGroup = async () => {
+        try {
+          const groupDoc = await getDoc(doc(db, "games", gameId, "groups", storedGroupId));
+          if (groupDoc.exists()) {
+            setGroupData({ id: groupDoc.id, ...groupDoc.data() } as GroupState);
+          }
+        } catch (err) {
+          console.error("Error loading group:", err);
+        }
+      };
+      loadGroup();
+    }
+  }, [gameId]);
+
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
