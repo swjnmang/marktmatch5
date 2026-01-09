@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { VERSION } from "@/lib/version";
 
 export default function Home() {
   return (
@@ -75,16 +76,17 @@ export default function Home() {
           <div className="rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 px-6 py-7 text-slate-50 shadow-lg ring-1 ring-white/10">
             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Letzte Aktualisierung</p>
             <div className="mt-4 space-y-2">
-              <p className="text-2xl font-bold text-white">v1.2.0</p>
+              <p className="text-2xl font-bold text-white">v{VERSION.number}</p>
               <p className="text-sm text-slate-300">
-                09. Januar 2026, 08:30 Uhr
+                {VERSION.date}, {VERSION.time} Uhr
               </p>
               <div className="mt-4 rounded-lg bg-white/5 px-3 py-2.5 text-xs text-slate-200">
                 <p className="font-semibold text-white mb-1">Neue Features:</p>
                 <ul className="space-y-1">
-                  <li>• Maschinenauswahl mit Timer</li>
-                  <li>• Live-Status für alle Gruppen</li>
-                  <li>• Periode-Timer im Dashboard</li>
+                  <li>• Vollständige Spielmechanik</li>
+                  <li>• Marktberechnung mit Elastizität</li>
+                  <li>• Begleitmaterial-Seite</li>
+                  <li>• Auto-Update Versionierung</li>
                 </ul>
               </div>
             </div>
