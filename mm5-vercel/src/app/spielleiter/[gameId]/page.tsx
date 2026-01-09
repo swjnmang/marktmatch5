@@ -288,11 +288,19 @@ export default function GameDashboardPage() {
           </div>
         </div>
 
-        {/* Actigame.phase === "decisions"
+        {/* Actions */}
+        <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200">
+          <h2 className="text-xl font-semibold text-slate-900 mb-3">Aktionen</h2>
+          <p className="text-sm text-slate-600 mb-4">
+            {game.status === "lobby"
+              ? "Starte das Spiel, wenn alle Gruppen bereit sind."
+              : game.phase === "machine_selection"
+              ? "Aktiviere die Entscheidungsphase, wenn alle Gruppen ihre Maschine gewählt haben."
+              : game.phase === "decisions"
               ? "Berechne die Ergebnisse, wenn alle Gruppen eingereicht haben."
               : game.phase === "results"
               ? "Starte die nächste Periode."
-              : "Aktiviere die Entscheidungsphase für die nächste Periode."}
+              : "Verwalte den Spielablauf."}
           </p>
           {startError && (
             <div className="mt-3 rounded-lg bg-red-50 p-3 text-sm text-red-700">{startError}</div>
