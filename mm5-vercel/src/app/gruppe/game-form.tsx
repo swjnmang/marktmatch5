@@ -386,11 +386,11 @@ export function GruppeGameForm() {
                         value={production}
                         onChange={(e) => setProduction(Number(e.target.value))}
                         min={0}
-                        max={groupData.machines.reduce((sum, m) => sum + m.capacity, 0)}
+                        max={groupData?.machines?.reduce((sum, m) => sum + m.capacity, 0) || 0}
                         className="rounded-lg border border-slate-200 px-3 py-2 text-base shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
                       />
                       <span className="text-xs text-slate-500">
-                        Max: {groupData.machines.reduce((sum, m) => sum + m.capacity, 0)} (Kapazität)
+                        Max: {groupData?.machines?.reduce((sum, m) => sum + m.capacity, 0) || 0} (Kapazität)
                       </span>
                     </label>
 
