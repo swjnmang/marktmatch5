@@ -497,13 +497,6 @@ export function GruppeGameForm() {
                 </form>
               )}
 
-              {game?.status === "in_progress" && game.phase === "decisions" && groupData?.status === "submitted" && (
-                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">
-                  <p className="font-semibold">Entscheidungen eingereicht</p>
-                  <p className="text-sm">Warte auf die Berechnung durch die Spielleitung.</p>
-                </div>
-              )}
-
               {game?.status === "in_progress" && game.phase === "results" && groupData && groupData.lastResult && (
                 <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4">
                   <h3 className="text-lg font-semibold text-slate-800">Ergebnisse Periode {groupData.lastResult.period}</h3>
