@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { db } from "@/lib/firebase";
-import { doc, collection, onSnapshot, updateDoc } from "firebase/firestore";
+import { doc, collection, onSnapshot, updateDoc, writeBatch } from "firebase/firestore";
 import { checkPinFromLocalStorage } from "@/lib/auth";
 import type { GameDocument, GroupState } from "@/lib/types";
 
@@ -21,6 +21,12 @@ export default function GameDashboardPage() {
   const [isPinValid, setIsPinValid] = useState(false);
   const [startLoading, setStartLoading] = useState(false);
   const [startError, setStartError] = useState("");
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+
+  const allGroupsReady = groups.length > 0 && groups.every((g) => g.status === "ready");
+  const lobbyStartDisabled = game?.status !== "lobby" || groups.length === 0 || !allGroupsReady || startLoading;
+  const canAdvanceAfterSelection =
+    game?.status === "in_progress" && game.phase === "machine_selection" && allGroupsReady;
 
   useEffect(() => {
     if (!gameId) return;
@@ -70,6 +76,33 @@ export default function GameDashboardPage() {
       unsubscribeGroups();
     };
   }, [gameId, router]);
+
+  // Countdown für aktuelle Phase
+  useEffect(() => {
+    if (!game?.phaseEndsAt) {
+      setTimeLeft(null);
+      return;
+    }
+
+    const updateTime = () => {
+      const remaining = game.phaseEndsAt! - Date.now();
+      setTimeLeft(remaining > 0 ? remaining : 0);
+    };
+
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, [game?.phaseEndsAt]);
+
+  const formattedTimeLeft = () => {
+    if (timeLeft == null) return "";
+    const totalSeconds = Math.floor(timeLeft / 1000);
+    const minutes = Math.floor(totalSeconds / 60)
+      .toString()
+      .padStart(2, "0");
+    const seconds = (totalSeconds % 60).toString().padStart(2, "0");
+    return `${minutes}:${seconds}`;
+  };
 
   if (!isPinValid) {
     return (
@@ -189,6 +222,18 @@ export default function GameDashboardPage() {
               </span>
             </div>
           )}
+          {game.status === "in_progress" && (
+            <div className="mt-4 flex flex-wrap gap-4 text-sm text-slate-700">
+              <span className="rounded-lg bg-sky-50 px-3 py-1 text-sky-700 border border-sky-200">
+                Phase: {game.phase === "machine_selection" ? "Maschinenauswahl" : "Entscheidungen"}
+              </span>
+              {timeLeft != null && (
+                <span className="rounded-lg bg-indigo-50 px-3 py-1 text-indigo-700 border border-indigo-200">
+                  Timer: {formattedTimeLeft()}
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Groups Section */}
@@ -208,6 +253,9 @@ export default function GameDashboardPage() {
                       {group.name || `Gruppe ${index + 1}`}
                     </p>
                     <p className="text-sm text-slate-600">Status: {group.status}</p>
+                    {group.selectedMachine && (
+                      <p className="text-xs text-slate-500">Maschine: {group.selectedMachine}</p>
+                    )}
                   </div>
                   {game.status !== "lobby" && (
                     <div className="text-right">
@@ -241,12 +289,41 @@ export default function GameDashboardPage() {
             <div className="mt-3 rounded-lg bg-red-50 p-3 text-sm text-red-700">{startError}</div>
           )}
           <button
-            disabled={game.status !== "lobby" || groups.length === 0 || groups.some((g) => g.status !== "ready") || startLoading}
+            disabled={(game.status === "lobby" && lobbyStartDisabled) || (game.status !== "lobby" && !canAdvanceAfterSelection) || startLoading}
             onClick={async () => {
+              if (!game) return;
               setStartLoading(true);
               setStartError("");
               try {
-                await updateDoc(doc(db, "games", gameId), { status: "in_progress", period: 1 });
+                const endsAt = Date.now() + (game.parameters?.periodDurationMinutes || 10) * 60 * 1000;
+
+                if (game.status === "lobby") {
+                  const batch = writeBatch(db);
+                  batch.update(doc(db, "games", gameId), {
+                    status: "in_progress",
+                    period: 1,
+                    phase: "machine_selection",
+                    phaseEndsAt: endsAt,
+                  });
+                  groups.forEach((g) => {
+                    batch.update(doc(db, "games", gameId, "groups", g.id), {
+                      status: "selecting",
+                      machines: [],
+                      selectedMachine: "",
+                    });
+                  });
+                  await batch.commit();
+                } else if (canAdvanceAfterSelection) {
+                  const batch = writeBatch(db);
+                  batch.update(doc(db, "games", gameId), {
+                    phase: "decisions",
+                    phaseEndsAt: endsAt,
+                  });
+                  groups.forEach((g) => {
+                    batch.update(doc(db, "games", gameId, "groups", g.id), { status: "waiting" });
+                  });
+                  await batch.commit();
+                }
               } catch (err: any) {
                 console.error("Error starting game:", err);
                 setStartError(`Fehler beim Starten: ${err.message}`);
@@ -260,6 +337,10 @@ export default function GameDashboardPage() {
               ? startLoading
                 ? "Startet..."
                 : `🚀 Spiel mit ${groups.length} Gruppe(n) starten`
+              : canAdvanceAfterSelection
+              ? startLoading
+                ? "Nächste Phase..."
+                : "▶️ Periode starten"
               : `Periode ${(game.period || 0) + 1} starten (kommt bald)`}
           </button>
         </div>

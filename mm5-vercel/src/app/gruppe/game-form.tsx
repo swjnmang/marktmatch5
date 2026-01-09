@@ -1,25 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, collection, addDoc, serverTimestamp, updateDoc } from "firebase/firestore";
-import type { GameDocument, GroupState } from "@/lib/types";
+import { doc, getDoc, collection, addDoc, serverTimestamp, updateDoc, onSnapshot } from "firebase/firestore";
+import type { GameDocument, GroupState, Machine } from "@/lib/types";
+
+const MACHINE_OPTIONS: Machine[] = [
+  { name: "Basis", cost: 12000, capacity: 100, variableCostPerUnit: 60 },
+  { name: "Effizienz", cost: 18000, capacity: 140, variableCostPerUnit: 55 },
+  { name: "Turbo", cost: 24000, capacity: 180, variableCostPerUnit: 52 },
+  { name: "Premium", cost: 30000, capacity: 210, variableCostPerUnit: 50 },
+];
 
 export function GruppeGameForm() {
   const params = useParams();
   const searchParams = useSearchParams();
-  const router = useRouter();
   const gameId = params.gameId as string;
   const [pin, setPin] = useState("");
   const [groupName, setGroupName] = useState("");
   const [loading, setLoading] = useState(false);
-  const [readyLoading, setReadyLoading] = useState(false);
+  const [lobbyReadyLoading, setLobbyReadyLoading] = useState(false);
+  const [machineLoading, setMachineLoading] = useState(false);
   const [error, setError] = useState("");
   const [joined, setJoined] = useState(false);
   const [groupId, setGroupId] = useState<string | null>(null);
-  const [groupStatus, setGroupStatus] = useState<GroupState["status"] | null>(null);
+  const [groupData, setGroupData] = useState<GroupState | null>(null);
+  const [game, setGame] = useState<GameDocument | null>(null);
+  const [machineChoice, setMachineChoice] = useState<string>("");
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -33,16 +43,66 @@ export function GruppeGameForm() {
     if (storedGroupId) {
       setGroupId(storedGroupId);
       setJoined(true);
-      getDoc(doc(db, "games", gameId, "groups", storedGroupId)).then((groupSnap) => {
-        if (groupSnap.exists()) {
-          const data = groupSnap.data() as GroupState;
-          setGroupStatus(data.status);
-        }
-      });
     }
 
     setMounted(true);
   }, [searchParams, gameId]);
+
+  // Live Game-Daten
+  useEffect(() => {
+    const unsubscribe = onSnapshot(doc(db, "games", gameId), (snap) => {
+      if (snap.exists()) {
+        setGame(snap.data() as GameDocument);
+      }
+    });
+    return () => unsubscribe();
+  }, [gameId]);
+
+  // Live Gruppendaten
+  useEffect(() => {
+    if (!groupId) return;
+    const unsubscribe = onSnapshot(doc(db, "games", gameId, "groups", groupId), (snap) => {
+      if (snap.exists()) {
+        const data = snap.data() as GroupState;
+        setGroupData({ id: snap.id, ...data });
+      }
+    });
+    return () => unsubscribe?.();
+  }, [gameId, groupId]);
+
+  // Vorbelegung der Auswahl, falls schon gewählt
+  useEffect(() => {
+    if (groupData?.selectedMachine) {
+      setMachineChoice(groupData.selectedMachine);
+    }
+  }, [groupData?.selectedMachine]);
+
+  // Timer für aktuelle Phase
+  useEffect(() => {
+    if (!game?.phaseEndsAt) {
+      setTimeLeft(null);
+      return;
+    }
+
+    const update = () => {
+      const rest = game.phaseEndsAt! - Date.now();
+      setTimeLeft(rest > 0 ? rest : 0);
+    };
+
+    update();
+    const id = setInterval(update, 1000);
+    return () => clearInterval(id);
+  }, [game?.phaseEndsAt]);
+
+  const formattedTimeLeft = useMemo(() => {
+    if (timeLeft == null) return "";
+    const totalSeconds = Math.floor(timeLeft / 1000);
+    const minutes = Math.floor(totalSeconds / 60)
+      .toString()
+      .padStart(2, "0");
+    const seconds = (totalSeconds % 60).toString().padStart(2, "0");
+    return `${minutes}:${seconds}`;
+  }, [timeLeft]);
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,7 +168,7 @@ export function GruppeGameForm() {
       localStorage.setItem(`gameId_${docRef.id}`, gameId);
 
       setGroupId(docRef.id);
-      setGroupStatus("waiting");
+      setGroupData({ id: docRef.id, ...newGroup });
 
       // Markiere Erfolg (kein Redirect, da Dashboard noch fehlt)
       setJoined(true);
@@ -120,18 +180,46 @@ export function GruppeGameForm() {
     }
   };
 
-  const handleReady = async () => {
+  const handleLobbyReady = async () => {
     if (!groupId) return;
-    setReadyLoading(true);
+    setLobbyReadyLoading(true);
     setError("");
     try {
       await updateDoc(doc(db, "games", gameId, "groups", groupId), { status: "ready" });
-      setGroupStatus("ready");
     } catch (err: any) {
       console.error("Error setting ready:", err);
       setError(`Fehler beim Bereit-Melden: ${err.message}`);
     } finally {
-      setReadyLoading(false);
+      setLobbyReadyLoading(false);
+    }
+  };
+
+  const handleMachineReady = async () => {
+    if (!groupId || !groupData) return;
+    const machine = MACHINE_OPTIONS.find((m) => m.name === machineChoice);
+    if (!machine) {
+      setError("Bitte wähle eine Maschine aus.");
+      return;
+    }
+    if (groupData.capital < machine.cost) {
+      setError("Kapital reicht für diese Maschine nicht aus.");
+      return;
+    }
+    setMachineLoading(true);
+    setError("");
+    try {
+      const newCapital = groupData.capital - machine.cost;
+      await updateDoc(doc(db, "games", gameId, "groups", groupId), {
+        status: "ready",
+        selectedMachine: machine.name,
+        machines: [machine],
+        capital: newCapital,
+      });
+    } catch (err: any) {
+      console.error("Error setting machine ready:", err);
+      setError(`Fehler beim Bestätigen: ${err.message}`);
+    } finally {
+      setMachineLoading(false);
     }
   };
 
@@ -196,22 +284,77 @@ export function GruppeGameForm() {
 
         <div className="mt-6 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-4 text-sm text-slate-600">
           {joined ? (
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-4">
               <div className="flex items-center gap-2 text-slate-800">
                 <span className="font-semibold">Status:</span>
-                <span className="font-mono text-sm">{groupStatus || "waiting"}</span>
+                <span className="font-mono text-sm">{groupData?.status || "waiting"}</span>
               </div>
-              <button
-                type="button"
-                onClick={handleReady}
-                disabled={readyLoading || groupStatus === "ready"}
-                className="inline-flex w-fit items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {groupStatus === "ready" ? "Bereit gemeldet" : readyLoading ? "Melde bereit..." : "Bereit melden"}
-              </button>
-              <p className="text-xs text-slate-500">
-                Sobald alle Gruppen bereit sind, kann die Spielleitung das Spiel starten.
-              </p>
+
+              {game?.status === "lobby" && (
+                <div className="flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={handleLobbyReady}
+                    disabled={lobbyReadyLoading || groupData?.status === "ready"}
+                    className="inline-flex w-fit items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {groupData?.status === "ready" ? "Bereit gemeldet" : lobbyReadyLoading ? "Melde bereit..." : "Bereit melden"}
+                  </button>
+                  <p className="text-xs text-slate-500">
+                    Sobald alle Gruppen bereit sind, kann die Spielleitung das Spiel starten.
+                  </p>
+                </div>
+              )}
+
+              {game?.status === "in_progress" && game.phase === "machine_selection" && (
+                <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 text-slate-700">
+                  <div className="flex items-center justify-between text-sm font-semibold text-slate-800">
+                    <span>Maschine auswählen</span>
+                    {formattedTimeLeft && <span className="rounded bg-slate-100 px-3 py-1 font-mono text-xs">{formattedTimeLeft}</span>}
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {MACHINE_OPTIONS.map((m) => (
+                      <label key={m.name} className={`flex cursor-pointer flex-col gap-2 rounded-lg border p-3 shadow-sm transition ${machineChoice === m.name ? "border-sky-500 ring-2 ring-sky-100" : "border-slate-200 hover:border-sky-300"}`}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              name="machine"
+                              value={m.name}
+                              checked={machineChoice === m.name}
+                              onChange={() => setMachineChoice(m.name)}
+                              disabled={groupData?.status === "ready"}
+                              className="accent-sky-600"
+                            />
+                            <span className="font-semibold text-slate-900">{m.name}</span>
+                          </div>
+                          <span className="text-xs font-mono text-slate-600">Kapazität: {m.capacity}</span>
+                        </div>
+                        <div className="text-xs text-slate-600">
+                          Kosten: €{m.cost.toLocaleString("de-DE")}, Variable Stückkosten: €{m.variableCostPerUnit.toLocaleString("de-DE")}
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                  <div className="flex flex-col gap-2 text-sm text-slate-700">
+                    <span>
+                      Verfügbares Kapital: €{groupData ? groupData.capital.toLocaleString("de-DE") : "—"}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleMachineReady}
+                      disabled={machineLoading || groupData?.status === "ready"}
+                      className="inline-flex w-fit items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {groupData?.status === "ready" ? "Kauf bestätigt" : machineLoading ? "Bestätige..." : "Kauf bestätigen & bereit"}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {game?.status === "in_progress" && game.phase !== "machine_selection" && (
+                <p className="text-xs text-slate-600">Warte auf die nächste Phase. Deine Auswahl wurde gespeichert.</p>
+              )}
             </div>
           ) : (
             <>

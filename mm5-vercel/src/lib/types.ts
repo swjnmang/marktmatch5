@@ -33,7 +33,8 @@ export interface GroupState {
   machines: Machine[];
   cumulativeRndInvestment: number;
   rndBenefitApplied: boolean;
-  status: "waiting" | "ready" | "submitted" | "calculated";
+  status: "waiting" | "ready" | "submitted" | "calculated" | "selecting";
+  selectedMachine?: string;
   joinedAt?: any; // Firestore Timestamp
 }
 
@@ -64,5 +65,7 @@ export interface GameDocument {
   groups: GroupState[];
   period: number;
   status: "lobby" | "in_progress" | "finished";
+  phase?: "machine_selection" | "decisions";
+  phaseEndsAt?: number;
   createdAt?: any; // Firestore Timestamp
 }
