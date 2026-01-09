@@ -59,7 +59,7 @@ export function GruppeGameForm() {
     const gameRef = doc(db, "games", gameId);
     const unsubscribe = onSnapshot(gameRef, (snapshot) => {
       if (snapshot.exists()) {
-        setGame({ id: snapshot.id, ...snapshot.data() } as GameDocument);
+        setGame({ id: snapshot.id, ...snapshot.data() } as unknown as GameDocument);
       }
     });
 
@@ -73,7 +73,7 @@ export function GruppeGameForm() {
     const groupRef = doc(db, "games", gameId, "groups", groupId);
     const unsubscribe = onSnapshot(groupRef, (snapshot) => {
       if (snapshot.exists()) {
-        setGroupData({ id: snapshot.id, ...snapshot.data() } as GroupState);
+        setGroupData({ id: snapshot.id, ...snapshot.data() } as unknown as GroupState);
       }
     });
 
