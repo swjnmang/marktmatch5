@@ -371,7 +371,7 @@ export function GruppeGameForm() {
               <div className="flex items-center gap-2 text-slate-800">
                 <span className="font-semibold">Status:</span>
 
-              {game?.status === "in_progress" && game.phase === "decisions" && groupData?.status !== "submitted" && (
+              {game?.status === "in_progress" && game.phase === "decisions" && groupData && groupData.status !== "submitted" && (
                 <form onSubmit={handleDecisionSubmit} className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold text-slate-800">Entscheidungen Periode {game.period}</h3>
@@ -401,10 +401,10 @@ export function GruppeGameForm() {
                         value={sellFromInventory}
                         onChange={(e) => setSellFromInventory(Number(e.target.value))}
                         min={0}
-                        max={groupData.inventory}
+                        max={groupData?.inventory || 0}
                         className="rounded-lg border border-slate-200 px-3 py-2 text-base shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
                       />
-                      <span className="text-xs text-slate-500">Lagerbestand: {groupData.inventory}</span>
+                      <span className="text-xs text-slate-500">Lagerbestand: {groupData?.inventory || 0}</span>
                     </label>
 
                     <label className="flex flex-col gap-1 text-sm text-slate-700">
@@ -501,7 +501,7 @@ export function GruppeGameForm() {
                 </div>
               )}
 
-              {game?.status === "in_progress" && game.phase === "results" && groupData?.lastResult && (
+              {game?.status === "in_progress" && game.phase === "results" && groupData && groupData.lastResult && (
                 <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4">
                   <h3 className="text-lg font-semibold text-slate-800">Ergebnisse Periode {groupData.lastResult.period}</h3>
                   
