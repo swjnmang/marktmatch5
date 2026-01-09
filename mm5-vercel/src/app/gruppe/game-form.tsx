@@ -63,8 +63,8 @@ export function GruppeGameForm() {
     if (!groupId) return;
     const unsubscribe = onSnapshot(doc(db, "games", gameId, "groups", groupId), (snap) => {
       if (snap.exists()) {
-        const data = snap.data() as GroupState;
-        setGroupData({ id: snap.id, ...data });
+        const { id: _discard, ...rest } = snap.data() as GroupState;
+        setGroupData({ id: snap.id, ...(rest as Omit<GroupState, "id">) });
       }
     });
     return () => unsubscribe?.();
