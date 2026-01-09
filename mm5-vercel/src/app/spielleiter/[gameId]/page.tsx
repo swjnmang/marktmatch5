@@ -5,9 +5,10 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { db } from "@/lib/firebase";
-import { doc, collection, onSnapshot, updateDoc, writeBatch } from "firebase/firestore";
+import { doc, collection, onSnapshot, updateDoc, writeBatch, getDocs } from "firebase/firestore";
 import { checkPinFromLocalStorage } from "@/lib/auth";
-import type { GameDocument, GroupState } from "@/lib/types";
+import type { GameDocument, GroupState, PeriodDecision } from "@/lib/types";
+import { calculateMarket, type MarketCalculationInput } from "@/lib/gameLogic";
 
 export default function GameDashboardPage() {
   const params = useParams();
@@ -22,11 +23,15 @@ export default function GameDashboardPage() {
   const [startLoading, setStartLoading] = useState(false);
   const [startError, setStartError] = useState("");
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [calculateLoading, setCalculateLoading] = useState(false);
 
   const allGroupsReady = groups.length > 0 && groups.every((g) => g.status === "ready");
+  const allGroupsSubmitted = groups.length > 0 && groups.every((g) => g.status === "submitted");
   const lobbyStartDisabled = game?.status !== "lobby" || groups.length === 0 || !allGroupsReady || startLoading;
   const canAdvanceAfterSelection =
     game?.status === "in_progress" && game.phase === "machine_selection" && allGroupsReady;
+  const canCalculate = 
+    game?.status === "in_progress" && game.phase === "decisions" && allGroupsSubmitted;
 
   useEffect(() => {
     if (!gameId) return;
@@ -221,11 +226,19 @@ export default function GameDashboardPage() {
                 Wartend: {groups.filter((g) => g.status !== "ready").length}
               </span>
             </div>
-          )}
-          {game.status === "in_progress" && (
-            <div className="mt-4 flex flex-wrap gap-4 text-sm text-slate-700">
-              <span className="rounded-lg bg-sky-50 px-3 py-1 text-sky-700 border border-sky-200">
-                Phase: {game.phase === "machine_selection" ? "Maschinenauswahl" : "Entscheidungen"}
+          )}eriode: {game.period}
+              </span>
+              <span className="rounded-lg bg-indigo-50 px-3 py-1 text-indigo-700 border border-indigo-200">
+                Phase: {game.phase === "machine_selection" ? "Maschinenauswahl" : game.phase === "decisions" ? "Entscheidungen" : "Ergebnisse"}
+              </span>
+              {timeLeft != null && (
+                <span className="rounded-lg bg-amber-50 px-3 py-1 text-amber-700 border border-amber-200">
+                  Timer: {formattedTimeLeft()}
+                </span>
+              )}
+              {game.phase === "decisions" && (
+                <span className="rounded-lg bg-emerald-50 px-3 py-1 text-emerald-700 border border-emerald-200">
+                  Eingereicht: {groups.filter((g) => g.status === "submitted").length}/{groups.lengthne_selection" ? "Maschinenauswahl" : "Entscheidungen"}
               </span>
               {timeLeft != null && (
                 <span className="rounded-lg bg-indigo-50 px-3 py-1 text-indigo-700 border border-indigo-200">
@@ -275,29 +288,26 @@ export default function GameDashboardPage() {
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200">
-          <h2 className="text-xl font-semibold text-slate-900">
-            {game.status === "lobby" ? "Spiel starten" : "Periode verwalten"}
-          </h2>
-          <p className="mt-2 text-sm text-slate-600">
-            {game.status === "lobby"
-              ? "Starte das Spiel, wenn alle Gruppen bereit sind."
+        {/* Actigame.phase === "decisions"
+              ? "Berechne die Ergebnisse, wenn alle Gruppen eingereicht haben."
+              : game.phase === "results"
+              ? "Starte die nächste Periode."
               : "Aktiviere die Entscheidungsphase für die nächste Periode."}
           </p>
           {startError && (
             <div className="mt-3 rounded-lg bg-red-50 p-3 text-sm text-red-700">{startError}</div>
           )}
-          <button
-            disabled={(game.status === "lobby" && lobbyStartDisabled) || (game.status !== "lobby" && !canAdvanceAfterSelection) || startLoading}
-            onClick={async () => {
-              if (!game) return;
-              setStartLoading(true);
-              setStartError("");
-              try {
-                const endsAt = Date.now() + (game.parameters?.periodDurationMinutes || 10) * 60 * 1000;
 
-                if (game.status === "lobby") {
+          {/* Lobby Start Button */}
+          {game.status === "lobby" && (
+            <button
+              disabled={lobbyStartDisabled}
+              onClick={async () => {
+                if (!game) return;
+                setStartLoading(true);
+                setStartError("");
+                try {
+                  const endsAt = Date.now() + (game.parameters?.periodDurationMinutes || 10) * 60 * 1000;
                   const batch = writeBatch(db);
                   batch.update(doc(db, "games", gameId), {
                     status: "in_progress",
@@ -313,7 +323,29 @@ export default function GameDashboardPage() {
                     });
                   });
                   await batch.commit();
-                } else if (canAdvanceAfterSelection) {
+                } catch (err: any) {
+                  console.error("Error starting game:", err);
+                  setStartError(`Fehler beim Starten: ${err.message}`);
+                } finally {
+                  setStartLoading(false);
+                }
+              }}
+              className="mt-4 rounded-lg bg-sky-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
+            >
+              {startLoading ? "Startet..." : `🚀 Spiel mit ${groups.length} Gruppe(n) starten`}
+            </button>
+          )}
+
+          {/* Advance to Decisions Phase */}
+          {game.status === "in_progress" && game.phase === "machine_selection" && (
+            <button
+              disabled={!canAdvanceAfterSelection || startLoading}
+              onClick={async () => {
+                if (!game) return;
+                setStartLoading(true);
+                setStartError("");
+                try {
+                  const endsAt = Date.now() + (game.parameters?.periodDurationMinutes || 10) * 60 * 1000;
                   const batch = writeBatch(db);
                   batch.update(doc(db, "games", gameId), {
                     phase: "decisions",
@@ -323,18 +355,112 @@ export default function GameDashboardPage() {
                     batch.update(doc(db, "games", gameId, "groups", g.id), { status: "waiting" });
                   });
                   await batch.commit();
+                } catch (err: any) {
+                  console.error("Error advancing phase:", err);
+                  setStartError(`Fehler: ${err.message}`);
+                } finally {
+                  setStartLoading(false);
                 }
-              } catch (err: any) {
-                console.error("Error starting game:", err);
-                setStartError(`Fehler beim Starten: ${err.message}`);
-              } finally {
-                setStartLoading(false);
-              }
-            }}
-            className="mt-4 rounded-lg bg-sky-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:bg-slate-300"
-          >
-            {game.status === "lobby"
-              ? startLoading
+              }}
+              className="mt-4 rounded-lg bg-emerald-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
+            >
+              {startLoading ? "Nächste Phase..." : "▶️ Zur Entscheidungsphase"}
+            </button>
+          )}
+
+          {/* Calculate Results */}
+          {game.status === "in_progress" && game.phase === "decisions" && (
+            <button
+              disabled={!canCalculate || calculateLoading}
+              onClick={async () => {
+                if (!game) return;
+                setCalculateLoading(true);
+                setStartError("");
+                try {
+                  // Hole alle Entscheidungen
+                  const decisionsSnapshot = await getDocs(collection(db, "games", gameId, "decisions"));
+                  const decisions: { [groupId: string]: PeriodDecision } = {};
+                  decisionsSnapshot.forEach((doc) => {
+                    decisions[doc.id] = doc.data() as PeriodDecision;
+                  });
+
+                  // Baue Eingaben für Marktberechnung
+                  const inputs: MarketCalculationInput[] = groups.map((group) => ({
+                    groupId: group.id,
+                    decision: decisions[group.id],
+                    groupState: group,
+                  }));
+
+                  // Berechne Markt
+                  const results = calculateMarket(game.parameters, game.period, inputs);
+
+                  // Aktualisiere Gruppen mit Ergebnissen
+                  const batch = writeBatch(db);
+                  results.forEach((result) => {
+                    batch.update(doc(db, "games", gameId, "groups", result.groupId), {
+                      capital: result.newCapital,
+                      inventory: result.newInventory,
+                      cumulativeProfit: result.newCumulativeProfit,
+                      cumulativeRndInvestment: result.newCumulativeRndInvestment,
+                      rndBenefitApplied: result.newRndBenefitApplied,
+                      machines: result.newMachines,
+                      status: "calculated",
+                      lastResult: result.result,
+                    });
+                  });
+
+                  // Setze Phase auf "results"
+                  batch.update(doc(db, "games", gameId), {
+                    phase: "results",
+                    phaseEndsAt: null,
+                  });
+
+                  await batch.commit();
+                } catch (err: any) {
+                  console.error("Error calculating results:", err);
+                  setStartError(`Fehler bei Berechnung: ${err.message}`);
+                } finally {
+                  setCalculateLoading(false);
+                }
+              }}
+              className="mt-4 rounded-lg bg-purple-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-purple-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
+            >
+              {calculateLoading ? "Berechne..." : "🔢 Ergebnisse berechnen"}
+            </button>
+          )}
+
+          {/* Next Period */}
+          {game.status === "in_progress" && game.phase === "results" && (
+            <button
+              disabled={startLoading}
+              onClick={async () => {
+                if (!game) return;
+                setStartLoading(true);
+                setStartError("");
+                try {
+                  const endsAt = Date.now() + (game.parameters?.periodDurationMinutes || 10) * 60 * 1000;
+                  const batch = writeBatch(db);
+                  batch.update(doc(db, "games", gameId), {
+                    period: game.period + 1,
+                    phase: "decisions",
+                    phaseEndsAt: endsAt,
+                  });
+                  groups.forEach((g) => {
+                    batch.update(doc(db, "games", gameId, "groups", g.id), { status: "waiting" });
+                  });
+                  await batch.commit();
+                } catch (err: any) {
+                  console.error("Error starting next period:", err);
+                  setStartError(`Fehler: ${err.message}`);
+                } finally {
+                  setStartLoading(false);
+                }
+              }}
+              className="mt-4 rounded-lg bg-sky-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
+            >
+              {startLoading ? "Startet..." : `⏭️ Periode ${game.period + 1} starten`}
+            </button>
+          )}rtLoading
                 ? "Startet..."
                 : `🚀 Spiel mit ${groups.length} Gruppe(n) starten`
               : canAdvanceAfterSelection

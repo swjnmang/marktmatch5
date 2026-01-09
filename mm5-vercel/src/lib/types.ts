@@ -36,27 +36,40 @@ export interface GroupState {
   status: "waiting" | "ready" | "submitted" | "calculated" | "selecting";
   selectedMachine?: string;
   joinedAt?: any; // Firestore Timestamp
+  lastResult?: PeriodResult;
 }
 
 export interface PeriodDecision {
+  groupId: string;
+  period: number;
   production: number;
   sellFromInventory: number;
   price: number;
   marketingEffort?: number;
   buyMarketAnalysis: boolean;
-  rndInvestment?: number;
+  rndInvestment: number;
   newMachine?: string;
+  submittedAt?: any; // Firestore Timestamp
 }
 
 export interface PeriodResult {
+  period: number;
   soldUnits: number;
   revenue: number;
+  productionCosts: number;
   variableCosts: number;
   inventoryCost: number;
+  rndCost: number;
+  machineCost: number;
+  marketAnalysisCost: number;
   interest: number;
+  totalCosts: number;
   profit: number;
   endingInventory: number;
   endingCapital: number;
+  marketShare?: number;
+  averageMarketPrice?: number;
+  totalMarketDemand?: number;
 }
 
 export interface GameDocument {
@@ -64,7 +77,7 @@ export interface GameDocument {
   parameters: GameParameters;
   groups: GroupState[];
   period: number;
-  status: "lobby" | "in_progress" | "finished";
+  status: "lobby" | "in_progress" | "finish | "results"ed";
   phase?: "machine_selection" | "decisions";
   phaseEndsAt?: number;
   createdAt?: any; // Firestore Timestamp

@@ -4,8 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, collection, addDoc, serverTimestamp, updateDoc, onSnapshot } from "firebase/firestore";
-import type { GameDocument, GroupState, Machine } from "@/lib/types";
+import { doc, getDoc, collection, addDoc, serverTimestamp, updateDoc, onSnapshot, setDoc } from "firebase/firestore";
+import type { GameDocument, GroupState, Machine, PeriodDecision } from "@/lib/types";
 
 const MACHINE_OPTIONS: Machine[] = [
   { name: "SmartMini-Fertiger", cost: 5000, capacity: 100, variableCostPerUnit: 6 },
@@ -31,6 +31,16 @@ export function GruppeGameForm() {
   const [machineChoice, setMachineChoice] = useState<string>("");
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
+
+  // Decision Form State
+  const [production, setProduction] = useState<number>(0);
+  const [sellFromInventory, setSellFromInventory] = useState<number>(0);
+  const [price, setPrice] = useState<number>(20);
+  const [marketingEffort, setMarketingEffort] = useState<number>(5);
+  const [buyMarketAnalysis, setBuyMarketAnalysis] = useState<boolean>(false);
+  const [rndInvestment, setRndInvestment] = useState<number>(0);
+  const [newMachine, setNewMachine] = useState<string>("");
+  const [decisionLoading, setDecisionLoading] = useState(false);
 
   useEffect(() => {
     // Lese PIN direkt aus searchParams
@@ -211,7 +221,75 @@ export function GruppeGameForm() {
       const newCapital = groupData.capital - machine.cost;
       await updateDoc(doc(db, "games", gameId, "groups", groupId), {
         status: "ready",
-        selectedMachine: machine.name,
+    
+
+  const handleDecisionSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!groupId || !groupData || !game) return;
+
+    setDecisionLoading(true);
+    setError("");
+
+    try {
+      // Validierung
+      const totalCapacity = groupData.machines.reduce((sum, m) => sum + m.capacity, 0);
+      if (production > totalCapacity) {
+        setError(`Produktionsmenge (${production}) überschreitet Kapazität (${totalCapacity}).`);
+        setDecisionLoading(false);
+        return;
+      }
+      if (sellFromInventory > groupData.inventory) {
+        setError(`Verkauf aus Lager (${sellFromInventory}) überschreitet Lagerbestand (${groupData.inventory}).`);
+        setDecisionLoading(false);
+        return;
+      }
+      if (price <= 0) {
+        setError("Verkaufspreis muss größer als 0 sein.");
+        setDecisionLoading(false);
+        return;
+      }
+
+      // Maschinenkauf validieren
+      if (newMachine) {
+        const machine = MACHINE_OPTIONS.find((m) => m.name === newMachine);
+        if (!machine) {
+          setError("Unbekannte Maschine ausgewählt.");
+          setDecisionLoading(false);
+          return;
+        }
+        if (machine.cost > groupData.capital) {
+          setError(`Kapital (€${groupData.capital.toLocaleString("de-DE")}) reicht für Maschine nicht aus (€${machine.cost.toLocaleString("de-DE")}).`);
+          setDecisionLoading(false);
+          return;
+        }
+      }
+
+      // Entscheidung speichern
+      const decision: PeriodDecision = {
+        groupId,
+        period: game.period,
+        production,
+        sellFromInventory,
+        price,
+        marketingEffort: game.period === 5 ? marketingEffort : undefined,
+        buyMarketAnalysis,
+        rndInvestment: game.parameters.isRndEnabled && game.period >= 3 ? rndInvestment : 0,
+        newMachine: newMachine || undefined,
+        submittedAt: serverTimestamp() as any,
+      };
+
+      // Speichere in decisions-Subcollection
+      await setDoc(doc(db, "games", gameId, "decisions", groupId), decision);
+
+      // Setze Status auf "submitted"
+      await updateDoc(doc(db, "games", gameId, "groups", groupId), { status: "submitted" });
+    } catch (err: any) {
+      console.error("Error submitting decision:", err);
+      setError(`Fehler beim Einreichen: ${err.message}`);
+    } finally {
+      setDecisionLoading(false);
+    }
+  };    selectedMachine: machine.name,
         machines: [machine],
         capital: newCapital,
       });
@@ -230,10 +308,13 @@ export function GruppeGameForm() {
           Gruppe
         </p>
         <h1 className="text-3xl font-semibold text-slate-900 sm:text-4xl">
-          Mit Code einer Lobby beitreten
+          {joined && groupData ? groupData.name : "Mit Code einer Lobby beitreten"}
         </h1>
         <p className="text-base text-slate-600">
-          Gib die Gruppen-PIN ein, die du von der Spielleitung erhalten hast. Du siehst nur die Daten deiner eigenen Gruppe.
+          {joined && groupData 
+            ? `Spiel-ID: ${gameId.substring(0, 8)}... • Kapital: €${groupData.capital.toLocaleString("de-DE")}` 
+            : "Gib die Gruppen-PIN ein, die du von der Spielleitung erhalten hast. Du siehst nur die Daten deiner eigenen Gruppe."
+          }
         </p>
       </div>
 
@@ -243,7 +324,9 @@ export function GruppeGameForm() {
             {error}
           </div>
         )}
-        <form onSubmit={handleJoin} className="flex flex-col gap-4">
+        
+        {!joined && (
+          <form onSubmit={handleJoin} className="flex flex-col gap-4">
           <label className="flex flex-col gap-2 text-sm text-slate-700">
             Gruppen-PIN (5 Zeichen)
             <input
@@ -281,12 +364,244 @@ export function GruppeGameForm() {
             {joined ? "Beitritt erfolgreich" : loading ? "Wird beigetreten..." : "Beitreten"}
           </button>
         </form>
+        )}
 
-        <div className="mt-6 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-4 text-sm text-slate-600">
-          {joined ? (
-            <div className="flex flex-col gap-4">
+        {joined && (
+          <div className="flex flex-col gap-4">
               <div className="flex items-center gap-2 text-slate-800">
                 <span className="font-semibold">Status:</span>
+
+              {game?.status === "in_progress" && game.phase === "decisions" && groupData?.status !== "submitted" && (
+                <form onSubmit={handleDecisionSubmit} className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-slate-800">Entscheidungen Periode {game.period}</h3>
+                    {formattedTimeLeft && <span className="rounded bg-slate-100 px-3 py-1 font-mono text-xs">{formattedTimeLeft}</span>}
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <label className="flex flex-col gap-1 text-sm text-slate-700">
+                      Produktionsmenge
+                      <input
+                        type="number"
+                        value={production}
+                        onChange={(e) => setProduction(Number(e.target.value))}
+                        min={0}
+                        max={groupData.machines.reduce((sum, m) => sum + m.capacity, 0)}
+                        className="rounded-lg border border-slate-200 px-3 py-2 text-base shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
+                      />
+                      <span className="text-xs text-slate-500">
+                        Max: {groupData.machines.reduce((sum, m) => sum + m.capacity, 0)} (Kapazität)
+                      </span>
+                    </label>
+
+                    <label className="flex flex-col gap-1 text-sm text-slate-700">
+                      Verkauf aus Lager
+                      <input
+                        type="number"
+                        value={sellFromInventory}
+                        onChange={(e) => setSellFromInventory(Number(e.target.value))}
+                        min={0}
+                        max={groupData.inventory}
+                        className="rounded-lg border border-slate-200 px-3 py-2 text-base shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
+                      />
+                      <span className="text-xs text-slate-500">Lagerbestand: {groupData.inventory}</span>
+                    </label>
+
+                    <label className="flex flex-col gap-1 text-sm text-slate-700">
+                      Verkaufspreis (€)
+                      <input
+                        type="number"
+                        value={price}
+                        onChange={(e) => setPrice(Number(e.target.value))}
+                        min={0}
+                        step={0.5}
+                        className="rounded-lg border border-slate-200 px-3 py-2 text-base shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
+                      />
+                      <span className="text-xs text-slate-500">
+                        Empfohlen: €{game.parameters.demandReferencePrice}
+                      </span>
+                    </label>
+
+                    {game.period === 5 && (
+                      <label className="flex flex-col gap-1 text-sm text-slate-700">
+                        Marketing-Bemühung
+                        <input
+                          type="range"
+                          value={marketingEffort}
+                          onChange={(e) => setMarketingEffort(Number(e.target.value))}
+                          min={1}
+                          max={10}
+                          className="mt-2"
+                        />
+                        <span className="text-xs text-slate-500">Stufe: {marketingEffort}/10</span>
+                      </label>
+                    )}
+
+                    {game.parameters.isRndEnabled && game.period >= 3 && (
+                      <label className="flex flex-col gap-1 text-sm text-slate-700">
+                        F&E-Investition (€)
+                        <input
+                          type="number"
+                          value={rndInvestment}
+                          onChange={(e) => setRndInvestment(Number(e.target.value))}
+                          min={0}
+                          step={100}
+                          className="rounded-lg border border-slate-200 px-3 py-2 text-base shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
+                        />
+                        <span className="text-xs text-slate-500">
+                          Kumuliert: €{groupData.cumulativeRndInvestment} / Schwelle: €{game.parameters.rndBenefitThreshold}
+                          {groupData.rndBenefitApplied && " ✓"}
+                        </span>
+                      </label>
+                    )}
+
+                    {game.period >= 3 && (game.period - 3) % 3 === 0 && (
+                      <label className="flex flex-col gap-1 text-sm text-slate-700">
+                        Zusätzliche Maschine
+                        <select
+                          value={newMachine}
+                          onChange={(e) => setNewMachine(e.target.value)}
+                          className="rounded-lg border border-slate-200 px-3 py-2 text-base shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
+                        >
+                          <option value="">Keine</option>
+                          {MACHINE_OPTIONS.map((m) => (
+                            <option key={m.name} value={m.name} disabled={m.cost > groupData.capital}>
+                              {m.name} - €{m.cost.toLocaleString("de-DE")} {m.cost > groupData.capital && "(zu teuer)"}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    )}
+                  </div>
+
+                  <label className="flex items-center gap-2 text-sm text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={buyMarketAnalysis}
+                      onChange={(e) => setBuyMarketAnalysis(e.target.checked)}
+                      className="accent-sky-600"
+                    />
+                    Marktanalyse kaufen (€{game.parameters.marketAnalysisCost})
+                  </label>
+
+                  <button
+                    type="submit"
+                    disabled={decisionLoading}
+                    className="inline-flex w-fit items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {decisionLoading ? "Wird eingereicht..." : "Entscheidungen einreichen"}
+                  </button>
+                </form>
+              )}
+
+              {game?.status === "in_progress" && game.phase === "decisions" && groupData?.status === "submitted" && (
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">
+                  <p className="font-semibold">Entscheidungen eingereicht</p>
+                  <p className="text-sm">Warte auf die Berechnung durch die Spielleitung.</p>
+                </div>
+              )}
+
+              {game?.status === "in_progress" && game.phase === "results" && groupData?.lastResult && (
+                <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4">
+                  <h3 className="text-lg font-semibold text-slate-800">Ergebnisse Periode {groupData.lastResult.period}</h3>
+                  
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs uppercase tracking-wide text-slate-500">Verkaufte Einheiten</span>
+                      <span className="text-lg font-semibold text-slate-900">{groupData.lastResult.soldUnits}</span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs uppercase tracking-wide text-slate-500">Umsatz</span>
+                      <span className="text-lg font-semibold text-emerald-600">€{groupData.lastResult.revenue.toLocaleString("de-DE", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs uppercase tracking-wide text-slate-500">Gesamtkosten</span>
+                      <span className="text-lg font-semibold text-red-600">€{groupData.lastResult.totalCosts.toLocaleString("de-DE", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs uppercase tracking-wide text-slate-500">Gewinn/Verlust</span>
+                      <span className={`text-lg font-semibold ${groupData.lastResult.profit >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+                        €{groupData.lastResult.profit.toLocaleString("de-DE", {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg bg-slate-50 p-3">
+                    <h4 className="mb-2 text-sm font-semibold text-slate-800">Kosten-Details</h4>
+                    <div className="grid gap-1 text-xs text-slate-700">
+                      <div className="flex justify-between">
+                        <span>Produktionskosten:</span>
+                        <span>€{groupData.lastResult.productionCosts.toLocaleString("de-DE", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Lagerkosten:</span>
+                        <span>€{groupData.lastResult.inventoryCost.toLocaleString("de-DE", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                      </div>
+                      {groupData.lastResult.rndCost > 0 && (
+                        <div className="flex justify-between">
+                          <span>F&E:</span>
+                          <span>€{groupData.lastResult.rndCost.toLocaleString("de-DE", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                        </div>
+                      )}
+                      {groupData.lastResult.machineCost > 0 && (
+                        <div className="flex justify-between">
+                          <span>Maschinenkauf:</span>
+                          <span>€{groupData.lastResult.machineCost.toLocaleString("de-DE", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                        </div>
+                      )}
+                      {groupData.lastResult.marketAnalysisCost > 0 && (
+                        <div className="flex justify-between">
+                          <span>Marktanalyse:</span>
+                          <span>€{groupData.lastResult.marketAnalysisCost.toLocaleString("de-DE", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                        </div>
+                      )}
+                      {groupData.lastResult.interest > 0 && (
+                        <div className="flex justify-between">
+                          <span>Negativzinsen:</span>
+                          <span>€{groupData.lastResult.interest.toLocaleString("de-DE", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid gap-2 sm:grid-cols-3">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs uppercase tracking-wide text-slate-500">Neues Kapital</span>
+                      <span className="text-base font-semibold text-slate-900">€{groupData.capital.toLocaleString("de-DE", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs uppercase tracking-wide text-slate-500">Lagerbestand</span>
+                      <span className="text-base font-semibold text-slate-900">{groupData.inventory} Einheiten</span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs uppercase tracking-wide text-slate-500">Kumulierter Gewinn</span>
+                      <span className={`text-base font-semibold ${groupData.cumulativeProfit >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+                        €{groupData.cumulativeProfit.toLocaleString("de-DE", {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                      </span>
+                    </div>
+                  </div>
+
+                  {groupData.lastResult.averageMarketPrice !== undefined && (
+                    <div className="rounded-lg border border-sky-200 bg-sky-50 p-3">
+                      <h4 className="mb-2 text-sm font-semibold text-sky-800">Marktanalyse</h4>
+                      <div className="grid gap-1 text-xs text-sky-700">
+                        <div className="flex justify-between">
+                          <span>Durchschnittspreis:</span>
+                          <span>€{groupData.lastResult.averageMarketPrice.toLocaleString("de-DE", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Gesamtnachfrage:</span>
+                          <span>{groupData.lastResult.totalMarketDemand} Einheiten</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Marktanteil:</span>
+                          <span>{((groupData.lastResult.marketShare || 0) * 100).toFixed(1)}%</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
                 <span className="font-mono text-sm">{groupData?.status || "waiting"}</span>
               </div>
 
@@ -356,17 +671,18 @@ export function GruppeGameForm() {
                 <p className="text-xs text-slate-600">Warte auf die nächste Phase. Deine Auswahl wurde gespeichert.</p>
               )}
             </div>
-          ) : (
-            <>
-              Nach dem Beitritt siehst du hier:
-              <ul className="mt-2 list-disc pl-5 text-slate-600">
-                <li>Eigenes Kapital, Lager, Maschinen</li>
-                <li>Entscheidungsformular pro Periode</li>
-                <li>Ergebnisse deiner Gruppe nach Freigabe</li>
-              </ul>
-            </>
-          )}
-        </div>
+        )}
+
+        {!joined && (
+          <div className="mt-6 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-4 text-sm text-slate-600">
+            Nach dem Beitritt siehst du hier:
+            <ul className="mt-2 list-disc pl-5 text-slate-600">
+              <li>Eigenes Kapital, Lager, Maschinen</li>
+              <li>Entscheidungsformular pro Periode</li>
+              <li>Ergebnisse deiner Gruppe nach Freigabe</li>
+            </ul>
+          </div>
+        )}
       </div>
 
       <Link
