@@ -743,4 +743,7 @@ export default function GameDashboardPage() {
               </div>
             </div>
           </div>
-        )}
+        )}      </section>
+    </main>
+  );
+}
