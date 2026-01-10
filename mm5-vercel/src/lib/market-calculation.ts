@@ -55,19 +55,49 @@ export async function calculateMarketResults(
   
   const totalDemand = Math.max(1, Math.floor(baseDemand * priceElasticityEffect));
 
-  // Calculate price-weighted market share (lower price + higher supply = more demand)
-  const priceWeights: Record<string, number> = {};
-  let totalWeightForShare = 0;
-  
+  // Demand allocation driven primarily by price; supply acts as cap
+  const scores: Record<string, number> = {};
   for (const group of groups) {
     const decision = decisions[group.id];
     if (!decision) continue;
-    
-    const supply = groupSupplies[group.id];
-    // Price weight: groups with lower prices get proportionally more weight
-    const priceWeight = avgMarketPrice > 0 ? (avgMarketPrice / decision.price) * supply : supply;
-    priceWeights[group.id] = priceWeight;
-    totalWeightForShare += priceWeight;
+    const marketingBoost = decision.marketingEffort > 0
+      ? 1 + (decision.marketingEffort / 10000) * params.marketingEffectivenessFactor
+      : 1;
+    const priceFactor = Math.max(0.01, params.demandReferencePrice / Math.max(0.01, decision.price));
+    const exponent = 1 + Math.max(0, params.priceElasticityFactor);
+    scores[group.id] = Math.pow(priceFactor, exponent) * marketingBoost;
+  }
+
+  const remainingSupply: Record<string, number> = { ...groupSupplies };
+  const soldByGroup: Record<string, number> = {};
+  let remainingDemand = totalDemand;
+
+  // Iteratively allocate demand respecting supply caps
+  for (let round = 0; round < 5 && remainingDemand > 0; round++) {
+    let weightSum = 0;
+    for (const group of groups) {
+      if (remainingSupply[group.id] > 0 && scores[group.id] > 0) {
+        weightSum += scores[group.id];
+      }
+    }
+    if (weightSum <= 0) break;
+
+    let allocatedThisRound = 0;
+    for (const group of groups) {
+      const decision = decisions[group.id];
+      if (!decision) continue;
+      if (remainingSupply[group.id] <= 0) continue;
+      const share = scores[group.id] / weightSum;
+      const desired = Math.floor(remainingDemand * share);
+      const allocate = Math.min(remainingSupply[group.id], desired);
+      if (allocate > 0) {
+        soldByGroup[group.id] = (soldByGroup[group.id] || 0) + allocate;
+        remainingSupply[group.id] -= allocate;
+        remainingDemand -= allocate;
+        allocatedThisRound += allocate;
+      }
+    }
+    if (allocatedThisRound === 0) break; // avoid infinite loop
   }
 
   // Calculate market share and sales for each group
@@ -75,22 +105,7 @@ export async function calculateMarketResults(
     const decision = decisions[group.id];
     if (!decision) continue;
 
-    const supply = groupSupplies[group.id];
-    // Market share based on price-weighted supply
-    const marketShare = totalWeightForShare > 0 ? priceWeights[group.id] / totalWeightForShare : 0;
-    
-    // Marketing effect
-    const marketingBoost = decision.marketingEffort > 0
-      ? 1 + (decision.marketingEffort / 10000) * params.marketingEffectivenessFactor
-      : 1;
-
-    // Calculate demand for this group
-    const groupDemand = Math.floor(
-      totalDemand * marketShare * marketingBoost
-    );
-
-    // Actual sales limited by supply
-    const soldUnits = Math.min(supply, groupDemand);
+    const soldUnits = Math.min(groupSupplies[group.id], soldByGroup[group.id] || 0);
     
     // Calculate revenues and costs
     const revenue = soldUnits * decision.price;
@@ -151,10 +166,24 @@ export async function calculateMarketResults(
       profit: profit - interest,
       endingInventory: Math.max(0, newInventory),
       endingCapital,
-      marketShare: totalSupply > 0 ? (soldUnits / totalDemand) * 100 : 0,
-      averageMarketPrice: avgMarketPrice,
+      marketShare: totalDemand > 0 ? (soldUnits / totalDemand) * 100 : 0,
+      averageMarketPrice: 0, // placeholder; set after loop with demand-weighted average
       totalMarketDemand: totalDemand,
     };
+  }
+  // Compute demand-weighted average market price after allocation
+  let totalSold = 0;
+  let valueSum = 0;
+  for (const group of groups) {
+    const decision = decisions[group.id];
+    if (!decision) continue;
+    const sold = results[group.id]?.soldUnits || 0;
+    totalSold += sold;
+    valueSum += sold * decision.price;
+  }
+  const demandWeightedAvg = totalSold > 0 ? valueSum / totalSold : avgMarketPrice;
+  for (const gid of Object.keys(results)) {
+    results[gid].averageMarketPrice = demandWeightedAvg;
   }
 
   return results;
