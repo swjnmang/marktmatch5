@@ -11,6 +11,8 @@ function GruppeContent() {
   const searchParams = useSearchParams();
   const [pin, setPin] = useState("");
   const [gameId, setGameId] = useState("");
+  const [resumeGameId, setResumeGameId] = useState<string | null>(null);
+  const [resumeGroupId, setResumeGroupId] = useState<string | null>(null);
   const [showManual, setShowManual] = useState(false);
   const [activeTab, setActiveTab] = useState<"qr" | "manual">("qr");
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -24,6 +26,19 @@ function GruppeContent() {
       setGameId(urlGameId);
       // Auto-navigate to the game
       router.push(`/gruppe/${urlGameId}`);
+      return;
+    }
+
+    // Detect previous session on this device
+    const localKeys = Object.keys(localStorage || {});
+    const groupKey = localKeys.find((k) => k.startsWith("group_"));
+    if (groupKey) {
+      const gid = groupKey.replace("group_", "");
+      const storedGroupId = localStorage.getItem(groupKey);
+      if (gid && storedGroupId) {
+        setResumeGameId(gid);
+        setResumeGroupId(storedGroupId);
+      }
     }
   }, [searchParams, router]);
 
@@ -103,6 +118,21 @@ function GruppeContent() {
       </div>
 
       <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200">
+        {resumeGameId && resumeGroupId && (
+          <div className="mb-6 flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+            <div>
+              <p className="text-sm font-semibold text-emerald-900">Vorherige Sitzung gefunden</p>
+              <p className="text-xs text-emerald-800">Du kannst dein letztes Spiel sofort fortsetzen.</p>
+            </div>
+            <button
+              onClick={() => router.push(`/gruppe/${resumeGameId}`)}
+              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+            >
+              Sitzung wieder aufnehmen
+            </button>
+          </div>
+        )}
+
         {/* Tab Navigation */}
         <div className="flex gap-2 mb-6 border-b border-slate-200">
           <button
