@@ -936,94 +936,99 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
               {/* Show results if available */}
               {groupData?.lastResult && game.phase === "results" && groupData.lastResult.period === game.period && (
                 <div className="flex flex-col gap-4">
-                  {/* 1. Box: Group Results */}
-                  <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-                    <div className="mb-4 flex items-center justify-between border-b border-slate-200 pb-3">
-                      <h3 className="text-xl font-bold text-slate-900">
-                        Ergebnisse der Gruppe "{groupData.name}"
-                      </h3>
-                      <span className="rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-800">
-                        Periode {groupData.lastResult.period}
+                  {/* 1. Box: Group Results (Collapsible) */}
+                  <details className="rounded-lg border border-slate-200 bg-white shadow-sm" open>
+                    <summary className="cursor-pointer p-4 font-semibold text-slate-900 hover:bg-slate-50 transition rounded-lg flex items-center justify-between">
+                      <span className="flex items-center gap-2">
+                        <span>📈</span>
+                        <span>Ergebnisse der Gruppe "{groupData.name}"</span>
                       </span>
+                      <span className="flex items-center gap-2">
+                        <span className="rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-800">
+                          Periode {groupData.lastResult.period}
+                        </span>
+                        <span className="text-xs font-normal text-slate-700">▼ einklappen</span>
+                      </span>
+                    </summary>
+                    <div className="p-4 pt-2">
+                      {/* Results Table - Clean and Professional */}
+                      <div className="border border-slate-200 rounded-lg overflow-hidden">
+                        <table className="w-full">
+                          <tbody>
+                            {/* Produzierte Einheiten */}
+                            <tr className="border-b border-slate-200">
+                              <td className="px-4 py-3 text-sm font-medium text-slate-600 bg-white">Produzierte Einheiten</td>
+                              <td className="px-4 py-3 text-sm font-bold text-slate-900 bg-white text-right">{currentDecision?.production || 0}</td>
+                            </tr>
+                            
+                            {/* Verkaufspreis */}
+                            <tr className="border-b border-slate-200">
+                              <td className="px-4 py-3 text-sm font-medium text-slate-600 bg-slate-50">Verkaufspreis</td>
+                              <td className="px-4 py-3 text-sm font-bold text-slate-900 bg-slate-50 text-right">€{currentDecision?.price?.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0.00"}</td>
+                            </tr>
+                            
+                            {/* Verkaufte Einheiten */}
+                            <tr className="border-b border-slate-200">
+                              <td className="px-4 py-3 text-sm font-medium text-slate-600 bg-white">Verkaufte Einheiten</td>
+                              <td className="px-4 py-3 text-sm font-bold text-slate-900 bg-white text-right">{groupData.lastResult.soldUnits}</td>
+                            </tr>
+                            
+                            {/* Umsatz */}
+                            <tr className="border-b border-slate-200">
+                              <td className="px-4 py-3 text-sm font-medium text-slate-600 bg-slate-50">Umsatz</td>
+                              <td className="px-4 py-3 text-sm font-bold text-slate-900 bg-slate-50 text-right">€{groupData.lastResult.revenue.toLocaleString("de-DE")}</td>
+                            </tr>
+                            <tr className="border-b border-slate-200">
+                              <td className="px-4 py-1 text-xs text-slate-500 bg-slate-50"></td>
+                              <td className="px-4 py-1 text-xs text-slate-500 bg-slate-50 text-right">({groupData.lastResult.soldUnits} × €{currentDecision?.price?.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0.00"})</td>
+                            </tr>
+                            
+                            {/* Gesamtkosten */}
+                            <tr className="border-b border-slate-200">
+                              <td className="px-4 py-3 text-sm font-medium text-slate-600 bg-white">Gesamtkosten</td>
+                              <td className="px-4 py-3 text-sm font-bold text-slate-900 bg-white text-right">€{groupData.lastResult.totalCosts.toLocaleString("de-DE")}</td>
+                            </tr>
+                            <tr className="border-b border-slate-200">
+                              <td className="px-4 py-1 text-xs text-slate-500 bg-white"></td>
+                              <td className="px-4 py-1 text-xs text-slate-500 bg-white text-right">(Produktion: €{groupData.lastResult.variableCosts?.toLocaleString("de-DE") || "0"} + Lager: €{groupData.lastResult.inventoryCost?.toLocaleString("de-DE") || "0"})</td>
+                            </tr>
+                            
+                            {/* Gewinn / Verlust */}
+                            <tr className="border-b border-slate-200">
+                              <td className="px-4 py-3 text-sm font-medium text-slate-600 bg-slate-50">Gewinn / Verlust</td>
+                              <td className={`px-4 py-3 text-sm font-bold bg-slate-50 text-right ${groupData.lastResult.profit >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+                                €{groupData.lastResult.profit.toLocaleString("de-DE")}
+                              </td>
+                            </tr>
+                            <tr className="border-b border-slate-200">
+                              <td className="px-4 py-1 text-xs text-slate-500 bg-slate-50"></td>
+                              <td className="px-4 py-1 text-xs text-slate-500 bg-slate-50 text-right">(€{groupData.lastResult.revenue.toLocaleString("de-DE")} - €{groupData.lastResult.totalCosts.toLocaleString("de-DE")})</td>
+                            </tr>
+                            
+                            {/* Neues Kapital */}
+                            <tr className="border-b border-slate-200">
+                              <td className="px-4 py-3 text-sm font-medium text-slate-600 bg-white">Neues Kapital</td>
+                              <td className="px-4 py-3 text-sm font-bold text-slate-900 bg-white text-right">€{groupData.lastResult.endingCapital.toLocaleString("de-DE")}</td>
+                            </tr>
+                            
+                            {/* Neuer Lagerbestand */}
+                            <tr className="border-b border-slate-200">
+                              <td className="px-4 py-3 text-sm font-medium text-slate-600 bg-slate-50">Neuer Lagerbestand</td>
+                              <td className="px-4 py-3 text-sm font-bold text-slate-900 bg-slate-50 text-right">{groupData.lastResult.endingInventory} Einh.</td>
+                            </tr>
+                            
+                            {/* Kumulierter Gewinn */}
+                            <tr>
+                              <td className="px-4 py-3 text-sm font-medium text-slate-600 bg-white">Kumulierter Gewinn</td>
+                              <td className={`px-4 py-3 text-sm font-bold bg-white text-right ${groupData.cumulativeProfit >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+                                €{groupData.cumulativeProfit.toLocaleString("de-DE")}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
-
-                    {/* Results Table - Clean and Professional */}
-                    <div className="border border-slate-200 rounded-lg overflow-hidden">
-                      <table className="w-full">
-                        <tbody>
-                          {/* Produzierte Einheiten */}
-                          <tr className="border-b border-slate-200">
-                            <td className="px-4 py-3 text-sm font-medium text-slate-600 bg-white">Produzierte Einheiten</td>
-                            <td className="px-4 py-3 text-sm font-bold text-slate-900 bg-white text-right">{currentDecision?.production || 0}</td>
-                          </tr>
-                          
-                          {/* Verkaufspreis */}
-                          <tr className="border-b border-slate-200">
-                            <td className="px-4 py-3 text-sm font-medium text-slate-600 bg-slate-50">Verkaufspreis</td>
-                            <td className="px-4 py-3 text-sm font-bold text-slate-900 bg-slate-50 text-right">€{currentDecision?.price?.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0.00"}</td>
-                          </tr>
-                          
-                          {/* Verkaufte Einheiten */}
-                          <tr className="border-b border-slate-200">
-                            <td className="px-4 py-3 text-sm font-medium text-slate-600 bg-white">Verkaufte Einheiten</td>
-                            <td className="px-4 py-3 text-sm font-bold text-slate-900 bg-white text-right">{groupData.lastResult.soldUnits}</td>
-                          </tr>
-                          
-                          {/* Umsatz */}
-                          <tr className="border-b border-slate-200">
-                            <td className="px-4 py-3 text-sm font-medium text-slate-600 bg-slate-50">Umsatz</td>
-                            <td className="px-4 py-3 text-sm font-bold text-slate-900 bg-slate-50 text-right">€{groupData.lastResult.revenue.toLocaleString("de-DE")}</td>
-                          </tr>
-                          <tr className="border-b border-slate-200">
-                            <td className="px-4 py-1 text-xs text-slate-500 bg-slate-50"></td>
-                            <td className="px-4 py-1 text-xs text-slate-500 bg-slate-50 text-right">({groupData.lastResult.soldUnits} × €{currentDecision?.price?.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0.00"})</td>
-                          </tr>
-                          
-                          {/* Gesamtkosten */}
-                          <tr className="border-b border-slate-200">
-                            <td className="px-4 py-3 text-sm font-medium text-slate-600 bg-white">Gesamtkosten</td>
-                            <td className="px-4 py-3 text-sm font-bold text-slate-900 bg-white text-right">€{groupData.lastResult.totalCosts.toLocaleString("de-DE")}</td>
-                          </tr>
-                          <tr className="border-b border-slate-200">
-                            <td className="px-4 py-1 text-xs text-slate-500 bg-white"></td>
-                            <td className="px-4 py-1 text-xs text-slate-500 bg-white text-right">(Produktion: €{groupData.lastResult.variableCosts?.toLocaleString("de-DE") || "0"} + Lager: €{groupData.lastResult.inventoryCost?.toLocaleString("de-DE") || "0"})</td>
-                          </tr>
-                          
-                          {/* Gewinn / Verlust */}
-                          <tr className="border-b border-slate-200">
-                            <td className="px-4 py-3 text-sm font-medium text-slate-600 bg-slate-50">Gewinn / Verlust</td>
-                            <td className={`px-4 py-3 text-sm font-bold bg-slate-50 text-right ${groupData.lastResult.profit >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
-                              €{groupData.lastResult.profit.toLocaleString("de-DE")}
-                            </td>
-                          </tr>
-                          <tr className="border-b border-slate-200">
-                            <td className="px-4 py-1 text-xs text-slate-500 bg-slate-50"></td>
-                            <td className="px-4 py-1 text-xs text-slate-500 bg-slate-50 text-right">(€{groupData.lastResult.revenue.toLocaleString("de-DE")} - €{groupData.lastResult.totalCosts.toLocaleString("de-DE")})</td>
-                          </tr>
-                          
-                          {/* Neues Kapital */}
-                          <tr className="border-b border-slate-200">
-                            <td className="px-4 py-3 text-sm font-medium text-slate-600 bg-white">Neues Kapital</td>
-                            <td className="px-4 py-3 text-sm font-bold text-slate-900 bg-white text-right">€{groupData.lastResult.endingCapital.toLocaleString("de-DE")}</td>
-                          </tr>
-                          
-                          {/* Neuer Lagerbestand */}
-                          <tr className="border-b border-slate-200">
-                            <td className="px-4 py-3 text-sm font-medium text-slate-600 bg-slate-50">Neuer Lagerbestand</td>
-                            <td className="px-4 py-3 text-sm font-bold text-slate-900 bg-slate-50 text-right">{groupData.lastResult.endingInventory} Einh.</td>
-                          </tr>
-                          
-                          {/* Kumulierter Gewinn */}
-                          <tr>
-                            <td className="px-4 py-3 text-sm font-medium text-slate-600 bg-white">Kumulierter Gewinn</td>
-                            <td className={`px-4 py-3 text-sm font-bold bg-white text-right ${groupData.cumulativeProfit >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
-                              €{groupData.cumulativeProfit.toLocaleString("de-DE")}
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
+                  </details>
 
                   {/* 2. Box: Market Report (Collapsible) */}
                   <details className="rounded-lg border border-sky-200 bg-sky-50 shadow-sm">
