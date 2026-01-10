@@ -477,78 +477,77 @@ export default function GameDashboardPage() {
           </div>
         </div>
 
-        {/* Actions - Kompakt */}
+        {/* Settings & Actions - Vertical Layout */}
         <div className="rounded-xl bg-white p-4 shadow-lg ring-1 ring-slate-200">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1">
-              <h2 className="text-lg font-semibold text-slate-900">Aktionen</h2>
-              <p className="text-xs text-slate-600 mt-1">
-                {game.status === "lobby"
-                  ? "Starte das Spiel, wenn alle Gruppen bereit sind."
-                  : game.phase === "machine_selection"
-                  ? "Aktiviere die Entscheidungsphase, wenn alle Gruppen ihre Maschine gewählt haben."
-                  : game.phase === "decisions"
-                  ? "Berechne die Ergebnisse, wenn alle Gruppen eingereicht haben."
-                  : game.phase === "results"
-                  ? "Starte die nächste Periode."
-                  : "Verwalte den Spielablauf."}
-              </p>
-              {startError && (
-                <div className="mt-2 rounded bg-red-50 p-2 text-xs text-red-700">{startError}</div>
-              )}
+          <h2 className="text-lg font-semibold text-slate-900 mb-3">Einstellungen & Aktionen</h2>
+          
+          <p className="text-xs text-slate-600 mb-4">
+            {game.status === "lobby"
+              ? "Starte das Spiel, wenn alle Gruppen bereit sind."
+              : game.phase === "machine_selection"
+              ? "Aktiviere die Entscheidungsphase, wenn alle Gruppen ihre Maschine gewählt haben."
+              : game.phase === "decisions"
+              ? "Berechne die Ergebnisse, wenn alle Gruppen eingereicht haben."
+              : game.phase === "results"
+              ? "Starte die nächste Periode."
+              : "Verwalte den Spielablauf."}
+          </p>
+          
+          {startError && (
+            <div className="mb-4 rounded bg-red-50 p-2 text-xs text-red-700">{startError}</div>
+          )}
 
-              {game.status === "in_progress" && game.phase === "results" && (
-                <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3 flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    checked={allowMachinePurchaseNext}
-                    onChange={(e) => setAllowMachinePurchaseNext(e.target.checked)}
-                    className="mt-1 accent-sky-600"
-                  />
-                  <div className="text-sm text-slate-700">
-                    <p className="font-semibold text-slate-900">Maschinenkauf in nächster Periode erlauben</p>
-                    <p className="text-xs text-slate-600">Ermöglicht allen Gruppen, in der kommenden Periode zusätzliche Produktionsmaschinen (4 Optionen wie zu Beginn) zu kaufen.</p>
-                  </div>
-                </div>
-              )}
+          {/* Machine Purchase Checkbox - Always visible when game is running */}
+          {game.status === "in_progress" && game.phase === "results" && (
+            <div className="mb-4 rounded-lg border border-slate-200 bg-slate-50 p-3 flex items-start gap-3">
+              <input
+                type="checkbox"
+                checked={allowMachinePurchaseNext}
+                onChange={(e) => setAllowMachinePurchaseNext(e.target.checked)}
+                className="mt-1 accent-sky-600"
+              />
+              <div className="text-sm text-slate-700">
+                <p className="font-semibold text-slate-900">Maschinenkauf in nächster Periode erlauben</p>
+                <p className="text-xs text-slate-600">Ermöglicht allen Gruppen, in der kommenden Periode zusätzliche Produktionsmaschinen (4 Optionen wie zu Beginn) zu kaufen.</p>
+              </div>
             </div>
+          )}
 
-            {/* Spezialaufträge in Aktionen */}
-            <div className="mt-6 pt-6 border-t border-slate-200">
-              <h3 className="text-sm font-semibold text-slate-900 mb-3">📋 Spezialaufträge</h3>
-              <p className="text-xs text-slate-600 mb-4">
-                Sie können jederzeit Spezialaufträge senden (auch vor Periode 1). Empfehlung vor Spielstart: <span className="font-semibold text-amber-800">"Unternehmensplakat gestalten"</span> an alle Gruppen verteilen.
-              </p>
-              
-              {currentTask ? (
-                <div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-amber-900">{currentTask.title}</h4>
-                      <p className="mt-2 text-sm text-amber-800 whitespace-pre-wrap">{currentTask.description}</p>
-                    </div>
-                    <button
-                      onClick={handleDeleteTask}
-                      disabled={taskLoading}
-                      className="ml-4 rounded bg-red-100 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-200 disabled:opacity-50"
-                    >
-                      Löschen
-                    </button>
+          {/* Special Tasks Section */}
+          <div className="mt-6 pt-6 border-t border-slate-200">
+            <h3 className="text-sm font-semibold text-slate-900 mb-3">📋 Spezialaufträge</h3>
+            <p className="text-xs text-slate-600 mb-4">
+              Sie können jederzeit Spezialaufträge senden (auch vor Periode 1). Empfehlung vor Spielstart: <span className="font-semibold text-amber-800">"Unternehmensplakat gestalten"</span> an alle Gruppen verteilen.
+            </p>
+            
+            {currentTask ? (
+              <div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-amber-900">{currentTask.title}</h4>
+                    <p className="mt-2 text-sm text-amber-800 whitespace-pre-wrap">{currentTask.description}</p>
                   </div>
-                  <p className="mt-3 text-xs text-amber-700">✓ Den Gruppen angezeigt</p>
+                  <button
+                    onClick={handleDeleteTask}
+                    disabled={taskLoading}
+                    className="ml-4 rounded bg-red-100 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-200 disabled:opacity-50"
+                  >
+                    Löschen
+                  </button>
                 </div>
-              ) : (
-                <button
-                  onClick={() => {
-                    setSelectedTaskId((prev) => prev || "presentation-poster");
-                    setShowTaskModal(true);
-                  }}
-                  className="w-full rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-100"
-                >
-                  + Spezialauftrag auswählen
-                </button>
-              )}
-            </div>
+                <p className="mt-3 text-xs text-amber-700">✓ Den Gruppen angezeigt</p>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  setSelectedTaskId((prev) => prev || "presentation-poster");
+                  setShowTaskModal(true);
+                }}
+                className="w-full rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-100"
+              >
+                + Spezialauftrag auswählen
+              </button>
+            )}
           </div>
         </div>
 
