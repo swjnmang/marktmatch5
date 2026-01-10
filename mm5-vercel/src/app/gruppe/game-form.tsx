@@ -400,60 +400,83 @@ export function GruppeGameForm() {
                 game.phase === "machine_selection" &&
                 groupData &&
                 groupData.status !== "ready" && (
-                  <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-4">
-                    <h3 className="text-lg font-semibold text-slate-800">
-                      Maschine auswählen
-                    </h3>
-                    <p className="text-sm text-slate-600">
-                      Wähle eine Produktionsmaschine für dein Unternehmen. Jede Maschine hat unterschiedliche Kosten, Kapazität und variable Stückkosten.
-                    </p>
-                    <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-6">
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                        Produktionsmaschine auswählen
+                      </h3>
+                      <p className="text-sm text-slate-600">
+                        Wähle eine Produktionsmaschine für dein Unternehmen. Diese Entscheidung beeinflusst deine Produktionskapazität und Kostenstruktur.
+                      </p>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
                       {MACHINE_OPTIONS.map((m) => (
                         <label
                           key={m.name}
-                          className={`flex cursor-pointer flex-col gap-2 rounded-lg border p-3 shadow-sm transition ${
+                          className={`flex cursor-pointer flex-col gap-3 rounded-lg border-2 p-4 transition ${
                             machineChoice === m.name
-                              ? "border-sky-500 ring-2 ring-sky-100"
-                              : "border-slate-200 hover:border-sky-300"
+                              ? "border-sky-500 bg-sky-50 ring-2 ring-sky-200"
+                              : "border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50"
                           }`}
                         >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-start gap-3 pt-0.5">
                               <input
                                 type="radio"
                                 name="machine"
                                 value={m.name}
                                 checked={machineChoice === m.name}
                                 onChange={() => setMachineChoice(m.name)}
-                                className="accent-sky-600"
+                                className="accent-sky-600 mt-1"
                               />
-                              <span className="font-semibold text-slate-900">{m.name}</span>
+                              <div>
+                                <p className="font-semibold text-slate-900">{m.name}</p>
+                              </div>
                             </div>
-                            <span className="text-xs font-mono text-slate-600">
-                              Kapazität: {m.capacity}
-                            </span>
                           </div>
-                          <div className="text-xs text-slate-600">
-                            Kosten: €{m.cost.toLocaleString("de-DE")}, Variable Stückkosten: €
-                            {m.variableCostPerUnit.toLocaleString("de-DE")}
+
+                          <div className="space-y-2 rounded-lg bg-slate-50 p-3 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-slate-600">Einmalige Anschaffungskosten:</span>
+                              <span className="font-semibold text-slate-900">
+                                €{m.cost.toLocaleString("de-DE")}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-slate-600">Maximale Produktionskapazität:</span>
+                              <span className="font-semibold text-slate-900">
+                                {m.capacity} Einheiten/Periode
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-slate-600">Stückkosten pro Einheit:</span>
+                              <span className="font-semibold text-slate-900">
+                                €{m.variableCostPerUnit.toLocaleString("de-DE")}
+                              </span>
+                            </div>
                           </div>
                         </label>
                       ))}
                     </div>
-                    <div className="flex flex-col gap-2 text-sm text-slate-700">
-                      <span>
-                        Verfügbares Kapital: €
-                        {groupData ? groupData.capital.toLocaleString("de-DE") : "—"}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={handleMachineSelect}
-                        disabled={machineLoading || !machineChoice}
-                        className="inline-flex w-fit items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed"
-                      >
-                        {machineLoading ? "Wird gekauft..." : "Maschine kaufen"}
-                      </button>
+
+                    <div className="rounded-lg border border-sky-200 bg-sky-50 p-4">
+                      <p className="text-sm text-slate-700 mb-1">
+                        <span className="font-semibold">Verfügbares Kapital:</span>
+                      </p>
+                      <p className="text-2xl font-bold text-sky-900">
+                        €{groupData ? groupData.capital.toLocaleString("de-DE") : "0"}
+                      </p>
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={handleMachineSelect}
+                      disabled={machineLoading || !machineChoice}
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-6 py-3 text-base font-semibold text-white shadow-md transition hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {machineLoading ? "Maschine wird gekauft..." : "Maschine kaufen & starten"}
+                    </button>
                   </div>
                 )}
 
