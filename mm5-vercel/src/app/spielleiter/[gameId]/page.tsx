@@ -626,13 +626,15 @@ export default function GameDashboardPage() {
           </div>
         </div>
 
-        {/* Special Tasks Section */}
-        {game.status === "in_progress" && game.phase === "results" && (
+        {/* Special Tasks Section - now available jederzeit (auch vor Spielstart) */}
+        {game && (
           <div className="rounded-xl bg-white p-4 shadow-lg ring-1 ring-slate-200">
             <div className="space-y-3">
               <div>
                 <h2 className="text-lg font-semibold text-slate-900">📋 Spezialaufträge</h2>
-                <p className="text-xs text-slate-600 mt-1">Weisen Sie den Gruppen einen Spezialauftrag zu, bevor Sie die nächste Periode starten.</p>
+                <p className="text-xs text-slate-600 mt-1">
+                  Sie können jederzeit Spezialaufträge senden (auch vor Periode 1). Empfehlung vor Spielstart: <span className="font-semibold text-amber-800">"Unternehmensplakat gestalten"</span> an alle Gruppen verteilen.
+                </p>
               </div>
               
               {currentTask ? (
@@ -654,7 +656,10 @@ export default function GameDashboardPage() {
                 </div>
               ) : (
                 <button
-                  onClick={() => setShowTaskModal(true)}
+                  onClick={() => {
+                    setSelectedTaskId((prev) => prev || "presentation-poster");
+                    setShowTaskModal(true);
+                  }}
                   className="w-full rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-100"
                 >
                   + Spezialauftrag auswählen
