@@ -21,27 +21,17 @@ export default function Home() {
     <main className={`relative min-h-screen overflow-hidden ${theme.bgGradient}`}>
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(14,165,233,0.08),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(37,99,235,0.08),transparent_25%)]" />
       <div className="relative mx-auto flex max-w-6xl flex-col gap-12 px-6 py-16 sm:px-10">
-        {/* Header with Settings Button */}
-        <div className="flex justify-between items-start">
-          <header className="flex flex-col gap-3 sm:gap-4 flex-1">
-            <h1 className={`text-3xl font-bold leading-tight ${theme.text} sm:text-4xl lg:text-5xl`}>
-              Markt-Match 5 – ein Wirtschaftsplanspiel für Einsteiger
-            </h1>
-            <p className={`text-base ${theme.subtext} sm:text-lg leading-relaxed text-justify`}>
-              Willkommen bei Markt-Match 5! In diesem digitalen Unternehmensplanspiel gründet ihr eure eigene Firma zur Produktion günstiger Smartwatches für eine junge Zielgruppe. Als Unternehmer trefft ihr wichtige Entscheidungen: Welche Produktionsmaschine kaufen? Wie viele Einheiten produzieren? Zu welchem Preis verkaufen? Investieren in Marketing oder Forschung & Entwicklung?
-            </p>
-            <p className={`text-base ${theme.subtext} sm:text-lg text-justify`}>
-              Wetteifert mit anderen Gruppen am Markt, optimiert eure Strategie über mehrere Perioden und versucht, den größten Gewinn zu erzielen. Die Spielleitung steuert das Spiel über ein Dashboard, verteilt Codes und gibt die Ergebnisse frei – alles digital im Browser.
-            </p>
-          </header>
-          <Link
-            href="/einstellungen"
-            className="ml-4 p-2 rounded-lg hover:bg-slate-100/50 transition"
-            title="Einstellungen"
-          >
-            <span className="text-2xl">⚙️</span>
-          </Link>
-        </div>
+        <header className="flex flex-col gap-3 sm:gap-4">
+          <h1 className={`text-3xl font-bold leading-tight ${theme.text} sm:text-4xl lg:text-5xl`}>
+            Markt-Match 5 – ein Wirtschaftsplanspiel für Einsteiger
+          </h1>
+          <p className={`text-base ${theme.subtext} sm:text-lg leading-relaxed text-justify`}>
+            Willkommen bei Markt-Match 5! In diesem digitalen Unternehmensplanspiel gründet ihr eure eigene Firma zur Produktion günstiger Smartwatches für eine junge Zielgruppe. Als Unternehmer trefft ihr wichtige Entscheidungen: Welche Produktionsmaschine kaufen? Wie viele Einheiten produzieren? Zu welchem Preis verkaufen? Investieren in Marketing oder Forschung & Entwicklung?
+          </p>
+          <p className={`text-base ${theme.subtext} sm:text-lg text-justify`}>
+            Wetteifert mit anderen Gruppen am Markt, optimiert eure Strategie über mehrere Perioden und versucht, den größten Gewinn zu erzielen. Die Spielleitung steuert das Spiel über ein Dashboard, verteilt Codes und gibt die Ergebnisse frei – alles digital im Browser.
+          </p>
+        </header>
 
         <section className="grid gap-6 grid-cols-1">
           <div className={`space-y-4 rounded-2xl ${theme.card} p-8 shadow-lg ring-1 ${theme.cardBorder}`}>
@@ -52,15 +42,15 @@ export default function Home() {
             <div className="grid gap-4 sm:grid-cols-2">
               <Link
                 href="/spiel-erstellen"
-                className={`group flex flex-col gap-2 rounded-xl ${theme.accentLight} px-5 py-4 ring-1 ring-sky-100 transition hover:-translate-y-0.5 hover:shadow-md`}
+                className={`group flex flex-col gap-2 rounded-xl ${theme.name === "dark" ? "bg-gray-800" : theme.accentLight} px-5 py-4 ring-1 ${theme.name === "dark" ? "ring-gray-700" : "ring-sky-100"} transition hover:-translate-y-0.5 hover:shadow-md`}
               >
                 <div className="flex items-center justify-between">
-                  <span className={`text-base font-semibold ${theme.accent}`}>Spiel erstellen</span>
-                  <span className={`text-xs font-medium ${theme.accent} group-hover:translate-x-0.5 transition`}>
+                  <span className={`text-base font-semibold ${theme.name === "dark" ? "text-white" : "text-sky-900"}`}>Spiel erstellen</span>
+                  <span className={`text-xs font-medium ${theme.name === "dark" ? "text-gray-300" : "text-sky-700"} group-hover:translate-x-0.5 transition`}>
                     Los geht&apos;s →
                   </span>
                 </div>
-                <p className={`text-sm ${theme.accent}/80`}>
+                <p className={`text-sm ${theme.name === "dark" ? "text-gray-300" : "text-sky-900/80"}`}>
                   Starte ein Multiplayer-Spiel für Gruppen oder spiele allein im Solo-Modus.
                 </p>
               </Link>
@@ -79,7 +69,7 @@ export default function Home() {
                 </p>
               </Link>
             </div>
-            <div className="mt-4">
+            <div className="mt-4 space-y-3">
               <Link
                 href="/materialien"
                 className={`flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 px-5 py-3 ring-1 ring-emerald-200 transition hover:-translate-y-0.5 hover:shadow-md`}
@@ -89,6 +79,13 @@ export default function Home() {
                 <span className="text-xs font-medium text-emerald-700">
                   Vorlagen & Anleitungen
                 </span>
+              </Link>
+              <Link
+                href="/einstellungen"
+                className={`flex items-center justify-center gap-2 rounded-xl ${theme.card} px-5 py-3 ring-1 ${theme.cardBorder} transition hover:-translate-y-0.5 hover:shadow-md`}
+              >
+                <span className="text-xl">⚙️</span>
+                <span className={`text-base font-semibold ${theme.text}`}>Einstellungen</span>
               </Link>
             </div>
           </div>
