@@ -40,20 +40,21 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   const [machineChoice, setMachineChoice] = useState("");
   const [machineLoading, setMachineLoading] = useState(false);
   const [calculating, setCalculating] = useState(false);
-  const calculatedPeriods = useRef<Set<number>>(new Set());
 
   // Auto-calculate results in Solo mode when phase is "results" - only once per period
   useEffect(() => {
     const autoCalculate = async () => {
       if (!game || !gameId || game.phase !== "results" || calculating) return;
       
-      // Check if we already calculated this period
-      if (calculatedPeriods.current.has(game.period)) return;
-      
       const isSoloMode = localStorage.getItem(`solo_mode_${gameId}`);
       if (!isSoloMode) return;
 
-      calculatedPeriods.current.add(game.period);
+      // Check if we already calculated this period by looking at lastResult
+      if (groupData?.lastResult && groupData.lastResult.period === game.period) {
+        // Already calculated this period
+        return;
+      }
+
       setCalculating(true);
       try {
         // Get all groups and decisions with timeout
@@ -72,6 +73,8 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
           allDecisions[d.id] = d.data() as PeriodDecision;
         });
 
+        console.log(`[Solo] Calculating Period ${game.period}...`);
+
         // Calculate market results
         const { calculateMarketResults } = await import("@/lib/market-calculation");
         const results = await calculateMarketResults(game, allGroups, allDecisions);
@@ -83,6 +86,8 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
 
           const newCumulativeRnd = group.cumulativeRndInvestment + (allDecisions[group.id]?.rndInvestment || 0);
           const rndBenefitApplied = newCumulativeRnd >= game.parameters.rndBenefitThreshold;
+
+          console.log(`[Solo] Updating ${group.name} (Period ${result.period}): Sold=${result.soldUnits}, Revenue=${result.revenue}`);
 
           await updateDoc(doc(db, "games", gameId, "groups", group.id), {
             capital: result.endingCapital,
@@ -99,7 +104,9 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
             // Read the updated data from Firestore to ensure consistency
             const updatedGroupDoc = await getDoc(doc(db, "games", gameId, "groups", group.id));
             if (updatedGroupDoc.exists()) {
-              setGroupData({ id: updatedGroupDoc.id, ...updatedGroupDoc.data() } as GroupState);
+              const updatedData = { id: updatedGroupDoc.id, ...updatedGroupDoc.data() } as GroupState;
+              console.log(`[Solo] Updated local state for period ${updatedData.lastResult?.period}`);
+              setGroupData(updatedData);
             }
           }
         }
@@ -118,7 +125,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
     };
 
     autoCalculate();
-  }, [game?.period, gameId, calculating]);
+  }, [game?.period, gameId, groupId, groupData?.lastResult?.period, calculating]);
 
   // Check localStorage on mount for existing group session (same device/browser)
   useEffect(() => {

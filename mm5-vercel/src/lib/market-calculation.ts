@@ -55,49 +55,47 @@ export async function calculateMarketResults(
   
   const totalDemand = Math.max(1, Math.floor(baseDemand * priceElasticityEffect));
 
-  // Demand allocation driven primarily by price; supply acts as cap
-  const scores: Record<string, number> = {};
-  for (const group of groups) {
-    const decision = decisions[group.id];
-    if (!decision) continue;
-    const marketingBoost = decision.marketingEffort > 0
-      ? 1 + (decision.marketingEffort / 10000) * params.marketingEffectivenessFactor
-      : 1;
-    const priceFactor = Math.max(0.01, params.demandReferencePrice / Math.max(0.01, decision.price));
-    const exponent = 1 + Math.max(0, params.priceElasticityFactor);
-    scores[group.id] = Math.pow(priceFactor, exponent) * marketingBoost;
-  }
 
-  const soldByGroup: Record<string, number> = {};
-  let remainingDemand = totalDemand;
-
-  // Price-first allocation: cheaper offers sell first (same product), marketing acts as mild tie-breaker
-  const allocationOrder = groups
+  // Demand allocation: Winner-Takes-Most model (lowest price gets majority of demand)
+  // Sort by price (lowest first)
+  const priceRanking = groups
     .map((group) => {
       const decision = decisions[group.id];
       if (!decision) return null;
       const supply = groupSupplies[group.id] || 0;
-      const marketingBoost = decision.marketingEffort > 0
-        ? 1 + (decision.marketingEffort / 10000) * params.marketingEffectivenessFactor
-        : 1;
-      const effectivePrice = decision.price / Math.max(0.01, marketingBoost);
-      return { id: group.id, supply, effectivePrice, score: scores[group.id] || 0 };
+      return { id: group.id, price: decision.price, supply, decision };
     })
-    .filter((entry): entry is { id: string; supply: number; effectivePrice: number; score: number } => !!entry)
-    .sort((a, b) => {
-      if (a.effectivePrice === b.effectivePrice) {
-        return b.score - a.score; // tie-break on score (includes marketing)
-      }
-      return a.effectivePrice - b.effectivePrice; // lower effective price sells first
-    });
+    .filter((entry): entry is { id: string; price: number; supply: number; decision: PeriodDecision } => !!entry)
+    .sort((a, b) => a.price - b.price); // Lowest price first
 
-  for (const entry of allocationOrder) {
-    if (remainingDemand <= 0) break;
-    if (entry.supply <= 0) continue;
-    const allocate = Math.min(entry.supply, remainingDemand);
-    soldByGroup[entry.id] = allocate;
-    remainingDemand -= allocate;
+  const soldByGroup: Record<string, number> = {};
+  let remainingDemand = totalDemand;
+
+  // Winner-Takes-Most: 
+  // 1. Cheapest seller gets 70% of demand (or their full supply, whichever is less)
+  // 2. Second cheapest gets 15% of remaining
+  // 3. Third cheapest gets 10% of remaining
+  // 4. Fourth cheapest gets 5% of remaining
+  const allocationPercentages = [0.70, 0.15, 0.10, 0.05];
+
+  for (let i = 0; i < priceRanking.length && remainingDemand > 0; i++) {
+    const entry = priceRanking[i];
+    const percentage = allocationPercentages[i] || 0;
+    
+    if (percentage === 0 || entry.supply <= 0) continue;
+    
+    // Calculate how much this seller gets
+    const desiredUnits = Math.floor(remainingDemand * percentage);
+    const allocated = Math.min(entry.supply, desiredUnits);
+    
+    if (allocated > 0) {
+      soldByGroup[entry.id] = allocated;
+      remainingDemand -= allocated;
+    }
   }
+
+  // If there's still demand left, it goes unsold (simulating market demand constraints)
+  // This is realistic for a digital market where customers are price-sensitive
 
   // Calculate market share and sales for each group
   for (const group of groups) {
