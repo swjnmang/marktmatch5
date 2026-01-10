@@ -49,9 +49,16 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       const isSoloMode = localStorage.getItem(`solo_mode_${gameId}`);
       if (!isSoloMode) return;
 
-      // Check if we already calculated this period by looking at lastResult
-      if (groupData?.lastResult && groupData.lastResult.period === game.period) {
+      // Check if we already calculated this period by verifying ALL groups have lastResult with matching period
+      const allGroupsSnapshot = await getDocs(collection(db, "games", gameId, "groups"));
+      const allGroupsHaveResult = allGroupsSnapshot.docs.every(d => {
+        const data = d.data() as GroupState;
+        return data.lastResult && data.lastResult.period === game.period;
+      });
+      
+      if (allGroupsHaveResult) {
         // Already calculated this period
+        console.log(`[Solo] Period ${game.period} already calculated`);
         return;
       }
 
@@ -105,7 +112,13 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
             const updatedGroupDoc = await getDoc(doc(db, "games", gameId, "groups", group.id));
             if (updatedGroupDoc.exists()) {
               const updatedData = { id: updatedGroupDoc.id, ...updatedGroupDoc.data() } as GroupState;
-              console.log(`[Solo] Updated local state for period ${updatedData.lastResult?.period}`);
+              console.log(`[Solo] Updated local state for period ${updatedData.lastResult?.period}, game.period=${game.period}`);
+              
+              // Verify that the period matches - if not, force a refresh
+              if (updatedData.lastResult && updatedData.lastResult.period !== game.period) {
+                console.warn(`[Solo] Period mismatch! lastResult.period=${updatedData.lastResult.period}, game.period=${game.period}. Force refreshing...`);
+              }
+              
               setGroupData(updatedData);
             }
           }
@@ -871,7 +884,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                 )}
 
               {/* Show results if available */}
-              {groupData?.lastResult && game.phase === "results" && (
+              {groupData?.lastResult && game.phase === "results" && groupData.lastResult.period === game.period && (
                 <div className="flex flex-col gap-6 rounded-lg border border-slate-200 bg-white p-6">
                   {/* Header */}
                   <div className="flex items-center justify-between border-b border-slate-200 pb-4">
