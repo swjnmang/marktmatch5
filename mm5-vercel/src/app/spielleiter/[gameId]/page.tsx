@@ -35,6 +35,8 @@ export default function GameDashboardPage() {
   const [customTaskDesc, setCustomTaskDesc] = useState("");
   const [taskLoading, setTaskLoading] = useState(false);
   const [allowMachinePurchaseNext, setAllowMachinePurchaseNext] = useState(false);
+  const [showEndGameModal, setShowEndGameModal] = useState(false);
+  const [endGameLoading, setEndGameLoading] = useState(false);
 
   const allGroupsReady = groups.length > 0 && groups.every((g) => g.status === "ready");
   const allGroupsSubmitted = groups.length > 0 && groups.every((g) => g.status === "submitted");
@@ -43,6 +45,17 @@ export default function GameDashboardPage() {
     game?.status === "in_progress" && game.phase === "machine_selection" && allGroupsReady;
   const canCalculate = 
     game?.status === "in_progress" && game.phase === "decisions" && allGroupsSubmitted;
+
+  const getRanking = (): Array<{ name: string; capital: number; period: number; profit: number }> => {
+    return [...groups]
+      .map(g => ({
+        name: g.name,
+        capital: g.capital,
+        period: game?.period || 1,
+        profit: g.cumulativeProfit || 0
+      }))
+      .sort((a, b) => b.capital - a.capital);
+  };
 
   useEffect(() => {
     if (!gameId) return;
@@ -642,6 +655,17 @@ export default function GameDashboardPage() {
               {startLoading ? "Startet..." : `⏭️ Starte Periode ${game.period + 1}`}
             </button>
           )}
+
+          {/* End Game Button - always available when in progress */}
+          {game?.status === "in_progress" && (
+            <button
+              disabled={endGameLoading}
+              onClick={() => setShowEndGameModal(true)}
+              className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
+            >
+              🏁 Spiel beenden
+            </button>
+          )}
           </div>
         </div>
 
@@ -793,7 +817,97 @@ export default function GameDashboardPage() {
               </div>
             </div>
           </div>
-        )}      </section>
+        )}
+
+        {/* End Game Modal */}
+        {showEndGameModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white shadow-xl">
+              <div className="sticky top-0 border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-slate-900">Spiel beenden - Abschlussbilanz</h2>
+                <button
+                  onClick={() => setShowEndGameModal(false)}
+                  className="text-slate-500 hover:text-slate-700"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="p-6 space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900 mb-4">🏆 Abschlussranking - Periode {game?.period}</h3>
+                  <div className="space-y-3">
+                    {getRanking().map((team, idx) => (
+                      <div
+                        key={team.name}
+                        className={`flex items-center justify-between rounded-lg p-4 ${
+                          idx === 0
+                            ? "border-2 border-amber-400 bg-amber-50"
+                            : idx === 1
+                            ? "border-2 border-gray-300 bg-gray-50"
+                            : idx === 2
+                            ? "border-2 border-amber-700 bg-amber-50"
+                            : "border border-slate-200 bg-white"
+                        }`}
+                      >
+                        <div className="flex items-center gap-4">
+                          <span className="text-2xl font-bold">
+                            {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `${idx + 1}.`}
+                          </span>
+                          <div>
+                            <p className="font-semibold text-slate-900">{team.name}</p>
+                            <p className="text-sm text-slate-600">Kumulativer Gewinn: €{team.profit.toLocaleString("de-DE")}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-slate-900">€{team.capital.toLocaleString("de-DE")}</p>
+                          <p className="text-xs text-slate-500">Kapital</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                  <p className="text-sm text-blue-800">
+                    <strong>ℹ️ Hinweis:</strong> Das Spiel wird nach Bestätigung beendet. Die Gruppen können sich danach nicht mehr anmelden.
+                  </p>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowEndGameModal(false)}
+                    className="flex-1 rounded-lg border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    Zurück
+                  </button>
+                  <button
+                    onClick={async () => {
+                      setEndGameLoading(true);
+                      try {
+                        await updateDoc(doc(db, "games", gameId), {
+                          status: "finished",
+                          phase: "results"
+                        });
+                        setShowEndGameModal(false);
+                      } catch (err: any) {
+                        console.error("Error ending game:", err);
+                        setStartError(`Fehler beim Beenden: ${err.message}`);
+                      } finally {
+                        setEndGameLoading(false);
+                      }
+                    }}
+                    disabled={endGameLoading}
+                    className="flex-1 rounded-lg bg-red-600 px-4 py-3 text-sm font-semibold text-white hover:bg-red-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
+                  >
+                    {endGameLoading ? "Wird beendet..." : "✓ Spiel jetzt beenden"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
     </main>
   );
 }
