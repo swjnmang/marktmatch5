@@ -57,7 +57,7 @@ export async function calculateMarketResults(
 
   // Calculate price-weighted market share (lower price + higher supply = more demand)
   const priceWeights: Record<string, number> = {};
-  let totalPriceWeight = 0;
+  let totalWeightForShare = 0;
   
   for (const group of groups) {
     const decision = decisions[group.id];
@@ -67,7 +67,7 @@ export async function calculateMarketResults(
     // Price weight: groups with lower prices get proportionally more weight
     const priceWeight = avgMarketPrice > 0 ? (avgMarketPrice / decision.price) * supply : supply;
     priceWeights[group.id] = priceWeight;
-    totalPriceWeight += priceWeight;
+    totalWeightForShare += priceWeight;
   }
 
   // Calculate market share and sales for each group
@@ -77,7 +77,7 @@ export async function calculateMarketResults(
 
     const supply = groupSupplies[group.id];
     // Market share based on price-weighted supply
-    const marketShare = totalPriceWeight > 0 ? priceWeights[group.id] / totalPriceWeight : 0;
+    const marketShare = totalWeightForShare > 0 ? priceWeights[group.id] / totalWeightForShare : 0;
     
     // Marketing effect
     const marketingBoost = decision.marketingEffort > 0
