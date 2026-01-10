@@ -85,6 +85,7 @@ export interface GameDocument {
   status: "lobby" | "in_progress" | "finished";
   phase?: "machine_selection" | "decisions" | "results";
   phaseEndsAt?: number;
+  allowMachinePurchase?: boolean;
   createdAt?: any; // Firestore Timestamp
   isSoloMode?: boolean; // Flag for Solo mode games
   humanGroupId?: string; // ID of the human player's group in Solo mode

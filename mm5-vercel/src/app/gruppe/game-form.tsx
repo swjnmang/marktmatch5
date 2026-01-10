@@ -405,12 +405,28 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   };
 
   const handleMachineSelect = async () => {
-    if (!groupId || !gameId || !machineChoice) return;
+    if (!groupId || !gameId || !machineChoice || !groupData) return;
     setMachineLoading(true);
     setError("");
     try {
       const selectedMachine = MACHINE_OPTIONS.find(m => m.name === machineChoice);
       if (!selectedMachine) throw new Error("Maschine nicht gefunden");
+
+      // Zusätzlicher Kauf in laufender Periode
+      const isAdditionalPurchase = game?.phase !== "machine_selection";
+
+      if (isAdditionalPurchase) {
+        const newCapital = groupData.capital - selectedMachine.cost;
+        if (newCapital < 0) {
+          throw new Error("Nicht genug Kapital für den Maschinenkauf.");
+        }
+
+        await updateDoc(doc(db, "games", gameId, "groups", groupId), {
+          machines: [...groupData.machines, selectedMachine],
+          capital: newCapital,
+        });
+        return;
+      }
       
       // Update group with selected machine
       await updateDoc(doc(db, "games", gameId, "groups", groupId), {
@@ -683,10 +699,10 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                 </div>
               ) : (
                 <>
-                  {/* Machine Selection Phase */}
-                  {game.phase === "machine_selection" &&
+                  {/* Machine Selection / Zusatzkauf */}
+                  {(game.phase === "machine_selection" || game.allowMachinePurchase) &&
                     groupData &&
-                    groupData.status !== "ready" && (
+                    groupData.status !== "submitted" && (
                       <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-6">
                         <div>
                           <h3 className="text-lg font-semibold text-slate-900 mb-2">
@@ -694,6 +710,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                           </h3>
                           <p className="text-sm text-slate-600">
                             Wähle eine Produktionsmaschine für dein Unternehmen. Diese Entscheidung beeinflusst deine Produktionskapazität und Kostenstruktur.
+                            {game.phase !== "machine_selection" ? " (Zusätzlicher Kauf in dieser Periode)" : ""}
                           </p>
                         </div>
 
@@ -762,7 +779,11 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                       disabled={machineLoading || !machineChoice}
                       className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-6 py-3 text-base font-semibold text-white shadow-md transition hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed"
                     >
-                      {machineLoading ? "Maschine wird gekauft..." : "Maschine kaufen & starten"}
+                      {machineLoading
+                        ? "Maschine wird gekauft..."
+                        : game.phase === "machine_selection"
+                        ? "Maschine kaufen & starten"
+                        : "Maschine kaufen"}
                     </button>
                   </div>
                 )}

@@ -34,6 +34,7 @@ export default function GameDashboardPage() {
   const [customTaskTitle, setCustomTaskTitle] = useState("");
   const [customTaskDesc, setCustomTaskDesc] = useState("");
   const [taskLoading, setTaskLoading] = useState(false);
+  const [allowMachinePurchaseNext, setAllowMachinePurchaseNext] = useState(false);
 
   const allGroupsReady = groups.length > 0 && groups.every((g) => g.status === "ready");
   const allGroupsSubmitted = groups.length > 0 && groups.every((g) => g.status === "submitted");
@@ -61,6 +62,8 @@ export default function GameDashboardPage() {
       (docSnap) => {
         if (docSnap.exists()) {
           setGame(docSnap.data() as GameDocument);
+          const next = docSnap.data() as GameDocument;
+          setAllowMachinePurchaseNext(!!next.allowMachinePurchase);
         } else {
           setError("Spiel nicht gefunden");
         }
@@ -458,6 +461,21 @@ export default function GameDashboardPage() {
               {startError && (
                 <div className="mt-2 rounded bg-red-50 p-2 text-xs text-red-700">{startError}</div>
               )}
+
+              {game.status === "in_progress" && game.phase === "results" && (
+                <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3 flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={allowMachinePurchaseNext}
+                    onChange={(e) => setAllowMachinePurchaseNext(e.target.checked)}
+                    className="mt-1 accent-sky-600"
+                  />
+                  <div className="text-sm text-slate-700">
+                    <p className="font-semibold text-slate-900">Maschinenkauf in nächster Periode erlauben</p>
+                    <p className="text-xs text-slate-600">Ermöglicht allen Gruppen, in der kommenden Periode zusätzliche Produktionsmaschinen (4 Optionen wie zu Beginn) zu kaufen.</p>
+                  </div>
+                </div>
+              )}
             </div>
 
           {/* Lobby Start Button */}
@@ -606,6 +624,7 @@ export default function GameDashboardPage() {
                     period: game.period + 1,
                     phase: "decisions",
                     phaseEndsAt: endsAt,
+                    allowMachinePurchase: allowMachinePurchaseNext,
                   });
                   groups.forEach((g) => {
                     batch.update(doc(db, "games", gameId, "groups", g.id), { status: "waiting" });
@@ -620,7 +639,7 @@ export default function GameDashboardPage() {
               }}
               className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
             >
-              {startLoading ? "Startet..." : `⏭️ Periode ${game.period + 1}`}
+              {startLoading ? "Startet..." : `⏭️ Starte Periode ${game.period + 1}`}
             </button>
           )}
           </div>
