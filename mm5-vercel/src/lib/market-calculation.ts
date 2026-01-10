@@ -55,18 +55,29 @@ export async function calculateMarketResults(
   
   const totalDemand = Math.max(1, Math.floor(baseDemand * priceElasticityEffect));
 
+  // Calculate price-weighted market share (lower price + higher supply = more demand)
+  const priceWeights: Record<string, number> = {};
+  let totalPriceWeight = 0;
+  
+  for (const group of groups) {
+    const decision = decisions[group.id];
+    if (!decision) continue;
+    
+    const supply = groupSupplies[group.id];
+    // Price weight: groups with lower prices get proportionally more weight
+    const priceWeight = avgMarketPrice > 0 ? (avgMarketPrice / decision.price) * supply : supply;
+    priceWeights[group.id] = priceWeight;
+    totalPriceWeight += priceWeight;
+  }
+
   // Calculate market share and sales for each group
   for (const group of groups) {
     const decision = decisions[group.id];
     if (!decision) continue;
 
     const supply = groupSupplies[group.id];
-    const marketShare = totalSupply > 0 ? supply / totalSupply : 0;
-    
-    // Price competitiveness: lower price = more demand
-    const priceCompetitiveness = avgMarketPrice > 0 
-      ? Math.pow(avgMarketPrice / decision.price, 0.5)
-      : 1;
+    // Market share based on price-weighted supply
+    const marketShare = totalPriceWeight > 0 ? priceWeights[group.id] / totalPriceWeight : 0;
     
     // Marketing effect
     const marketingBoost = decision.marketingEffort > 0
@@ -75,7 +86,7 @@ export async function calculateMarketResults(
 
     // Calculate demand for this group
     const groupDemand = Math.floor(
-      totalDemand * marketShare * priceCompetitiveness * marketingBoost
+      totalDemand * marketShare * marketingBoost
     );
 
     // Actual sales limited by supply

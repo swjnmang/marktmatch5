@@ -670,6 +670,31 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                     </span>
                   </div>
                   
+                  {/* Marktbericht */}
+                  <div className="rounded-lg border border-sky-200 bg-sky-50 p-4">
+                    <h4 className="mb-3 text-sm font-semibold text-sky-900">📊 Marktbericht</h4>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      <div className="rounded bg-white p-3 shadow-sm">
+                        <p className="text-xs text-slate-600">Durchschnittspreis</p>
+                        <p className="text-lg font-semibold text-slate-900">
+                          €{groupData.lastResult.averageMarketPrice?.toFixed(2) || "0.00"}
+                        </p>
+                      </div>
+                      <div className="rounded bg-white p-3 shadow-sm">
+                        <p className="text-xs text-slate-600">Gesamtnachfrage</p>
+                        <p className="text-lg font-semibold text-slate-900">
+                          {groupData.lastResult.totalMarketDemand || 0} Einheiten
+                        </p>
+                      </div>
+                      <div className="rounded bg-white p-3 shadow-sm">
+                        <p className="text-xs text-slate-600">Mein Marktanteil</p>
+                        <p className="text-lg font-semibold text-sky-700">
+                          {groupData.lastResult.marketShare?.toFixed(1) || "0.0"}%
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div className="rounded bg-slate-50 p-3">
                       <p className="text-xs text-slate-600">Verkaufte Einheiten</p>
@@ -708,12 +733,6 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                       <span className="text-slate-600">Lagerbestand:</span>
                       <span className="font-semibold text-slate-900">
                         {groupData.lastResult.endingInventory} Einheiten
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Marktanteil:</span>
-                      <span className="font-semibold text-slate-900">
-                        {groupData.lastResult.marketShare?.toFixed(1)}%
                       </span>
                     </div>
                     <div className="flex justify-between">
