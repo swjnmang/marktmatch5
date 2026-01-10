@@ -94,23 +94,18 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
             status: "waiting"
           });
           
-          // If this is the current player's group, update local state immediately
+          // If this is the current player's group, read back from Firestore and update local state
           if (group.id === groupId) {
-            setGroupData(prev => prev ? {
-              ...prev,
-              capital: result.endingCapital,
-              inventory: result.endingInventory,
-              cumulativeProfit: prev.cumulativeProfit + result.profit,
-              cumulativeRndInvestment: newCumulativeRnd,
-              rndBenefitApplied,
-              lastResult: result,
-              status: "waiting"
-            } : null);
+            // Read the updated data from Firestore to ensure consistency
+            const updatedGroupDoc = await getDoc(doc(db, "games", gameId, "groups", group.id));
+            if (updatedGroupDoc.exists()) {
+              setGroupData({ id: updatedGroupDoc.id, ...updatedGroupDoc.data() } as GroupState);
+            }
           }
         }
         
-        // Wait a bit for Firestore and Real-time Listener to sync
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Brief wait to ensure UI updates
+        await new Promise(resolve => setTimeout(resolve, 300));
         setCalculating(false);
       } catch (err: any) {
         console.error("Calculation error:", err);
