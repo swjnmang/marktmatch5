@@ -14,10 +14,10 @@ const MACHINE_OPTIONS: Machine[] = [
   { name: "MegaFlow-Manufaktur", cost: 25000, capacity: 500, variableCostPerUnit: 4 },
 ];
 
-export function GruppeGameForm() {
+export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string }) {
   const params = useParams();
   const gameId = params.gameId as string;
-  const [pin, setPin] = useState("");
+  const [pin, setPin] = useState(prefilledPin);
   const [groupName, setGroupName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

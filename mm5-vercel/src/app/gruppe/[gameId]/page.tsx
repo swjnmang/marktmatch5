@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { GruppeGameForm } from "../game-form";
+import { GruppeGameWrapper } from "./wrapper";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,7 @@ export default function GruppeGamePage() {
         </main>
       }
     >
-      <GruppeGameForm />
+      <GruppeGameWrapper />
     </Suspense>
   );
 }
