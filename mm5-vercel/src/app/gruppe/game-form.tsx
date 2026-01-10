@@ -43,6 +43,18 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   const [currentDecision, setCurrentDecision] = useState<PeriodDecision | null>(null);
   const [otherGroups, setOtherGroups] = useState<GroupState[]>([]);
 
+  const activeActions = game?.activePeriodActions;
+  const showActiveActions =
+    !!activeActions &&
+    activeActions.period === game?.period &&
+    (
+      activeActions.allowMachinePurchase ||
+      activeActions.demandBoost ||
+      activeActions.freeMarketAnalysis ||
+      activeActions.noInventoryCosts ||
+      (activeActions.customEvent?.trim() ?? "") !== ""
+    );
+
   // Auto-calculate results in Solo mode when phase is "results" - only once per period
   useEffect(() => {
     const autoCalculate = async () => {
@@ -174,7 +186,10 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   useEffect(() => {
     const loadInsights = async () => {
       if (!gameId || !groupId || !game || game.phase !== "results") return;
-      if (!groupData?.lastResult || !(groupData.lastResult.marketAnalysisCost > 0)) return;
+      const hasFreeAnalysis =
+        game.activePeriodActions?.period === game.period &&
+        game.activePeriodActions?.freeMarketAnalysis;
+      if (!groupData?.lastResult || !(groupData.lastResult.marketAnalysisCost > 0 || hasFreeAnalysis)) return;
       setInsightsLoading(true);
       try {
         const groupsSnapshot = await getDocs(collection(db, "games", gameId, "groups"));
@@ -208,7 +223,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       }
     };
     loadInsights();
-  }, [gameId, groupId, game?.phase, groupData?.lastResult?.marketAnalysisCost]);
+  }, [gameId, groupId, game?.phase, game?.activePeriodActions?.freeMarketAnalysis, game?.activePeriodActions?.period, game?.period, groupData?.lastResult?.marketAnalysisCost]);
 
   // Load current decision for results display
   useEffect(() => {
@@ -684,6 +699,50 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                   : "Gib die Gruppen-PIN ein, die du von der Spielleitung erhalten hast. Du siehst nur die Daten deiner eigenen Gruppe."}
               </p>
             </div>
+
+            {showActiveActions && activeActions && (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">Aktionen dieser Periode</p>
+                    <h3 className="text-lg font-semibold text-amber-900">⚡ Sonderregeln aktiv</h3>
+                  </div>
+                  <span className="text-xs font-semibold text-amber-800">Nur Periode {game?.period}</span>
+                </div>
+                <div className="mt-3 grid gap-2 text-sm text-amber-900">
+                  {activeActions.allowMachinePurchase && (
+                    <div className="flex items-start gap-2">
+                      <span>🏭</span>
+                      <span>Maschinenkauf ist in dieser Periode erlaubt.</span>
+                    </div>
+                  )}
+                  {activeActions.demandBoost && (
+                    <div className="flex items-start gap-2">
+                      <span>📈</span>
+                      <span>Nachfrage +30% (Sonderimpuls vom Spielleiter).</span>
+                    </div>
+                  )}
+                  {activeActions.freeMarketAnalysis && (
+                    <div className="flex items-start gap-2">
+                      <span>📊</span>
+                      <span>Marktanalyse ist kostenlos und automatisch für alle freigeschaltet.</span>
+                    </div>
+                  )}
+                  {activeActions.noInventoryCosts && (
+                    <div className="flex items-start gap-2">
+                      <span>📦</span>
+                      <span>Keine Lagerkosten in dieser Periode.</span>
+                    </div>
+                  )}
+                  {activeActions.customEvent?.trim() && (
+                    <div className="flex items-start gap-2">
+                      <span>💬</span>
+                      <span className="whitespace-pre-wrap">{activeActions.customEvent}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
         <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200">
           {error && (

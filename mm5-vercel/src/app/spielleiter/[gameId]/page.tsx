@@ -35,6 +35,10 @@ export default function GameDashboardPage() {
   const [customTaskDesc, setCustomTaskDesc] = useState("");
   const [taskLoading, setTaskLoading] = useState(false);
   const [allowMachinePurchaseNext, setAllowMachinePurchaseNext] = useState(false);
+  const [demandBoostNext, setDemandBoostNext] = useState(false);
+  const [freeMarketAnalysisNext, setFreeMarketAnalysisNext] = useState(false);
+  const [noInventoryCostsNext, setNoInventoryCostsNext] = useState(false);
+  const [customEventNext, setCustomEventNext] = useState("");
   const [showEndGameModal, setShowEndGameModal] = useState(false);
   const [showRankingModal, setShowRankingModal] = useState(false);
   const [showConfirmEndModal, setShowConfirmEndModal] = useState(false);
@@ -79,9 +83,13 @@ export default function GameDashboardPage() {
       doc(db, "games", gameId),
       (docSnap) => {
         if (docSnap.exists()) {
-          setGame(docSnap.data() as GameDocument);
           const next = docSnap.data() as GameDocument;
-          setAllowMachinePurchaseNext(!!next.allowMachinePurchase);
+          setGame(next);
+          setAllowMachinePurchaseNext(!!next.parameters?.allowMachinePurchaseNextPeriod);
+          setDemandBoostNext(!!next.parameters?.demandBoostNextPeriod);
+          setFreeMarketAnalysisNext(!!next.parameters?.freeMarketAnalysisNextPeriod);
+          setNoInventoryCostsNext(!!next.parameters?.noInventoryCostsNextPeriod);
+          setCustomEventNext(next.parameters?.customEventNextPeriod || "");
         } else {
           setError("Spiel nicht gefunden");
         }
@@ -507,27 +515,13 @@ export default function GameDashboardPage() {
             <div className="mb-4 rounded bg-red-50 p-2 text-xs text-red-700">{startError}</div>
           )}
 
-          {/* Machine Purchase Checkbox - Always visible when game is running */}
-          {game.status === "in_progress" && game.phase === "results" && (
-            <div className="mb-4 rounded-lg border border-slate-200 bg-slate-50 p-3 flex items-start gap-3">
-              <input
-                type="checkbox"
-                checked={allowMachinePurchaseNext}
-                onChange={(e) => setAllowMachinePurchaseNext(e.target.checked)}
-                className="mt-1 accent-sky-600"
-              />
-              <div className="text-sm text-slate-700">
-                <p className="font-semibold text-slate-900">Maschinenkauf in nächster Periode erlauben</p>
-                <p className="text-xs text-slate-600">Ermöglicht allen Gruppen, in der kommenden Periode zusätzliche Produktionsmaschinen (4 Optionen wie zu Beginn) zu kaufen.</p>
-              </div>
-            </div>
-          )}
-
           {/* Special Tasks Section */}
-          <div className="mt-6 pt-6 border-t border-slate-200">
-            <h3 className="text-sm font-semibold text-slate-900 mb-3">📋 Spezialaufträge</h3>
-            <p className="text-xs text-slate-600 mb-4">
-              Sie können jederzeit Spezialaufträge senden (auch vor Periode 1). Empfehlung vor Spielstart: <span className="font-semibold text-amber-800">"Unternehmensplakat gestalten"</span> an alle Gruppen verteilen.
+          <div className="pt-4 border-t border-slate-200">
+            <h3 className="text-sm font-semibold text-slate-900 mb-2">📋 Spezialaufträge an Gruppen schicken</h3>
+            <p className="text-xs text-slate-600 mb-3">
+              Spezialaufträge werden allen Gruppen als <strong>große Vollbild-Meldung</strong> angezeigt und müssen bestätigt werden. 
+              Sie können jederzeit gesendet werden (auch vor Periode 1). 
+              Empfehlung: <span className="font-semibold text-amber-800">"Unternehmensplakat gestalten"</span> vor Spielstart.
             </p>
             
             {currentTask ? (
@@ -545,7 +539,7 @@ export default function GameDashboardPage() {
                     Löschen
                   </button>
                 </div>
-                <p className="mt-3 text-xs text-amber-700">✓ Den Gruppen angezeigt</p>
+                <p className="mt-3 text-xs text-amber-700">✓ Wird den Gruppen als Vollbild-Overlay angezeigt</p>
               </div>
             ) : (
               <button
@@ -559,6 +553,141 @@ export default function GameDashboardPage() {
               </button>
             )}
           </div>
+
+          {/* Actions for Next Period */}
+          {game.status === "in_progress" && game.phase === "results" && (
+            <div className="mt-6 pt-6 border-t border-slate-200">
+              <h3 className="text-sm font-semibold text-slate-900 mb-3">⚡ Aktionen für die nächste Periode</h3>
+              <p className="text-xs text-slate-600 mb-4">
+                Diese Einstellungen gelten nur für die kommende Periode {game.period + 1} und werden danach automatisch zurückgesetzt.
+              </p>
+
+              <div className="space-y-3">
+                {/* Machine Purchase */}
+                <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 cursor-pointer hover:bg-slate-100 transition">
+                  <input
+                    type="checkbox"
+                    checked={allowMachinePurchaseNext}
+                    onChange={async (e) => {
+                      const checked = e.target.checked;
+                      setAllowMachinePurchaseNext(checked);
+                      try {
+                        await updateDoc(doc(db, "games", gameId), {
+                          "parameters.allowMachinePurchaseNextPeriod": checked,
+                        });
+                      } catch (err: any) {
+                        alert(`Fehler: ${err.message}`);
+                      }
+                    }}
+                    className="mt-1 accent-sky-600 cursor-pointer"
+                  />
+                  <div className="text-sm text-slate-700 flex-1">
+                    <p className="font-semibold text-slate-900">🏭 Maschinenkauf erlauben</p>
+                    <p className="text-xs text-slate-600">Gruppen können zusätzliche Produktionsmaschinen kaufen (4 Optionen wie zu Beginn)</p>
+                  </div>
+                </label>
+
+                {/* Demand Boost */}
+                <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 cursor-pointer hover:bg-slate-100 transition">
+                  <input
+                    type="checkbox"
+                    checked={demandBoostNext}
+                    onChange={async (e) => {
+                      const checked = e.target.checked;
+                      setDemandBoostNext(checked);
+                      try {
+                        await updateDoc(doc(db, "games", gameId), {
+                          "parameters.demandBoostNextPeriod": checked
+                        });
+                      } catch (err: any) {
+                        alert(`Fehler: ${err.message}`);
+                      }
+                    }}
+                    className="mt-1 accent-emerald-600 cursor-pointer"
+                  />
+                  <div className="text-sm text-slate-700 flex-1">
+                    <p className="font-semibold text-slate-900">📈 Nachfrage-Boost (+30%)</p>
+                    <p className="text-xs text-slate-600">Die Marktnachfrage steigt um 30% (z.B. durch Werbekampagne, Feiertag)</p>
+                  </div>
+                </label>
+
+                {/* Free Market Analysis */}
+                <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 cursor-pointer hover:bg-slate-100 transition">
+                  <input
+                    type="checkbox"
+                    checked={freeMarketAnalysisNext}
+                    onChange={async (e) => {
+                      const checked = e.target.checked;
+                      setFreeMarketAnalysisNext(checked);
+                      try {
+                        await updateDoc(doc(db, "games", gameId), {
+                          "parameters.freeMarketAnalysisNextPeriod": checked
+                        });
+                      } catch (err: any) {
+                        alert(`Fehler: ${err.message}`);
+                      }
+                    }}
+                    className="mt-1 accent-blue-600 cursor-pointer"
+                  />
+                  <div className="text-sm text-slate-700 flex-1">
+                    <p className="font-semibold text-slate-900">📊 Kostenlose Marktanalyse</p>
+                    <p className="text-xs text-slate-600">Alle Gruppen erhalten automatisch Wettbewerbsinformationen (normalerweise kostenpflichtig)</p>
+                  </div>
+                </label>
+
+                {/* No Inventory Costs */}
+                <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 cursor-pointer hover:bg-slate-100 transition">
+                  <input
+                    type="checkbox"
+                    checked={noInventoryCostsNext}
+                    onChange={async (e) => {
+                      const checked = e.target.checked;
+                      setNoInventoryCostsNext(checked);
+                      try {
+                        await updateDoc(doc(db, "games", gameId), {
+                          "parameters.noInventoryCostsNextPeriod": checked
+                        });
+                      } catch (err: any) {
+                        alert(`Fehler: ${err.message}`);
+                      }
+                    }}
+                    className="mt-1 accent-purple-600 cursor-pointer"
+                  />
+                  <div className="text-sm text-slate-700 flex-1">
+                    <p className="font-semibold text-slate-900">📦 Keine Lagerkosten</p>
+                    <p className="text-xs text-slate-600">Lagerkosten fallen weg (z.B. durch Sonderangebot oder bessere Lagerverwaltung)</p>
+                  </div>
+                </label>
+
+                {/* Custom Event Text */}
+                <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                  <label className="block text-sm font-semibold text-slate-900 mb-2">
+                    💬 Freies Ereignis beschreiben
+                  </label>
+                  <textarea
+                    placeholder="z.B. 'Streik beim Lieferanten - Produktionskosten steigen um 1€' oder 'Neue Technologie verfügbar'"
+                    rows={2}
+                    value={customEventNext}
+                    onChange={(e) => setCustomEventNext(e.target.value)}
+                    onBlur={async (e) => {
+                      const value = e.target.value;
+                      try {
+                        await updateDoc(doc(db, "games", gameId), {
+                          "parameters.customEventNextPeriod": value
+                        });
+                      } catch (err: any) {
+                        alert(`Fehler: ${err.message}`);
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-600"
+                  />
+                  <p className="text-xs text-slate-600 mt-1">
+                    Wird den Gruppen als Hinweis angezeigt (hat keine automatische Auswirkung auf Berechnungen)
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-2">
@@ -663,7 +792,7 @@ export default function GameDashboardPage() {
                   }));
 
                   // Berechne Markt
-                  const results = calculateMarket(game.parameters, game.period, inputs);
+                  const results = calculateMarket(game.parameters, game.period, inputs, game.activePeriodActions);
 
                   // Aktualisiere Gruppen mit Ergebnissen
                   const batch = writeBatch(db);
@@ -684,6 +813,7 @@ export default function GameDashboardPage() {
                   batch.update(doc(db, "games", gameId), {
                     phase: "results",
                     phaseEndsAt: null,
+                    allowMachinePurchase: false,
                   });
 
                   await batch.commit();
@@ -709,6 +839,14 @@ export default function GameDashboardPage() {
                 setStartLoading(true);
                 setStartError("");
                 try {
+                  const actionsForNextPeriod = {
+                    period: game.period + 1,
+                    allowMachinePurchase: allowMachinePurchaseNext,
+                    demandBoost: demandBoostNext,
+                    freeMarketAnalysis: freeMarketAnalysisNext,
+                    noInventoryCosts: noInventoryCostsNext,
+                    customEvent: customEventNext.trim(),
+                  };
                   const endsAt = Date.now() + (game.parameters?.periodDurationMinutes || 10) * 60 * 1000;
                   const batch = writeBatch(db);
                   batch.update(doc(db, "games", gameId), {
@@ -716,11 +854,22 @@ export default function GameDashboardPage() {
                     phase: "decisions",
                     phaseEndsAt: endsAt,
                     allowMachinePurchase: allowMachinePurchaseNext,
+                    activePeriodActions: actionsForNextPeriod,
+                    "parameters.allowMachinePurchaseNextPeriod": false,
+                    "parameters.demandBoostNextPeriod": false,
+                    "parameters.freeMarketAnalysisNextPeriod": false,
+                    "parameters.noInventoryCostsNextPeriod": false,
+                    "parameters.customEventNextPeriod": "",
                   });
                   groups.forEach((g) => {
                     batch.update(doc(db, "games", gameId, "groups", g.id), { status: "waiting" });
                   });
                   await batch.commit();
+                  setAllowMachinePurchaseNext(false);
+                  setDemandBoostNext(false);
+                  setFreeMarketAnalysisNext(false);
+                  setNoInventoryCostsNext(false);
+                  setCustomEventNext("");
                 } catch (err: any) {
                   console.error("Error starting next period:", err);
                   setStartError(`Fehler: ${err.message}`);

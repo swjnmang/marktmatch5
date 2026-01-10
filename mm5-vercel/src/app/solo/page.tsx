@@ -22,6 +22,11 @@ const DEFAULT_PARAMETERS = {
   machineDegradationRate: 0.02,
   isRndEnabled: true,
   marketingEffectivenessFactor: 0.3,
+  allowMachinePurchaseNextPeriod: false,
+  demandBoostNextPeriod: false,
+  freeMarketAnalysisNextPeriod: false,
+  noInventoryCostsNextPeriod: false,
+  customEventNextPeriod: "",
 };
 
 const AI_STRATEGIES = ["aggressive", "conservative", "balanced", "innovative"] as const;

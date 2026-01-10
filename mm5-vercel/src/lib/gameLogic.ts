@@ -1,4 +1,4 @@
-import type { GameParameters, GroupState, PeriodDecision, PeriodResult, Machine } from "./types";
+import type { GameParameters, GroupState, PeriodDecision, PeriodResult, Machine, PeriodActions } from "./types";
 
 export interface MarketCalculationInput {
   groupId: string;
@@ -30,8 +30,11 @@ const MACHINE_OPTIONS: Machine[] = [
 export function calculateMarket(
   parameters: GameParameters,
   period: number,
-  inputs: MarketCalculationInput[]
+  inputs: MarketCalculationInput[],
+  activeActions?: PeriodActions
 ): MarketCalculationResult[] {
+  const actions = activeActions && activeActions.period === period ? activeActions : undefined;
+
   // 1. Berechne Gesamtkapazität aller Gruppen
   const totalCapacity = inputs.reduce((sum, input) => {
     const groupCapacity = input.groupState.machines.reduce((cap, m) => cap + m.capacity, 0);
@@ -39,7 +42,8 @@ export function calculateMarket(
   }, 0);
 
   // 2. Berechne Basisnachfrage (70% der Gesamtkapazität für realistischen Wettbewerb)
-  const baseDemand = 0.7 * totalCapacity;
+  const demandBoostMultiplier = actions?.demandBoost ? 1.3 : 1;
+  const baseDemand = 0.7 * totalCapacity * demandBoostMultiplier;
 
   // 3. Berechne Durchschnittspreis
   const totalOffered = inputs.reduce((sum, input) => {
@@ -106,7 +110,8 @@ export function calculateMarket(
     const productionCosts = decision.production * effectiveVariableCost;
 
     // Lagerkosten
-    const inventoryCost = endingInventory * parameters.inventoryCostPerUnit;
+    const inventoryCostPerUnit = actions?.noInventoryCosts ? 0 : parameters.inventoryCostPerUnit;
+    const inventoryCost = endingInventory * inventoryCostPerUnit;
 
     // F&E-Kosten
     const rndCost = decision.rndInvestment || 0;
@@ -123,7 +128,8 @@ export function calculateMarket(
     }
 
     // Marktanalyse
-    const marketAnalysisCost = decision.buyMarketAnalysis ? parameters.marketAnalysisCost : 0;
+    const hasMarketAnalysis = actions?.freeMarketAnalysis || decision.buyMarketAnalysis;
+    const marketAnalysisCost = hasMarketAnalysis ? (actions?.freeMarketAnalysis ? 0 : parameters.marketAnalysisCost) : 0;
 
     // Gesamtkosten
     const totalCosts = productionCosts + inventoryCost + rndCost + machineCost + marketAnalysisCost;
@@ -168,8 +174,8 @@ export function calculateMarket(
       endingInventory,
       endingCapital,
       marketShare: adjustedDemand > 0 ? (soldUnits / adjustedDemand) * 100 : 0,
-      averageMarketPrice: decision.buyMarketAnalysis ? avgPrice : 0,
-      totalMarketDemand: decision.buyMarketAnalysis ? Math.floor(adjustedDemand) : 0,
+      averageMarketPrice: hasMarketAnalysis ? avgPrice : 0,
+      totalMarketDemand: hasMarketAnalysis ? Math.floor(adjustedDemand) : 0,
     };
 
     return {

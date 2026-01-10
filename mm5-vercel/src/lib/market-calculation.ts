@@ -9,6 +9,12 @@ export async function calculateMarketResults(
   decisions: Record<string, PeriodDecision>
 ): Promise<Record<string, PeriodResult>> {
   const params = game.parameters;
+  const activeActions = game.activePeriodActions && game.activePeriodActions.period === game.period
+    ? game.activePeriodActions
+    : undefined;
+  const demandBoostMultiplier = activeActions?.demandBoost ? 1.3 : 1;
+  const inventoryCostPerUnit = activeActions?.noInventoryCosts ? 0 : params.inventoryCostPerUnit;
+  const freeMarketAnalysis = !!activeActions?.freeMarketAnalysis;
   const results: Record<string, PeriodResult> = {};
 
   // Validate decisions
@@ -54,7 +60,7 @@ export async function calculateMarketResults(
     Math.min(2, 1 - (priceRatio - 1) * params.priceElasticityFactor)
   );
   
-  const totalDemand = Math.max(1, Math.floor(baseDemand * priceElasticityEffect));
+  const totalDemand = Math.max(1, Math.floor(baseDemand * priceElasticityEffect * demandBoostMultiplier));
 
 
   // Demand allocation: Sequentielles Modell (günstigster Preis verkauft zuerst ALLES)
@@ -120,11 +126,12 @@ export async function calculateMarketResults(
     
     // Inventory: beginning + produced - sold
     const newInventory = group.inventory + decision.production - soldUnits;
-    const inventoryCost = Math.max(0, newInventory) * params.inventoryCostPerUnit;
+    const inventoryCost = Math.max(0, newInventory) * inventoryCostPerUnit;
     
     // Explicit costs
     const rndCost = decision.rndInvestment || 0;
-    const marketAnalysisCost = decision.buyMarketAnalysis ? params.marketAnalysisCost : 0;
+    const hasMarketAnalysis = freeMarketAnalysis || decision.buyMarketAnalysis;
+    const marketAnalysisCost = hasMarketAnalysis ? (freeMarketAnalysis ? 0 : params.marketAnalysisCost) : 0;
     const marketingCost = decision.marketingEffort || 0;
     const machineCost = 0;
     
@@ -163,8 +170,8 @@ export async function calculateMarketResults(
       endingInventory: Math.max(0, newInventory),
       endingCapital,
       marketShare: totalDemand > 0 ? (soldUnits / totalDemand) * 100 : 0,
-      averageMarketPrice: 0,
-      totalMarketDemand: totalDemand,
+      averageMarketPrice: hasMarketAnalysis ? avgMarketPrice : 0,
+      totalMarketDemand: hasMarketAnalysis ? totalDemand : 0,
     };
   }
   // Compute demand-weighted average market price after allocation
@@ -179,7 +186,9 @@ export async function calculateMarketResults(
   }
   const demandWeightedAvg = totalSold > 0 ? valueSum / totalSold : avgMarketPrice;
   for (const gid of Object.keys(results)) {
-    results[gid].averageMarketPrice = demandWeightedAvg;
+    const decision = decisions[gid];
+    const hasMarketAnalysis = freeMarketAnalysis || decision?.buyMarketAnalysis;
+    results[gid].averageMarketPrice = hasMarketAnalysis ? demandWeightedAvg : 0;
   }
 
   return results;

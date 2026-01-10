@@ -15,6 +15,20 @@ export interface GameParameters {
   machineDegradationRate: number;
   isRndEnabled: boolean;
   marketingEffectivenessFactor: number;
+  allowMachinePurchaseNextPeriod?: boolean;
+  demandBoostNextPeriod?: boolean;
+  freeMarketAnalysisNextPeriod?: boolean;
+  noInventoryCostsNextPeriod?: boolean;
+  customEventNextPeriod?: string;
+}
+
+export interface PeriodActions {
+  period: number;
+  allowMachinePurchase?: boolean;
+  demandBoost?: boolean;
+  freeMarketAnalysis?: boolean;
+  noInventoryCosts?: boolean;
+  customEvent?: string;
 }
 
 export interface Machine {
@@ -87,6 +101,7 @@ export interface GameDocument {
   phase?: "machine_selection" | "decisions" | "results";
   phaseEndsAt?: number;
   allowMachinePurchase?: boolean;
+  activePeriodActions?: PeriodActions;
   createdAt?: any; // Firestore Timestamp
   isSoloMode?: boolean; // Flag for Solo mode games
   humanGroupId?: string; // ID of the human player's group in Solo mode
