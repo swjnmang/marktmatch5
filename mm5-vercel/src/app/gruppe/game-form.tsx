@@ -228,12 +228,20 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
     const groupRef = doc(db, "games", gameId, "groups", groupId);
     const unsubscribe = onSnapshot(groupRef, (snapshot) => {
       if (snapshot.exists()) {
-        setGroupData({ id: snapshot.id, ...snapshot.data() } as unknown as GroupState);
+        const newData = { id: snapshot.id, ...snapshot.data() } as unknown as GroupState;
+        console.log(`[Listener] Group data updated: period=${newData.lastResult?.period}, capital=${newData.capital}`);
+        
+        // Don't override during calculation to prevent race conditions
+        if (!calculating) {
+          setGroupData(newData);
+        } else {
+          console.log(`[Listener] Skipping update during calculation`);
+        }
       }
     });
 
     return () => unsubscribe();
-  }, [gameId, groupId]);
+  }, [gameId, groupId, calculating]);
 
   // Lade aktuelle Spezialaufgabe
   useEffect(() => {
