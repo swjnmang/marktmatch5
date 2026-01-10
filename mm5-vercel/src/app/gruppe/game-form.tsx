@@ -692,18 +692,34 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                       </>
                     ) : (
                       <>
-                        <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-purple-200 border-t-purple-600"></div>
-                        <h3 className="text-lg font-semibold text-slate-800">
-                          Berechnung läuft...
-                        </h3>
-                        <p className="text-sm text-slate-600">
-                          {localStorage.getItem(`solo_mode_${gameId}`) 
-                            ? "Die KI-Gegner haben ihre Entscheidungen getroffen. Die Marktberechnung wird durchgeführt."
-                            : "Alle Gruppen haben ihre Entscheidungen eingereicht. Die Marktberechnung wird durchgeführt."}
-                        </p>
-                        <p className="text-xs text-slate-500">
-                          Dies kann einige Sekunden dauern...
-                        </p>
+                        {localStorage.getItem(`solo_mode_${gameId}`) ? (
+                          <>
+                            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-purple-200 border-t-purple-600"></div>
+                            <h3 className="text-lg font-semibold text-slate-800">
+                              Berechnung läuft...
+                            </h3>
+                            <p className="text-sm text-slate-600">
+                              Die KI-Gegner haben ihre Entscheidungen getroffen. Die Marktberechnung wird durchgeführt.
+                            </p>
+                            <p className="text-xs text-slate-500">
+                              Dies kann einige Sekunden dauern...
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <div className="mx-auto h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center">
+                              <svg className="h-6 w-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                            <h3 className="text-lg font-semibold text-slate-800">
+                              Berechnung der Periode {game.period} abgeschlossen
+                            </h3>
+                            <p className="text-sm text-slate-600">
+                              Alle Gruppen haben ihre Entscheidungen eingereicht und die Marktberechnung ist fertig. Deine Ergebnisse werden in Kürze angezeigt.
+                            </p>
+                          </>
+                        )}
                       </>
                     )}
                   </div>
