@@ -27,10 +27,10 @@ export default function Home() {
             <h1 className={`text-3xl font-bold leading-tight ${theme.text} sm:text-4xl lg:text-5xl`}>
               Markt-Match 5 – ein Wirtschaftsplanspiel für Einsteiger
             </h1>
-            <p className={`text-base ${theme.subtext} sm:text-lg leading-relaxed`}>
+            <p className={`text-base ${theme.subtext} sm:text-lg leading-relaxed text-justify`}>
               Willkommen bei Markt-Match 5! In diesem digitalen Unternehmensplanspiel gründet ihr eure eigene Firma zur Produktion günstiger Smartwatches für eine junge Zielgruppe. Als Unternehmer trefft ihr wichtige Entscheidungen: Welche Produktionsmaschine kaufen? Wie viele Einheiten produzieren? Zu welchem Preis verkaufen? Investieren in Marketing oder Forschung & Entwicklung?
             </p>
-            <p className={`text-base ${theme.subtext} sm:text-lg`}>
+            <p className={`text-base ${theme.subtext} sm:text-lg text-justify`}>
               Wetteifert mit anderen Gruppen am Markt, optimiert eure Strategie über mehrere Perioden und versucht, den größten Gewinn zu erzielen. Die Spielleitung steuert das Spiel über ein Dashboard, verteilt Codes und gibt die Ergebnisse frei – alles digital im Browser.
             </p>
           </header>

@@ -55,7 +55,7 @@ export default function Settings() {
                         : "ring-1 ring-slate-200 hover:ring-sky-300"
                     }`}
                     style={{
-                      backgroundColor: key === "dark" ? "#0f172a" : "#ffffff",
+                      backgroundColor: key === "dark" ? "#000000" : "#ffffff",
                     }}
                   >
                     {selectedTheme === key && (
@@ -83,9 +83,9 @@ export default function Settings() {
                       )}
                       {key === "dark" && (
                         <>
-                          <div className="h-8 w-8 rounded bg-slate-800"></div>
-                          <div className="h-8 w-8 rounded bg-emerald-900"></div>
-                          <div className="h-8 w-8 rounded bg-slate-700"></div>
+                          <div className="h-8 w-8 rounded bg-gray-800"></div>
+                          <div className="h-8 w-8 rounded bg-gray-700"></div>
+                          <div className="h-8 w-8 rounded bg-white"></div>
                         </>
                       )}
                       {key === "nature" && (
