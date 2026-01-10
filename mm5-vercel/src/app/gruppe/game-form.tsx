@@ -27,6 +27,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   const [groupData, setGroupData] = useState<GroupState | null>(null);
   const [game, setGame] = useState<GameDocument | null>(null);
   const [currentTask, setCurrentTask] = useState<SpecialTask | null>(null);
+  const [storedGroupId, setStoredGroupId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [production, setProduction] = useState(0);
   const [sellFromInventory, setSellFromInventory] = useState(0);
@@ -103,28 +104,14 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
     autoCalculate();
   }, [game?.period, gameId, calculating]);
 
-  // Check localStorage on mount for existing group
+  // Check localStorage on mount for existing group session (same device/browser)
   useEffect(() => {
-    const storedGroupId = localStorage.getItem(`group_${gameId}`);
-    if (storedGroupId) {
-      setGroupId(storedGroupId);
-      setJoined(true);
-      // Load group data from Firestore
-      const loadGroup = async () => {
-        try {
-          const groupDoc = await getDoc(doc(db, "games", gameId, "groups", storedGroupId));
-          if (groupDoc.exists()) {
-            setGroupData({ id: groupDoc.id, ...groupDoc.data() } as GroupState);
-          }
-        } catch (err) {
-          console.error("Error loading group:", err);
-        }
-      };
-      loadGroup();
-      
-      // Check if this user is admin
-      setIsAdmin(checkPinFromLocalStorage(gameId));
+    const existingGroupId = localStorage.getItem(`group_${gameId}`);
+    if (existingGroupId) {
+      setStoredGroupId(existingGroupId);
     }
+    // Admin PIN might already be stored
+    setIsAdmin(checkPinFromLocalStorage(gameId));
   }, [gameId]);
 
   // Load game data and listen to changes
@@ -199,6 +186,31 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       setJoined(true);
     } catch (err: any) {
       setError(`Fehler: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResumeSession = async () => {
+    if (!storedGroupId) return;
+    setLoading(true);
+    setError("");
+    try {
+      const groupRef = doc(db, "games", gameId, "groups", storedGroupId);
+      const groupDoc = await getDoc(groupRef);
+      if (!groupDoc.exists()) {
+        setError("Deine vorige Sitzung wurde nicht gefunden.");
+        localStorage.removeItem(`group_${gameId}`);
+        setStoredGroupId(null);
+        return;
+      }
+
+      setGroupId(storedGroupId);
+      setGroupData({ id: groupDoc.id, ...groupDoc.data() } as GroupState);
+      setJoined(true);
+      setIsAdmin(checkPinFromLocalStorage(gameId));
+    } catch (err: any) {
+      setError(`Fehler beim Wiederbeitritt: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -430,6 +442,22 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
         <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200">
           {error && (
             <div className="mb-4 rounded-lg bg-red-50 p-4 text-red-700 text-sm">{error}</div>
+          )}
+
+          {!joined && storedGroupId && (
+            <div className="mb-4 flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+              <div>
+                <p className="text-sm font-semibold text-emerald-900">Vorherige Sitzung gefunden</p>
+                <p className="text-xs text-emerald-800">Du kannst deine bestehende Gruppe auf diesem Gerät sofort fortsetzen.</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleResumeSession}
+                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+              >
+                Sitzung wieder aufnehmen
+              </button>
+            </div>
           )}
 
           {!joined && (
