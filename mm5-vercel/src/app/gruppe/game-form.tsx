@@ -5,6 +5,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, addDoc, serverTimestamp, updateDoc, onSnapshot, setDoc, getDocs } from "firebase/firestore";
+import { checkPinFromLocalStorage } from "@/lib/auth";
 import type { GameDocument, GroupState, Machine, PeriodDecision } from "@/lib/types";
 
 const MACHINE_OPTIONS: Machine[] = [
@@ -25,6 +26,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   const [groupId, setGroupId] = useState<string | null>(null);
   const [groupData, setGroupData] = useState<GroupState | null>(null);
   const [game, setGame] = useState<GameDocument | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [production, setProduction] = useState(0);
   const [sellFromInventory, setSellFromInventory] = useState(0);
   const [price, setPrice] = useState(0);
@@ -118,6 +120,9 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
         }
       };
       loadGroup();
+      
+      // Check if this user is admin
+      setIsAdmin(checkPinFromLocalStorage(gameId));
     }
   }, [gameId]);
 
@@ -719,22 +724,30 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-2 sm:flex-row sm:gap-3 pt-2">
-                    <button
-                      onClick={handleNextPeriod}
-                      disabled={loading}
-                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                      {loading ? "Lädt..." : "Nächste Periode starten →"}
-                    </button>
-                    <button
-                      onClick={handleEndGame}
-                      disabled={loading}
-                      className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                      Spiel beenden
-                    </button>
-                  </div>
+                  {isAdmin && (
+                    <div className="flex flex-col gap-2 sm:flex-row sm:gap-3 pt-2">
+                      <button
+                        onClick={handleNextPeriod}
+                        disabled={loading}
+                        className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        {loading ? "Lädt..." : "Nächste Periode starten →"}
+                      </button>
+                      <button
+                        onClick={handleEndGame}
+                        disabled={loading}
+                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        Spiel beenden
+                      </button>
+                    </div>
+                  )}
+                  
+                  {!isAdmin && (
+                    <div className="rounded-lg border border-dashed border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                      ℹ️ Du wartest auf die Spielleitung, um die nächste Periode zu starten.
+                    </div>
+                  )}
                 </div>
               )}
             </>
