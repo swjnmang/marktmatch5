@@ -716,6 +716,8 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                 </div>
               )}
             </>
+              )}
+            </div>
           )}
 
           {!joined && (
