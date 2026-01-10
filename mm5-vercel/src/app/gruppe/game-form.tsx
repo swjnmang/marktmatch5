@@ -320,6 +320,21 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
     }
   };
 
+  const handleReadyClick = async () => {
+    if (!groupId || !gameId) return;
+    setLoading(true);
+    setError("");
+    try {
+      await updateDoc(doc(db, "games", gameId, "groups", groupId), {
+        status: "ready"
+      });
+    } catch (err: any) {
+      setError(`Fehler: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleEndGame = async () => {
     if (!gameId || !confirm("Spiel wirklich beenden?")) return;
     setLoading(true);
@@ -417,6 +432,13 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                   <p className="text-xs text-slate-500">
                     Aktueller Status: {game ? (game.status === "lobby" ? "Warte auf Spielstart" : "Lädt...") : "Lädt..."}
                   </p>
+                  <button
+                    onClick={handleReadyClick}
+                    disabled={loading || groupData?.status === "ready"}
+                    className="mt-2 inline-flex items-center justify-center rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {groupData?.status === "ready" ? "✓ Bereit" : loading ? "Wird gespeichert..." : "Bereit"}
+                  </button>
                 </div>
               ) : (
                 <>
