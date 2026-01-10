@@ -415,7 +415,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                     Die Spielleitung startet das Spiel gleich. Du wirst automatisch weitergeleitet.
                   </p>
                   <p className="text-xs text-slate-500">
-                    Aktueller Status: {game ? (game.status === "waiting" ? "Warte auf Spielstart" : "Lädt...") : "Lädt..."}
+                    Aktueller Status: {game ? (game.status === "lobby" ? "Warte auf Spielstart" : "Lädt...") : "Lädt..."}
                   </p>
                 </div>
               ) : (
