@@ -105,27 +105,21 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
             lastResult: result,
             status: "waiting"
           });
+        }
+        
+        // Force-refresh current group data after ALL updates complete
+        if (groupId) {
+          // Wait a bit for Firestore to propagate changes
+          await new Promise(resolve => setTimeout(resolve, 500));
           
-          // If this is the current player's group, read back from Firestore and update local state
-          if (group.id === groupId) {
-            // Read the updated data from Firestore to ensure consistency
-            const updatedGroupDoc = await getDoc(doc(db, "games", gameId, "groups", group.id));
-            if (updatedGroupDoc.exists()) {
-              const updatedData = { id: updatedGroupDoc.id, ...updatedGroupDoc.data() } as GroupState;
-              console.log(`[Solo] Updated local state for period ${updatedData.lastResult?.period}, game.period=${game.period}`);
-              
-              // Verify that the period matches - if not, force a refresh
-              if (updatedData.lastResult && updatedData.lastResult.period !== game.period) {
-                console.warn(`[Solo] Period mismatch! lastResult.period=${updatedData.lastResult.period}, game.period=${game.period}. Force refreshing...`);
-              }
-              
-              setGroupData(updatedData);
-            }
+          const updatedGroupDoc = await getDoc(doc(db, "games", gameId, "groups", groupId));
+          if (updatedGroupDoc.exists()) {
+            const updatedData = { id: updatedGroupDoc.id, ...updatedGroupDoc.data() } as GroupState;
+            console.log(`[Solo] Force-refreshed group data: period ${updatedData.lastResult?.period}, game.period=${game.period}`);
+            setGroupData(updatedData);
           }
         }
         
-        // Brief wait to ensure UI updates
-        await new Promise(resolve => setTimeout(resolve, 300));
         setCalculating(false);
       } catch (err: any) {
         console.error("Calculation error:", err);
@@ -823,7 +817,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                 )}
 
               {/* Waiting for Results (hide when results available) */}
-              {game.phase === "results" && !groupData?.lastResult && (
+              {game.phase === "results" && (!groupData?.lastResult || groupData.lastResult.period !== game.period) && (
                   <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-6 text-center">
                     {error ? (
                       <>
