@@ -70,8 +70,8 @@ export interface PeriodResult {
   endingInventory: number;
   endingCapital: number;
   marketShare?: number;
-  averageMarketPrice?: number;
-  totalMarketDemand?: number;
+  averageMarketPrice: number;
+  totalMarketDemand: number;
 }
 
 export interface GameDocument {
