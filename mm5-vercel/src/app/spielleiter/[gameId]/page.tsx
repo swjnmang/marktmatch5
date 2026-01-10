@@ -493,6 +493,64 @@ export default function GameDashboardPage() {
               )}
             </div>
 
+            {/* Spezialaufträge in Aktionen */}
+            <div className="mt-6 pt-6 border-t border-slate-200">
+              <h3 className="text-sm font-semibold text-slate-900 mb-3">📋 Spezialaufträge</h3>
+              <p className="text-xs text-slate-600 mb-4">
+                Sie können jederzeit Spezialaufträge senden (auch vor Periode 1). Empfehlung vor Spielstart: <span className="font-semibold text-amber-800">"Unternehmensplakat gestalten"</span> an alle Gruppen verteilen.
+              </p>
+              
+              {currentTask ? (
+                <div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-amber-900">{currentTask.title}</h4>
+                      <p className="mt-2 text-sm text-amber-800 whitespace-pre-wrap">{currentTask.description}</p>
+                    </div>
+                    <button
+                      onClick={handleDeleteTask}
+                      disabled={taskLoading}
+                      className="ml-4 rounded bg-red-100 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-200 disabled:opacity-50"
+                    >
+                      Löschen
+                    </button>
+                  </div>
+                  <p className="mt-3 text-xs text-amber-700">✓ Den Gruppen angezeigt</p>
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    setSelectedTaskId((prev) => prev || "presentation-poster");
+                    setShowTaskModal(true);
+                  }}
+                  className="w-full rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-100"
+                >
+                  + Spezialauftrag auswählen
+                </button>
+              )}
+            </div>
+
+            {/* Ranking & End Game Buttons */}
+            <div className="mt-6 pt-6 border-t border-slate-200">
+              <h3 className="text-sm font-semibold text-slate-900 mb-3">Spielabschluss</h3>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowRankingModal(true)}
+                  className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                >
+                  🏆 Ranking anzeigen
+                </button>
+                <button
+                  onClick={() => setShowConfirmEndModal(true)}
+                  className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700"
+                >
+                  🏁 Spiel beenden
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
           {/* Lobby Start Button */}
           {game.status === "lobby" && (
             <button
@@ -657,68 +715,6 @@ export default function GameDashboardPage() {
               {startLoading ? "Startet..." : `⏭️ Starte Periode ${game.period + 1}`}
             </button>
           )}
-          </div>
-        </div>
-
-        {/* Aktionen & Spezialaufträge - kombiniert */}
-        <div className="rounded-xl bg-white p-6 shadow-lg ring-1 ring-slate-200 space-y-6">
-          {/* Spezialaufträge */}
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900 mb-3">📋 Spezialaufträge</h2>
-            <p className="text-xs text-slate-600 mb-4">
-              Sie können jederzeit Spezialaufträge senden (auch vor Periode 1). Empfehlung vor Spielstart: <span className="font-semibold text-amber-800">"Unternehmensplakat gestalten"</span> an alle Gruppen verteilen.
-            </p>
-            
-            {currentTask ? (
-              <div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-amber-900">{currentTask.title}</h3>
-                    <p className="mt-2 text-sm text-amber-800 whitespace-pre-wrap">{currentTask.description}</p>
-                  </div>
-                  <button
-                    onClick={handleDeleteTask}
-                    disabled={taskLoading}
-                    className="ml-4 rounded bg-red-100 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-200 disabled:opacity-50"
-                  >
-                    Löschen
-                  </button>
-                </div>
-                <p className="mt-3 text-xs text-amber-700">✓ Den Gruppen angezeigt</p>
-              </div>
-            ) : (
-              <button
-                onClick={() => {
-                  setSelectedTaskId((prev) => prev || "presentation-poster");
-                  setShowTaskModal(true);
-                }}
-                className="w-full rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-100"
-              >
-                + Spezialauftrag auswählen
-              </button>
-            )}
-          </div>
-
-          {/* Divider */}
-          <div className="h-px bg-slate-200"></div>
-
-          {/* Ranking & End Game Buttons */}
-          <div>
-            <h3 className="text-sm font-semibold text-slate-900 mb-3">Spielabschluss</h3>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowRankingModal(true)}
-                className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
-              >
-                🏆 Ranking anzeigen
-              </button>
-              <button
-                onClick={() => setShowConfirmEndModal(true)}
-                className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700"
-              >
-                🏁 Spiel beenden
-              </button>
-            </div>
           </div>
         </div>
 
