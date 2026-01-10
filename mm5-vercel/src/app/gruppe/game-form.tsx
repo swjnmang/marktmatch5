@@ -916,6 +916,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                     </div>
                   </div>
                 </div>
+              )}
 
               {/* Waiting for Results (hide when results available) */}
               {game.phase === "results" && (!groupData?.lastResult || groupData.lastResult.period !== game.period) && (
