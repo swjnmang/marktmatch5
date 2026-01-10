@@ -93,6 +93,20 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
             lastResult: result,
             status: "waiting"
           });
+          
+          // If this is the current player's group, update local state immediately
+          if (group.id === groupId) {
+            setGroupData(prev => prev ? {
+              ...prev,
+              capital: result.endingCapital,
+              inventory: result.endingInventory,
+              cumulativeProfit: prev.cumulativeProfit + result.profit,
+              cumulativeRndInvestment: newCumulativeRnd,
+              rndBenefitApplied,
+              lastResult: result,
+              status: "waiting"
+            } : null);
+          }
         }
       } catch (err: any) {
         console.error("Calculation error:", err);
@@ -733,7 +747,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                         </span>
                       </label>
                       <label className="flex flex-col gap-1 text-sm text-slate-700">
-                        Verkauf aus Lager
+                        Verkauf aus Lagerbestand
                         <input
                           type="number"
                           value={sellFromInventory === 0 ? "" : sellFromInventory}
@@ -847,140 +861,152 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
 
               {/* Show results if available */}
               {groupData?.lastResult && game.phase === "results" && (
-                <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-slate-800">
+                <div className="flex flex-col gap-6 rounded-lg border border-slate-200 bg-white p-6">
+                  {/* Header */}
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+                    <h3 className="text-2xl font-bold text-slate-900">
                       Ergebnisse Periode {groupData.lastResult.period}
                     </h3>
-                    <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-800">
-                      Periode abgeschlossen
+                    <span className="rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-800">
+                      ✓ Periode abgeschlossen
                     </span>
                   </div>
                   
-                  {/* Marktbericht */}
-                  <div className="rounded-lg border border-sky-200 bg-sky-50 p-4">
-                    <h4 className="mb-3 text-sm font-semibold text-sky-900">📊 Marktbericht</h4>
-                    <div className="grid gap-3 sm:grid-cols-3">
-                      <div className="rounded bg-white p-3 shadow-sm">
-                        <p className="text-xs text-slate-600">Durchschnittspreis</p>
-                        <p className="text-lg font-semibold text-slate-900">
-                          €{groupData.lastResult.averageMarketPrice?.toFixed(2) || "0.00"}
-                        </p>
-                      </div>
-                      <div className="rounded bg-white p-3 shadow-sm">
-                        <p className="text-xs text-slate-600">Gesamtnachfrage</p>
-                        <p className="text-lg font-semibold text-slate-900">
-                          {groupData.lastResult.totalMarketDemand || 0} Einheiten
-                        </p>
-                      </div>
-                      <div className="rounded bg-white p-3 shadow-sm">
-                        <p className="text-xs text-slate-600">Mein Marktanteil</p>
-                        <p className="text-lg font-semibold text-sky-700">
-                          {groupData.lastResult.marketShare?.toFixed(1) || "0.0"}%
-                        </p>
+                  {/* Market Overview - Two Column Layout */}
+                  <div className="grid gap-6 lg:grid-cols-2">
+                    {/* Left: Market Report */}
+                    <div className="rounded-lg border border-sky-200 bg-sky-50 p-5">
+                      <h4 className="mb-4 text-base font-semibold text-sky-900">📊 Marktbericht</h4>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between rounded bg-white p-3">
+                          <span className="text-sm text-slate-600">Durchschnittspreis</span>
+                          <span className="text-lg font-bold text-slate-900">
+                            €{groupData.lastResult.averageMarketPrice?.toFixed(2) || "0.00"}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between rounded bg-white p-3">
+                          <span className="text-sm text-slate-600">Gesamtnachfrage</span>
+                          <span className="text-lg font-bold text-slate-900">
+                            {groupData.lastResult.totalMarketDemand || 0} Einh.
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between rounded bg-white p-3">
+                          <span className="text-sm text-slate-600">Mein Marktanteil</span>
+                          <span className="text-lg font-bold text-sky-700">
+                            {groupData.lastResult.marketShare?.toFixed(1) || "0.0"}%
+                          </span>
+                        </div>
                       </div>
                     </div>
+
+                    {/* Right: Competitor Analysis (if Solo & purchased) */}
+                    {isSolo && groupData.lastResult.marketAnalysisCost > 0 && (
+                      <div className="rounded-lg border border-amber-200 bg-amber-50 p-5">
+                        <h4 className="mb-4 text-base font-semibold text-amber-900">
+                          🔎 Marktanalyse der Konkurrenz
+                        </h4>
+                        {insightsLoading ? (
+                          <p className="text-sm text-amber-800">Analyse wird geladen...</p>
+                        ) : competitorInsights.length > 0 ? (
+                          <div className="space-y-2">
+                            {competitorInsights.map((c) => (
+                              <div key={c.name} className="rounded bg-white p-3">
+                                <p className="text-xs font-semibold text-slate-600">{c.name}</p>
+                                <div className="mt-2 flex justify-between text-sm">
+                                  <div>
+                                    <p className="text-xs text-slate-500">Preis</p>
+                                    <p className="font-semibold text-slate-900">€{c.price.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-slate-500">Verkauft</p>
+                                    <p className="font-semibold text-slate-900">{c.soldUnits} Einh.</p>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-amber-800">Keine Konkurrenzdaten verfügbar.</p>
+                        )}
+                      </div>
+                    )}
                   </div>
 
-                  {/* Marktanalyse der Konkurrenz (Solo + gekauft) */}
-                  {isSolo && groupData.lastResult.marketAnalysisCost > 0 && (
-                    <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
-                      <h4 className="mb-3 text-sm font-semibold text-amber-900">🔎 Marktanalyse der Konkurrenz</h4>
-                      {insightsLoading ? (
-                        <p className="text-sm text-amber-800">Analyse wird geladen...</p>
-                      ) : competitorInsights.length > 0 ? (
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          {competitorInsights.map((c) => (
-                            <div key={c.name} className="rounded bg-white p-3 shadow-sm">
-                              <p className="text-xs text-slate-600">Gruppe</p>
-                              <p className="text-sm font-semibold text-slate-900">{c.name}</p>
-                              <div className="mt-2 flex justify-between">
-                                <span className="text-xs text-slate-600">Preis</span>
-                                <span className="text-sm font-semibold text-slate-900">€{c.price.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-xs text-slate-600">Verkaufte Einheiten</span>
-                                <span className="text-sm font-semibold text-slate-900">{c.soldUnits}</span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-sm text-amber-800">Keine Konkurrenzdaten verfügbar.</p>
-                      )}
-                    </div>
-                  )}
-                  
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="rounded bg-slate-50 p-3">
-                      <p className="text-xs text-slate-600">Verkaufte Einheiten</p>
-                      <p className="text-xl font-semibold text-slate-900">
+                  {/* Performance Metrics - 2x2 Grid */}
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 p-4 border border-slate-200">
+                      <p className="text-xs font-semibold text-slate-600 uppercase">Verkaufte Einheiten</p>
+                      <p className="mt-2 text-3xl font-bold text-slate-900">
                         {groupData.lastResult.soldUnits}
                       </p>
                     </div>
-                    <div className="rounded bg-slate-50 p-3">
-                      <p className="text-xs text-slate-600">Umsatz</p>
-                      <p className="text-xl font-semibold text-emerald-600">
+                    <div className="rounded-lg bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 border border-emerald-200">
+                      <p className="text-xs font-semibold text-emerald-700 uppercase">Umsatz</p>
+                      <p className="mt-2 text-3xl font-bold text-emerald-700">
                         €{groupData.lastResult.revenue.toLocaleString("de-DE")}
                       </p>
                     </div>
-                    <div className="rounded bg-slate-50 p-3">
-                      <p className="text-xs text-slate-600">Gesamtkosten</p>
-                      <p className="text-xl font-semibold text-red-600">
+                    <div className="rounded-lg bg-gradient-to-br from-red-50 to-red-100 p-4 border border-red-200">
+                      <p className="text-xs font-semibold text-red-700 uppercase">Gesamtkosten</p>
+                      <p className="mt-2 text-3xl font-bold text-red-700">
                         €{groupData.lastResult.totalCosts.toLocaleString("de-DE")}
                       </p>
                     </div>
-                    <div className="rounded bg-sky-50 p-3 ring-2 ring-sky-200">
-                      <p className="text-xs text-sky-800 font-semibold">Gewinn / Verlust</p>
-                      <p className={`text-xl font-bold ${groupData.lastResult.profit >= 0 ? 'text-sky-900' : 'text-red-600'}`}>
+                    <div className="rounded-lg bg-gradient-to-br from-sky-50 to-sky-100 p-4 border-2 border-sky-300 ring-2 ring-sky-200 ring-offset-2">
+                      <p className="text-xs font-semibold text-sky-700 uppercase">Gewinn / Verlust</p>
+                      <p className={`mt-2 text-3xl font-bold ${groupData.lastResult.profit >= 0 ? 'text-sky-700' : 'text-red-700'}`}>
                         €{groupData.lastResult.profit.toLocaleString("de-DE")}
                       </p>
                     </div>
                   </div>
-                  
-                  <div className="grid gap-2 rounded bg-slate-50 p-3 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Neues Kapital:</span>
-                      <span className="font-semibold text-slate-900">
-                        €{groupData.lastResult.endingCapital.toLocaleString("de-DE")}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Lagerbestand:</span>
-                      <span className="font-semibold text-slate-900">
-                        {groupData.lastResult.endingInventory} Einheiten
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Kumulierter Gewinn:</span>
-                      <span className={`font-semibold ${groupData.cumulativeProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                        €{groupData.cumulativeProfit.toLocaleString("de-DE")}
-                      </span>
+
+                  {/* Summary Info */}
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                    <div className="grid gap-3 sm:grid-cols-3 text-sm">
+                      <div>
+                        <p className="text-xs font-semibold text-slate-600">Neues Kapital</p>
+                        <p className="mt-1 text-lg font-bold text-slate-900">
+                          €{groupData.lastResult.endingCapital.toLocaleString("de-DE")}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-slate-600">Lagerbestand</p>
+                        <p className="mt-1 text-lg font-bold text-slate-900">
+                          {groupData.lastResult.endingInventory} Einh.
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-slate-600">Kumulierter Gewinn</p>
+                        <p className={`mt-1 text-lg font-bold ${groupData.cumulativeProfit >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+                          €{groupData.cumulativeProfit.toLocaleString("de-DE")}
+                        </p>
+                      </div>
                     </div>
                   </div>
 
+                  {/* Action Buttons */}
                   {(isAdmin || isSolo) && (
-                    <div className="flex flex-col gap-2 sm:flex-row sm:gap-3 pt-2">
+                    <div className="flex flex-col gap-3 pt-4 sm:flex-row sm:gap-4">
                       <button
                         onClick={handleNextPeriod}
                         disabled={loading}
-                        className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-sky-600 px-6 py-3 text-base font-semibold text-white shadow-md transition hover:bg-sky-700 disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         {loading ? "Lädt..." : "Nächste Periode starten →"}
                       </button>
                       <button
                         onClick={handleEndGame}
                         disabled={loading}
-                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-6 py-3 text-base font-semibold text-white shadow-md transition hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed"
                       >
-                        Spiel beenden
+                        🏁 Spiel beenden
                       </button>
                     </div>
                   )}
                   
                   {!(isAdmin || isSolo) && (
-                    <div className="rounded-lg border border-dashed border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-                      ℹ️ Du wartest auf die Spielleitung, um die nächste Periode zu starten.
+                    <div className="rounded-lg border border-dashed border-amber-200 bg-amber-50 px-4 py-4 text-sm font-medium text-amber-800">
+                      ⏳ Du wartest auf die Spielleitung, um die nächste Periode zu starten.
                     </div>
                   )}
                 </div>

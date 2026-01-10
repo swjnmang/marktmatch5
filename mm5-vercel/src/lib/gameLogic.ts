@@ -244,11 +244,11 @@ export function validateDecision(
     errors.push(`Produktionsmenge (${decision.production}) überschreitet Kapazität (${totalCapacity}).`);
   }
 
-  // Verkauf aus Lager
+  // Verkauf aus Lagerbestand
   if (decision.sellFromInventory === undefined || decision.sellFromInventory < 0) {
-    errors.push("Verkauf aus Lager muss mindestens 0 sein.");
+    errors.push("Verkauf aus Lagerbestand muss mindestens 0 sein.");
   } else if (decision.sellFromInventory > groupState.inventory) {
-    errors.push(`Verkauf aus Lager (${decision.sellFromInventory}) überschreitet Lagerbestand (${groupState.inventory}).`);
+    errors.push(`Verkauf aus Lagerbestand (${decision.sellFromInventory}) überschreitet Lagerbestand (${groupState.inventory}).`);
   }
 
   // Preis

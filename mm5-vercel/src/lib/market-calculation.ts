@@ -71,40 +71,32 @@ export async function calculateMarketResults(
   const soldByGroup: Record<string, number> = {};
   let remainingDemand = totalDemand;
 
-  // Iteratively allocate demand respecting supply caps
-  for (let round = 0; round < 5 && remainingDemand > 0; round++) {
-    let weightSum = 0;
-    let availableSupply = 0;
-    for (const group of groups) {
-      const gSupply = groupSupplies[group.id] || 0;
-      const gSold = soldByGroup[group.id] || 0;
-      const gRemaining = Math.max(0, gSupply - gSold);
-      if (gRemaining > 0 && scores[group.id] > 0) {
-        weightSum += scores[group.id];
-        availableSupply += gRemaining;
-      }
-    }
-    if (weightSum <= 0 || availableSupply <= 0) break;
-
-    let allocatedThisRound = 0;
-    for (const group of groups) {
+  // Price-first allocation: cheaper offers sell first (same product), marketing acts as mild tie-breaker
+  const allocationOrder = groups
+    .map((group) => {
       const decision = decisions[group.id];
-      if (!decision) continue;
-      const gSupply = groupSupplies[group.id] || 0;
-      const gSold = soldByGroup[group.id] || 0;
-      const gRemaining = Math.max(0, gSupply - gSold);
-      if (gRemaining <= 0) continue;
-      
-      const share = scores[group.id] / weightSum;
-      const desired = Math.floor(remainingDemand * share);
-      const allocate = Math.min(gRemaining, desired);
-      if (allocate > 0) {
-        soldByGroup[group.id] = (soldByGroup[group.id] || 0) + allocate;
-        remainingDemand -= allocate;
-        allocatedThisRound += allocate;
+      if (!decision) return null;
+      const supply = groupSupplies[group.id] || 0;
+      const marketingBoost = decision.marketingEffort > 0
+        ? 1 + (decision.marketingEffort / 10000) * params.marketingEffectivenessFactor
+        : 1;
+      const effectivePrice = decision.price / Math.max(0.01, marketingBoost);
+      return { id: group.id, supply, effectivePrice, score: scores[group.id] || 0 };
+    })
+    .filter((entry): entry is { id: string; supply: number; effectivePrice: number; score: number } => !!entry)
+    .sort((a, b) => {
+      if (a.effectivePrice === b.effectivePrice) {
+        return b.score - a.score; // tie-break on score (includes marketing)
       }
-    }
-    if (allocatedThisRound === 0) break; // avoid infinite loop
+      return a.effectivePrice - b.effectivePrice; // lower effective price sells first
+    });
+
+  for (const entry of allocationOrder) {
+    if (remainingDemand <= 0) break;
+    if (entry.supply <= 0) continue;
+    const allocate = Math.min(entry.supply, remainingDemand);
+    soldByGroup[entry.id] = allocate;
+    remainingDemand -= allocate;
   }
 
   // Calculate market share and sales for each group

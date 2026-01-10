@@ -8,7 +8,7 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import type { GameDocument, GroupState } from "@/lib/types";
 
 const DEFAULT_PARAMETERS = {
-  startingCapital: 50000,
+  startingCapital: 30000,
   periodDurationMinutes: 5,
   marketAnalysisCost: 2000,
   negativeCashInterestRate: 0.15,
@@ -63,7 +63,7 @@ export default function SoloModePage() {
       
       const humanGroup: Omit<GroupState, "id"> = {
         name: teamName,
-        capital: 50000,
+        capital: 30000,
         inventory: 0,
         cumulativeProfit: 0,
         machines: [],
@@ -79,7 +79,7 @@ export default function SoloModePage() {
       for (let i = 0; i < 4; i++) {
         const aiGroup: Omit<GroupState, "id"> = {
           name: AI_TEAM_NAMES[i],
-          capital: 50000,
+          capital: 30000,
           inventory: 0,
           cumulativeProfit: 0,
           machines: [],
