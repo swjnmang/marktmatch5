@@ -86,13 +86,6 @@ export async function calculateMarketResults(
     // Reduziere verbleibende Nachfrage
     remainingDemand -= sold;
   }
-    
-    if (allocated > 0) {
-      soldByGroup[entry.id] = allocated;
-      remainingDemand -= allocated;
-      console.log(`[Market] Allocated ${allocated} units to ${entry.id} at price €${entry.price}`);
-    }
-  }
 
   console.log(`[Market] Total demand: ${totalDemand}, remaining unmet: ${remainingDemand}`);
 
