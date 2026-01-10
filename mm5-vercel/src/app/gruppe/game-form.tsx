@@ -410,7 +410,7 @@ export function GruppeGameForm() {
                       </p>
                     </div>
 
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-4 grid-cols-1">
                       {MACHINE_OPTIONS.map((m) => (
                         <label
                           key={m.name}
@@ -450,7 +450,7 @@ export function GruppeGameForm() {
                               </span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-slate-600">Stückkosten pro Einheit:</span>
+                              <span className="text-slate-600">Produktionskosten pro Einheit:</span>
                               <span className="font-semibold text-slate-900">
                                 €{m.variableCostPerUnit.toLocaleString("de-DE")}
                               </span>
