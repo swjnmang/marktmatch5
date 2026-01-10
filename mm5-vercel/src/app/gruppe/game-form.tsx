@@ -741,8 +741,8 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                   </form>
                 )}
 
-              {/* Waiting for Results */}
-              {game.phase === "results" && (
+              {/* Waiting for Results (hide when results available) */}
+              {game.phase === "results" && !groupData?.lastResult && (
                   <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-6 text-center">
                     {error ? (
                       <>
@@ -769,7 +769,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                       </>
                     ) : (
                       <>
-                        {localStorage.getItem(`solo_mode_${gameId}`) ? (
+                        {localStorage.getItem(`solo_mode_${gameId}`) && calculating ? (
                           <>
                             <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-purple-200 border-t-purple-600"></div>
                             <h3 className="text-lg font-semibold text-slate-800">
@@ -793,7 +793,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                               Berechnung der Periode {game.period} abgeschlossen
                             </h3>
                             <p className="text-sm text-slate-600">
-                              Alle Gruppen haben ihre Entscheidungen eingereicht und die Marktberechnung ist fertig. Deine Ergebnisse werden in Kürze angezeigt.
+                              Alle Gruppen haben ihre Entscheidungen eingereicht und die Marktberechnung ist fertig.
                             </p>
                           </>
                         )}
