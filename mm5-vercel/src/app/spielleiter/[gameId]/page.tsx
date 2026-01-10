@@ -39,6 +39,8 @@ export default function GameDashboardPage() {
   const [showRankingModal, setShowRankingModal] = useState(false);
   const [showConfirmEndModal, setShowConfirmEndModal] = useState(false);
   const [endGameLoading, setEndGameLoading] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [settingsLoading, setSettingsLoading] = useState(false);
 
   const allGroupsReady = groups.length > 0 && groups.every((g) => g.status === "ready");
   const allGroupsSubmitted = groups.length > 0 && groups.every((g) => g.status === "submitted");
@@ -479,7 +481,15 @@ export default function GameDashboardPage() {
 
         {/* Settings & Actions - Vertical Layout */}
         <div className="rounded-xl bg-white p-4 shadow-lg ring-1 ring-slate-200">
-          <h2 className="text-lg font-semibold text-slate-900 mb-3">Einstellungen & Aktionen</h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold text-slate-900">Einstellungen & Aktionen</h2>
+            <button
+              onClick={() => setShowSettingsModal(true)}
+              className="rounded-lg bg-slate-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-700 transition"
+            >
+              ⚙️ Spieleinstellungen
+            </button>
+          </div>
           
           <p className="text-xs text-slate-600 mb-4">
             {game.status === "lobby"
@@ -487,7 +497,7 @@ export default function GameDashboardPage() {
               : game.phase === "machine_selection"
               ? "Aktiviere die Entscheidungsphase, wenn alle Gruppen ihre Maschine gewählt haben."
               : game.phase === "decisions"
-              ? "Berechne die Ergebnisse, wenn alle Gruppen eingereicht haben."
+              ? "Warte auf Entscheidungen aller Gruppen."
               : game.phase === "results"
               ? "Starte die nächste Periode."
               : "Verwalte den Spielablauf."}
@@ -1046,6 +1056,235 @@ export default function GameDashboardPage() {
                     className="flex-1 rounded-lg bg-red-600 px-4 py-3 text-sm font-semibold text-white hover:bg-red-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
                   >
                     {endGameLoading ? "Wird beendet..." : "✓ Spiel jetzt beenden"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Settings Modal */}
+        {showSettingsModal && game && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white shadow-xl">
+              <div className="sticky top-0 border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-slate-900">⚙️ Spieleinstellungen</h2>
+                <button
+                  onClick={() => setShowSettingsModal(false)}
+                  className="text-slate-500 hover:text-slate-700"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="p-6 space-y-6">
+                <div className="rounded-lg bg-blue-50 p-4 border border-blue-200">
+                  <p className="text-sm text-blue-800">
+                    💡 <strong>Hinweis:</strong> Änderungen werden sofort übernommen. Einige Einstellungen (Startkapital, Basis-Nachfrage) können nur vor Spielstart geändert werden.
+                  </p>
+                </div>
+
+                {/* Periodendauer */}
+                <div>
+                  <label className="block text-sm font-semibold text-slate-900 mb-2">
+                    ⏱️ Periodendauer (Minuten)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="60"
+                    defaultValue={game.parameters.periodDurationMinutes}
+                    onBlur={async (e) => {
+                      const value = parseInt(e.target.value);
+                      if (value > 0 && value <= 60) {
+                        setSettingsLoading(true);
+                        try {
+                          await updateDoc(doc(db, "games", gameId), {
+                            "parameters.periodDurationMinutes": value
+                          });
+                        } catch (err: any) {
+                          alert(`Fehler: ${err.message}`);
+                        } finally {
+                          setSettingsLoading(false);
+                        }
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-600"
+                  />
+                  <p className="text-xs text-slate-600 mt-1">Zeit, die Gruppen für Entscheidungen haben</p>
+                </div>
+
+                {/* Marktanalyse-Kosten */}
+                <div>
+                  <label className="block text-sm font-semibold text-slate-900 mb-2">
+                    📊 Marktanalyse-Kosten (€)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="10000"
+                    step="100"
+                    defaultValue={game.parameters.marketAnalysisCost}
+                    onBlur={async (e) => {
+                      const value = parseInt(e.target.value);
+                      if (value >= 0) {
+                        setSettingsLoading(true);
+                        try {
+                          await updateDoc(doc(db, "games", gameId), {
+                            "parameters.marketAnalysisCost": value
+                          });
+                        } catch (err: any) {
+                          alert(`Fehler: ${err.message}`);
+                        } finally {
+                          setSettingsLoading(false);
+                        }
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-600"
+                  />
+                  <p className="text-xs text-slate-600 mt-1">Preis für Wettbewerbsinformationen</p>
+                </div>
+
+                {/* Lagerkosten */}
+                <div>
+                  <label className="block text-sm font-semibold text-slate-900 mb-2">
+                    📦 Lagerkosten pro Einheit (€)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="10"
+                    step="0.5"
+                    defaultValue={game.parameters.inventoryCostPerUnit}
+                    onBlur={async (e) => {
+                      const value = parseFloat(e.target.value);
+                      if (value >= 0) {
+                        setSettingsLoading(true);
+                        try {
+                          await updateDoc(doc(db, "games", gameId), {
+                            "parameters.inventoryCostPerUnit": value
+                          });
+                        } catch (err: any) {
+                          alert(`Fehler: ${err.message}`);
+                        } finally {
+                          setSettingsLoading(false);
+                        }
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-600"
+                  />
+                  <p className="text-xs text-slate-600 mt-1">Kosten für unverkaufte Produkte im Lager</p>
+                </div>
+
+                {/* Negativzins */}
+                <div>
+                  <label className="block text-sm font-semibold text-slate-900 mb-2">
+                    💸 Negativzins-Satz (%)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="0.5"
+                    step="0.01"
+                    defaultValue={game.parameters.negativeCashInterestRate * 100}
+                    onBlur={async (e) => {
+                      const value = parseFloat(e.target.value) / 100;
+                      if (value >= 0 && value <= 0.5) {
+                        setSettingsLoading(true);
+                        try {
+                          await updateDoc(doc(db, "games", gameId), {
+                            "parameters.negativeCashInterestRate": value
+                          });
+                        } catch (err: any) {
+                          alert(`Fehler: ${err.message}`);
+                        } finally {
+                          setSettingsLoading(false);
+                        }
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-600"
+                  />
+                  <p className="text-xs text-slate-600 mt-1">Zinsen bei negativem Kapital (z.B. 10 = 10%)</p>
+                </div>
+
+                {/* Nur vor Spielstart änderbar */}
+                {game.status === "lobby" && (
+                  <>
+                    <div className="border-t border-slate-200 pt-6">
+                      <h3 className="text-sm font-semibold text-slate-900 mb-4">
+                        🔒 Nur vor Spielstart änderbar
+                      </h3>
+                    </div>
+
+                    {/* Startkapital */}
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-900 mb-2">
+                        💰 Startkapital (€)
+                      </label>
+                      <input
+                        type="number"
+                        min="10000"
+                        max="100000"
+                        step="1000"
+                        defaultValue={game.parameters.startingCapital}
+                        onBlur={async (e) => {
+                          const value = parseInt(e.target.value);
+                          if (value >= 10000) {
+                            setSettingsLoading(true);
+                            try {
+                              await updateDoc(doc(db, "games", gameId), {
+                                "parameters.startingCapital": value
+                              });
+                            } catch (err: any) {
+                              alert(`Fehler: ${err.message}`);
+                            } finally {
+                              setSettingsLoading(false);
+                            }
+                          }
+                        }}
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-600"
+                      />
+                      <p className="text-xs text-slate-600 mt-1">Anfangskapital für alle Gruppen</p>
+                    </div>
+
+                    {/* F&E aktiviert */}
+                    <div>
+                      <label className="flex items-start gap-3">
+                        <input
+                          type="checkbox"
+                          defaultChecked={game.parameters.isRndEnabled}
+                          onChange={async (e) => {
+                            setSettingsLoading(true);
+                            try {
+                              await updateDoc(doc(db, "games", gameId), {
+                                "parameters.isRndEnabled": e.target.checked
+                              });
+                            } catch (err: any) {
+                              alert(`Fehler: ${err.message}`);
+                            } finally {
+                              setSettingsLoading(false);
+                            }
+                          }}
+                          className="mt-1 rounded border-slate-300"
+                        />
+                        <div>
+                          <span className="text-sm font-semibold text-slate-900">🔬 Forschung & Entwicklung aktivieren</span>
+                          <p className="text-xs text-slate-600 mt-1">
+                            Ermöglicht F&E-Investitionen ab Periode 3 (reduziert variable Kosten)
+                          </p>
+                        </div>
+                      </label>
+                    </div>
+                  </>
+                )}
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={() => setShowSettingsModal(false)}
+                    disabled={settingsLoading}
+                    className="flex-1 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
+                  >
+                    {settingsLoading ? "Speichert..." : "✓ Schließen"}
                   </button>
                 </div>
               </div>
