@@ -108,13 +108,17 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
             } : null);
           }
         }
+        
+        // Wait a bit for Firestore and Real-time Listener to sync
+        await new Promise(resolve => setTimeout(resolve, 500));
+        setCalculating(false);
       } catch (err: any) {
         console.error("Calculation error:", err);
         setError(`Berechnung fehlgeschlagen: ${err.message}`);
         // Reset calculating state even on error
         setCalculating(false);
       } finally {
-        setCalculating(false);
+        // Don't call setCalculating(false) here since we call it above
       }
     };
 
@@ -718,10 +722,15 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
               {game.phase === "decisions" &&
                 groupData &&
                 groupData.status !== "submitted" && (
-                  <form onSubmit={handleDecisionSubmit} className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-4">
-                    <h3 className="text-lg font-semibold text-slate-800">
-                      Entscheidungen Periode {game.period}
-                    </h3>
+                  <form onSubmit={handleDecisionSubmit} className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-6">
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                        Entscheidungen Periode {game.period}
+                      </h3>
+                      <p className="text-sm text-slate-600 leading-relaxed">
+                        Trefft eure strategischen Entscheidungen für diese Periode. Bestimmt die <strong>Produktionsmenge</strong>, die <strong>Verkaufsmengen aus dem Lager</strong> und den <strong>Verkaufspreis</strong>. Optional könnt ihr auch eine <strong>Marktanalyse</strong> kaufen, um mehr über die Konkurrenz zu erfahren.
+                      </p>
+                    </div>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <label className="flex flex-col gap-1 text-sm text-slate-700">
                         Produktionsmenge
