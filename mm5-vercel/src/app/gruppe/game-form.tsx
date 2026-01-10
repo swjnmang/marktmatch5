@@ -404,50 +404,65 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
 
           {joined && (
             <div className="flex flex-col gap-4">
-              {/* Machine Selection Phase */}
-              {game?.status === "in_progress" &&
-                game.phase === "machine_selection" &&
-                groupData &&
-                groupData.status !== "ready" && (
-                  <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-6">
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                        Produktionsmaschine auswählen
-                      </h3>
-                      <p className="text-sm text-slate-600">
-                        Wähle eine Produktionsmaschine für dein Unternehmen. Diese Entscheidung beeinflusst deine Produktionskapazität und Kostenstruktur.
-                      </p>
-                    </div>
+              {/* Waiting for Game to Start */}
+              {!game || game.status !== "in_progress" ? (
+                <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-slate-50 p-6 text-center">
+                  <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-sky-200 border-t-sky-600"></div>
+                  <h3 className="text-lg font-semibold text-slate-900">
+                    Warte auf Spielstart
+                  </h3>
+                  <p className="text-sm text-slate-600">
+                    Die Spielleitung startet das Spiel gleich. Du wirst automatisch weitergeleitet.
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    Aktueller Status: {game ? (game.status === "waiting" ? "Warte auf Spielstart" : "Lädt...") : "Lädt..."}
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* Machine Selection Phase */}
+                  {game.phase === "machine_selection" &&
+                    groupData &&
+                    groupData.status !== "ready" && (
+                      <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-6">
+                        <div>
+                          <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                            Produktionsmaschine auswählen
+                          </h3>
+                          <p className="text-sm text-slate-600">
+                            Wähle eine Produktionsmaschine für dein Unternehmen. Diese Entscheidung beeinflusst deine Produktionskapazität und Kostenstruktur.
+                          </p>
+                        </div>
 
-                    <div className="grid gap-4 grid-cols-1">
-                      {MACHINE_OPTIONS.map((m) => (
-                        <label
-                          key={m.name}
-                          className={`flex cursor-pointer flex-col gap-3 rounded-lg border-2 p-4 transition ${
-                            machineChoice === m.name
-                              ? "border-sky-500 bg-sky-50 ring-2 ring-sky-200"
-                              : "border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50"
-                          }`}
-                        >
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex items-start gap-3 pt-0.5">
-                              <input
-                                type="radio"
-                                name="machine"
-                                value={m.name}
-                                checked={machineChoice === m.name}
-                                onChange={() => setMachineChoice(m.name)}
-                                className="accent-sky-600 mt-1"
-                              />
-                              <div>
-                                <p className="font-semibold text-slate-900">{m.name}</p>
+                        <div className="grid gap-4 grid-cols-1">
+                          {MACHINE_OPTIONS.map((m) => (
+                            <label
+                              key={m.name}
+                              className={`flex cursor-pointer flex-col gap-3 rounded-lg border-2 p-4 transition ${
+                                machineChoice === m.name
+                                  ? "border-sky-500 bg-sky-50 ring-2 ring-sky-200"
+                                  : "border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50"
+                              }`}
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex items-start gap-3 pt-0.5">
+                                  <input
+                                    type="radio"
+                                    name="machine"
+                                    value={m.name}
+                                    checked={machineChoice === m.name}
+                                    onChange={() => setMachineChoice(m.name)}
+                                    className="accent-sky-600 mt-1"
+                                  />
+                                  <div>
+                                    <p className="font-semibold text-slate-900">{m.name}</p>
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          </div>
 
-                          <div className="space-y-2 rounded-lg bg-slate-50 p-3 text-sm">
-                            <div className="flex justify-between">
-                              <span className="text-slate-600">Einmalige Anschaffungskosten:</span>
+                              <div className="space-y-2 rounded-lg bg-slate-50 p-3 text-sm">
+                                <div className="flex justify-between">
+                                  <span className="text-slate-600">Einmalige Anschaffungskosten:</span>
                               <span className="font-semibold text-slate-900">
                                 €{m.cost.toLocaleString("de-DE")}
                               </span>
@@ -490,8 +505,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                 )}
 
               {/* Decisions Phase */}
-              {game?.status === "in_progress" &&
-                game.phase === "decisions" &&
+              {game.phase === "decisions" &&
                 groupData &&
                 groupData.status !== "submitted" && (
                   <form onSubmit={handleDecisionSubmit} className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-4">
@@ -575,8 +589,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                 )}
 
               {/* Waiting for Results */}
-              {game?.status === "in_progress" &&
-                game.phase === "results" && (
+              {game.phase === "results" && (
                   <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-6 text-center">
                     {error ? (
                       <>
@@ -619,7 +632,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                 )}
 
               {/* Show results if available */}
-              {groupData?.lastResult && game?.phase === "results" && (
+              {groupData?.lastResult && game.phase === "results" && (
                 <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold text-slate-800">
