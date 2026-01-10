@@ -887,10 +887,10 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                   <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-slate-50 p-6 text-center">
                     <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-purple-200 border-t-purple-600"></div>
                     <h3 className="text-lg font-semibold text-slate-900">
-                      Warte auf andere Gruppen
+                      Warte auf andere Gruppen und Spielleitung
                     </h3>
                     <p className="text-sm text-slate-600">
-                      Deine Entscheidungen wurden eingereicht. Bitte warte, bis alle anderen Gruppen ihre Entscheidungen auch eingereicht haben.
+                      Deine Entscheidungen sind eingereicht. Bitte warte, bis alle Gruppen fertig sind und die Spielleitung die Periode fortsetzt.
                     </p>
                   </div>
 
