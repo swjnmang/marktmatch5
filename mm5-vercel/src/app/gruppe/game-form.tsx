@@ -608,6 +608,32 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                   </div>
                 )}
 
+              {/* Machine purchased and waiting */}
+              {game.phase === "machine_selection" &&
+                groupData &&
+                groupData.status === "ready" && (
+                  <div className="flex flex-col gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-6">
+                    <div className="flex items-center gap-3 text-emerald-900">
+                      <span className="text-2xl">✅</span>
+                      <div>
+                        <h3 className="text-lg font-semibold">Maschine erfolgreich gekauft</h3>
+                        <p className="text-sm text-emerald-800">
+                          Warte auf die Spielleitung, bis die nächste Phase startet.
+                        </p>
+                      </div>
+                    </div>
+                    {groupData.machines && groupData.machines.length > 0 && (
+                      <div className="rounded-lg bg-white p-4 text-sm text-slate-800 shadow-sm">
+                        <p className="font-semibold">Deine Maschine</p>
+                        <p className="mt-1">{groupData.machines[0].name}</p>
+                        <p className="text-slate-600">
+                          Kapazität: {groupData.machines[0].capacity} Einheiten/Periode · Variable Kosten: €{groupData.machines[0].variableCostPerUnit.toLocaleString("de-DE")}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
               {/* Decisions Phase */}
               {game.phase === "decisions" &&
                 groupData &&
