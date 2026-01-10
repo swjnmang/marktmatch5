@@ -191,10 +191,11 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
           const data = docSnap.data() as any;
           const lr = data.lastResult;
           const dec = decisionsMap[gid];
-          if (lr && dec) {
+          if (lr) {
+            const price = lr.price ?? dec?.price ?? 0;
             insights.push({
               name: data.name || `Gruppe ${gid.substring(0, 4)}`,
-              price: dec.price,
+              price,
               soldUnits: lr.soldUnits || 0,
             });
           }

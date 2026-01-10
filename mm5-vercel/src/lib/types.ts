@@ -56,6 +56,7 @@ export interface PeriodDecision {
 
 export interface PeriodResult {
   period: number;
+  price?: number;
   soldUnits: number;
   revenue: number;
   productionCosts: number;

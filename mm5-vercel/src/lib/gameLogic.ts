@@ -61,7 +61,8 @@ export function calculateMarket(
     1 - parameters.priceElasticityFactor * (priceRatio - 1)
   );
 
-  const adjustedDemand = Math.min(baseDemand * priceElasticityMultiplier, totalCapacity);
+  // Nachfrage darf Kapazität und tatsächliches Angebot nicht überschreiten
+  const adjustedDemand = Math.min(baseDemand * priceElasticityMultiplier, totalCapacity, totalOffered || totalCapacity);
 
   // 5. Berechne Marketing-Scores (ab Periode 5)
   const marketingScores: { [groupId: string]: number } = {};
@@ -156,6 +157,7 @@ export function calculateMarket(
     // Ergebnis
     const result: PeriodResult = {
       period,
+      price: decision.price,
       soldUnits,
       revenue,
       productionCosts,
