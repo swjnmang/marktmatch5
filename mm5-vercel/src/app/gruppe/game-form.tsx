@@ -6,7 +6,7 @@ import Link from "next/link";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, addDoc, serverTimestamp, updateDoc, onSnapshot, setDoc, getDocs } from "firebase/firestore";
 import { checkPinFromLocalStorage } from "@/lib/auth";
-import type { GameDocument, GroupState, Machine, PeriodDecision } from "@/lib/types";
+import type { GameDocument, GroupState, Machine, PeriodDecision, SpecialTask } from "@/lib/types";
 
 const MACHINE_OPTIONS: Machine[] = [
   { name: "SmartMini-Fertiger", cost: 5000, capacity: 100, variableCostPerUnit: 6 },
@@ -26,6 +26,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   const [groupId, setGroupId] = useState<string | null>(null);
   const [groupData, setGroupData] = useState<GroupState | null>(null);
   const [game, setGame] = useState<GameDocument | null>(null);
+  const [currentTask, setCurrentTask] = useState<SpecialTask | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [production, setProduction] = useState(0);
   const [sellFromInventory, setSellFromInventory] = useState(0);
@@ -153,6 +154,26 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
 
     return () => unsubscribe();
   }, [gameId, groupId]);
+
+  // Lade aktuelle Spezialaufgabe
+  useEffect(() => {
+    if (!gameId) return;
+    
+    const unsubscribeTask = onSnapshot(
+      collection(db, "games", gameId, "specialTasks"),
+      (snapshot) => {
+        const tasks = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as SpecialTask));
+        // Nur die neueste Task anzeigen
+        if (tasks.length > 0) {
+          setCurrentTask(tasks[0]);
+        } else {
+          setCurrentTask(null);
+        }
+      }
+    );
+
+    return () => unsubscribeTask();
+  }, [gameId]);
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -364,6 +385,20 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   return (
     <>
       <main className="mx-auto flex max-w-3xl flex-col gap-10 px-6 py-14 sm:px-10">
+        {/* Special Task Banner */}
+        {currentTask && joined && (
+          <div className="rounded-xl border-2 border-amber-300 bg-amber-50 p-6">
+            <div className="flex gap-4">
+              <div className="mt-1 text-2xl">📋</div>
+              <div className="flex-1">
+                <h2 className="text-lg font-bold text-amber-900">Spezialauftrag: {currentTask.title}</h2>
+                <p className="mt-2 text-sm text-amber-800 whitespace-pre-wrap">{currentTask.description}</p>
+                <p className="mt-3 text-xs text-amber-700">Bearbeitet diesen Auftrag zwischen den Perioden!</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col gap-2">
           <p className="text-sm font-semibold uppercase tracking-[0.25em] text-sky-600">Gruppe</p>
           <h1 className="text-3xl font-semibold text-slate-900 sm:text-4xl">

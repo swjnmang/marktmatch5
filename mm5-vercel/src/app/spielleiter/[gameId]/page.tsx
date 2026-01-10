@@ -5,9 +5,10 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { db } from "@/lib/firebase";
-import { doc, collection, onSnapshot, updateDoc, writeBatch, getDocs } from "firebase/firestore";
+import { doc, collection, onSnapshot, updateDoc, writeBatch, getDocs, setDoc, deleteDoc } from "firebase/firestore";
 import { checkPinFromLocalStorage } from "@/lib/auth";
-import type { GameDocument, GroupState, PeriodDecision } from "@/lib/types";
+import { PREDEFINED_TASKS } from "@/lib/special-tasks";
+import type { GameDocument, GroupState, PeriodDecision, SpecialTask } from "@/lib/types";
 import { calculateMarket, type MarketCalculationInput } from "@/lib/gameLogic";
 
 export default function GameDashboardPage() {
@@ -19,6 +20,7 @@ export default function GameDashboardPage() {
 
   const [game, setGame] = useState<GameDocument | null>(null);
   const [groups, setGroups] = useState<GroupState[]>([]);
+  const [currentTask, setCurrentTask] = useState<SpecialTask | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isPinValid, setIsPinValid] = useState(false);
@@ -27,6 +29,11 @@ export default function GameDashboardPage() {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [calculateLoading, setCalculateLoading] = useState(false);
   const [showAdminPin, setShowAdminPin] = useState(false);
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState<string>("");
+  const [customTaskTitle, setCustomTaskTitle] = useState("");
+  const [customTaskDesc, setCustomTaskDesc] = useState("");
+  const [taskLoading, setTaskLoading] = useState(false);
 
   const allGroupsReady = groups.length > 0 && groups.every((g) => g.status === "ready");
   const allGroupsSubmitted = groups.length > 0 && groups.every((g) => g.status === "submitted");
@@ -85,6 +92,26 @@ export default function GameDashboardPage() {
     };
   }, [gameId, router]);
 
+  // Lade aktuelle Spezialaufgabe
+  useEffect(() => {
+    if (!gameId) return;
+    
+    const unsubscribeTask = onSnapshot(
+      collection(db, "games", gameId, "specialTasks"),
+      (snapshot) => {
+        const tasks = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as SpecialTask));
+        // Nur die neueste Task anzeigen
+        if (tasks.length > 0) {
+          setCurrentTask(tasks[0]);
+        } else {
+          setCurrentTask(null);
+        }
+      }
+    );
+
+    return () => unsubscribeTask();
+  }, [gameId]);
+
   // Countdown für aktuelle Phase
   useEffect(() => {
     if (!game?.phaseEndsAt) {
@@ -110,6 +137,86 @@ export default function GameDashboardPage() {
       .padStart(2, "0");
     const seconds = (totalSeconds % 60).toString().padStart(2, "0");
     return `${minutes}:${seconds}`;
+  };
+
+  // Sende Spezialauftrag
+  const handleSendTask = async () => {
+    if (!gameId || !game) return;
+    
+    setTaskLoading(true);
+    setStartError("");
+    
+    try {
+      // Bestimme Titel und Beschreibung
+      let title = "";
+      let description = "";
+      
+      if (selectedTaskId === "custom") {
+        title = customTaskTitle;
+        description = customTaskDesc;
+      } else {
+        const predefined = PREDEFINED_TASKS.find(t => t.id === selectedTaskId);
+        if (predefined) {
+          title = predefined.title;
+          description = predefined.description;
+        }
+      }
+      
+      if (!title || !description) {
+        throw new Error("Bitte Titel und Beschreibung ausfüllen");
+      }
+      
+      // Lösche alte Tasks dieser Periode
+      const oldTasksSnapshot = await getDocs(
+        collection(db, "games", gameId, "specialTasks")
+      );
+      const batch = writeBatch(db);
+      oldTasksSnapshot.docs.forEach(doc => {
+        batch.delete(doc.ref);
+      });
+      
+      // Erstelle neue Task
+      const newTask: SpecialTask = {
+        id: Date.now().toString(),
+        period: game.period,
+        title,
+        description,
+        createdAt: new Date()
+      };
+      
+      batch.set(
+        doc(db, "games", gameId, "specialTasks", newTask.id),
+        newTask
+      );
+      
+      await batch.commit();
+      
+      // Schließe Modal und reset Felder
+      setShowTaskModal(false);
+      setSelectedTaskId("");
+      setCustomTaskTitle("");
+      setCustomTaskDesc("");
+    } catch (err: any) {
+      console.error("Error sending task:", err);
+      setStartError(`Fehler beim Absenden: ${err.message}`);
+    } finally {
+      setTaskLoading(false);
+    }
+  };
+
+  // Lösche Spezialauftrag
+  const handleDeleteTask = async () => {
+    if (!gameId || !currentTask) return;
+    
+    setTaskLoading(true);
+    try {
+      await deleteDoc(doc(db, "games", gameId, "specialTasks", currentTask.id));
+    } catch (err: any) {
+      console.error("Error deleting task:", err);
+      setStartError(`Fehler beim Löschen: ${err.message}`);
+    } finally {
+      setTaskLoading(false);
+    }
   };
 
   if (!isPinValid) {
@@ -493,10 +600,149 @@ export default function GameDashboardPage() {
           </div>
         </div>
 
-        <Link href="/spielleiter" className="text-sm font-semibold text-sky-700 hover:underline">
-          ← Zurück zur Übersicht
-        </Link>
-      </section>
-    </main>
-  );
+        {/* Special Tasks Section */}
+        {game.status === "in_progress" && game.phase === "results" && (
+          <div className="rounded-xl bg-white p-4 shadow-lg ring-1 ring-slate-200">
+            <div className="space-y-3">
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900">📋 Spezialaufträge</h2>
+                <p className="text-xs text-slate-600 mt-1">Weisen Sie den Gruppen einen Spezialauftrag zu, bevor Sie die nächste Periode starten.</p>
+              </div>
+              
+              {currentTask ? (
+                <div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-amber-900">{currentTask.title}</h3>
+                      <p className="mt-2 text-sm text-amber-800 whitespace-pre-wrap">{currentTask.description}</p>
+                    </div>
+                    <button
+                      onClick={handleDeleteTask}
+                      disabled={taskLoading}
+                      className="ml-4 rounded bg-red-100 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-200 disabled:opacity-50"
+                    >
+                      Löschen
+                    </button>
+                  </div>
+                  <p className="mt-3 text-xs text-amber-700">✓ Den Gruppen angezeigt</p>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowTaskModal(true)}
+                  className="w-full rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-100"
+                >
+                  + Spezialauftrag auswählen
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Special Task Modal */}
+        {showTaskModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white shadow-xl">
+              <div className="sticky top-0 border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-slate-900">Spezialauftrag auswählen</h2>
+                <button
+                  onClick={() => setShowTaskModal(false)}
+                  className="text-slate-500 hover:text-slate-700"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="p-6 space-y-4">
+                {/* Predefined Tasks */}
+                <div>
+                  <label className="block text-sm font-semibold text-slate-900 mb-3">Vorgefertigte Aufträge:</label>
+                  <div className="space-y-2">
+                    {PREDEFINED_TASKS.map((task) => (
+                      <label
+                        key={task.id}
+                        className="flex items-start gap-3 rounded-lg border border-slate-200 p-3 cursor-pointer hover:bg-sky-50"
+                      >
+                        <input
+                          type="radio"
+                          name="task"
+                          value={task.id}
+                          checked={selectedTaskId === task.id}
+                          onChange={(e) => {
+                            setSelectedTaskId(e.target.value);
+                            setCustomTaskTitle("");
+                            setCustomTaskDesc("");
+                          }}
+                          className="mt-1"
+                        />
+                        <div className="flex-1">
+                          <p className="font-semibold text-slate-900">{task.title}</p>
+                          <p className="text-xs text-slate-600 line-clamp-2">{task.description}</p>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-px bg-slate-200"></div>
+                  <span className="text-xs text-slate-600">oder</span>
+                  <div className="flex-1 h-px bg-slate-200"></div>
+                </div>
+
+                {/* Custom Task */}
+                <div>
+                  <label className="block text-sm font-semibold text-slate-900 mb-2">Eigener Auftrag:</label>
+                  <label className="flex items-center gap-3 rounded-lg border border-slate-200 p-3 cursor-pointer hover:bg-sky-50 mb-3">
+                    <input
+                      type="radio"
+                      name="task"
+                      value="custom"
+                      checked={selectedTaskId === "custom"}
+                      onChange={() => setSelectedTaskId("custom")}
+                    />
+                    <span className="text-sm text-slate-700">Benutzerdefinierten Auftrag eingeben</span>
+                  </label>
+
+                  {selectedTaskId === "custom" && (
+                    <div className="space-y-3 ml-8">
+                      <input
+                        type="text"
+                        placeholder="Auftrags-Titel"
+                        value={customTaskTitle}
+                        onChange={(e) => setCustomTaskTitle(e.target.value)}
+                        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                      />
+                      <textarea
+                        placeholder="Auftrags-Beschreibung..."
+                        value={customTaskDesc}
+                        onChange={(e) => setCustomTaskDesc(e.target.value)}
+                        rows={6}
+                        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Buttons */}
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={() => setShowTaskModal(false)}
+                    className="flex-1 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    Abbrechen
+                  </button>
+                  <button
+                    onClick={handleSendTask}
+                    disabled={taskLoading || !selectedTaskId || (selectedTaskId === "custom" && (!customTaskTitle || !customTaskDesc))}
+                    className="flex-1 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
+                  >
+                    {taskLoading ? "Wird gesendet..." : "Auftrag senden"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
 }
