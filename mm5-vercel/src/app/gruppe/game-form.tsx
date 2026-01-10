@@ -885,132 +885,149 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
 
               {/* Show results if available */}
               {groupData?.lastResult && game.phase === "results" && groupData.lastResult.period === game.period && (
-                <div className="flex flex-col gap-6 rounded-lg border border-slate-200 bg-white p-6">
-                  {/* Header */}
-                  <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-                    <h3 className="text-2xl font-bold text-slate-900">
-                      Ergebnisse Periode {groupData.lastResult.period}
-                    </h3>
-                    <span className="rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-800">
-                      ✓ Periode abgeschlossen
-                    </span>
-                  </div>
-                  
-                  {/* Market Overview - Two Column Layout */}
-                  <div className="grid gap-6 lg:grid-cols-2">
-                    {/* Left: Market Report */}
-                    <div className="rounded-lg border border-sky-200 bg-sky-50 p-5">
-                      <h4 className="mb-4 text-base font-semibold text-sky-900">📊 Marktbericht</h4>
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between rounded bg-white p-3">
-                          <span className="text-sm text-slate-600">Durchschnittspreis</span>
-                          <span className="text-lg font-bold text-slate-900">
-                            €{groupData.lastResult.averageMarketPrice?.toFixed(2) || "0.00"}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between rounded bg-white p-3">
-                          <span className="text-sm text-slate-600">Gesamtnachfrage</span>
-                          <span className="text-lg font-bold text-slate-900">
-                            {groupData.lastResult.totalMarketDemand || 0} Einh.
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between rounded bg-white p-3">
-                          <span className="text-sm text-slate-600">Mein Marktanteil</span>
-                          <span className="text-lg font-bold text-sky-700">
-                            {groupData.lastResult.marketShare?.toFixed(1) || "0.0"}%
-                          </span>
-                        </div>
+                <div className="flex flex-col gap-4">
+                  {/* 1. Box: Group Results */}
+                  <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+                    <div className="mb-4 flex items-center justify-between border-b border-slate-200 pb-3">
+                      <h3 className="text-xl font-bold text-slate-900">
+                        Ergebnisse der Gruppe "{groupData.name}"
+                      </h3>
+                      <span className="rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-800">
+                        Periode {groupData.lastResult.period}
+                      </span>
+                    </div>
+
+                    {/* Performance Metrics - 2x2 Grid */}
+                    <div className="grid gap-4 sm:grid-cols-2 mb-4">
+                      <div className="rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 p-4 border border-slate-200">
+                        <p className="text-xs font-semibold text-slate-600 uppercase">Verkaufte Einheiten</p>
+                        <p className="mt-2 text-3xl font-bold text-slate-900">
+                          {groupData.lastResult.soldUnits}
+                        </p>
+                      </div>
+                      <div className="rounded-lg bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 border border-emerald-200">
+                        <p className="text-xs font-semibold text-emerald-700 uppercase">Umsatz</p>
+                        <p className="mt-2 text-3xl font-bold text-emerald-700">
+                          €{groupData.lastResult.revenue.toLocaleString("de-DE")}
+                        </p>
+                      </div>
+                      <div className="rounded-lg bg-gradient-to-br from-red-50 to-red-100 p-4 border border-red-200">
+                        <p className="text-xs font-semibold text-red-700 uppercase">Gesamtkosten</p>
+                        <p className="mt-2 text-3xl font-bold text-red-700">
+                          €{groupData.lastResult.totalCosts.toLocaleString("de-DE")}
+                        </p>
+                      </div>
+                      <div className="rounded-lg bg-gradient-to-br from-sky-50 to-sky-100 p-4 border-2 border-sky-300 ring-2 ring-sky-200 ring-offset-2">
+                        <p className="text-xs font-semibold text-sky-700 uppercase">Gewinn / Verlust</p>
+                        <p className={`mt-2 text-3xl font-bold ${groupData.lastResult.profit >= 0 ? 'text-sky-700' : 'text-red-700'}`}>
+                          €{groupData.lastResult.profit.toLocaleString("de-DE")}
+                        </p>
                       </div>
                     </div>
 
-                    {/* Right: Competitor Analysis (if Solo & purchased) */}
-                    {isSolo && groupData.lastResult.marketAnalysisCost > 0 && (
-                      <div className="rounded-lg border border-amber-200 bg-amber-50 p-5">
-                        <h4 className="mb-4 text-base font-semibold text-amber-900">
-                          🔎 Marktanalyse der Konkurrenz
-                        </h4>
-                        {insightsLoading ? (
-                          <p className="text-sm text-amber-800">Analyse wird geladen...</p>
-                        ) : competitorInsights.length > 0 ? (
-                          <div className="space-y-2">
-                            {competitorInsights.map((c) => (
-                              <div key={c.name} className="rounded bg-white p-3">
-                                <p className="text-xs font-semibold text-slate-600">{c.name}</p>
-                                <div className="mt-2 flex justify-between text-sm">
-                                  <div>
-                                    <p className="text-xs text-slate-500">Preis</p>
-                                    <p className="font-semibold text-slate-900">€{c.price.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs text-slate-500">Verkauft</p>
-                                    <p className="font-semibold text-slate-900">{c.soldUnits} Einh.</p>
+                    {/* Summary Info */}
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                      <div className="grid gap-3 sm:grid-cols-3 text-sm">
+                        <div>
+                          <p className="text-xs font-semibold text-slate-600">Neues Kapital</p>
+                          <p className="mt-1 text-lg font-bold text-slate-900">
+                            €{groupData.lastResult.endingCapital.toLocaleString("de-DE")}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-slate-600">Lagerbestand</p>
+                          <p className="mt-1 text-lg font-bold text-slate-900">
+                            {groupData.lastResult.endingInventory} Einh.
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-slate-600">Kumulierter Gewinn</p>
+                          <p className={`mt-1 text-lg font-bold ${groupData.cumulativeProfit >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+                            €{groupData.cumulativeProfit.toLocaleString("de-DE")}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 2. Box: Market Report (Collapsible) */}
+                  <details className="rounded-lg border border-sky-200 bg-sky-50 shadow-sm">
+                    <summary className="cursor-pointer p-4 font-semibold text-sky-900 hover:bg-sky-100 transition rounded-lg flex items-center justify-between">
+                      <span className="flex items-center gap-2">
+                        <span>📊</span>
+                        <span>Marktbericht</span>
+                      </span>
+                      <span className="text-xs font-normal text-sky-700">▼ ausklappen</span>
+                    </summary>
+                    <div className="p-4 pt-2 space-y-3">
+                      <div className="flex items-center justify-between rounded bg-white p-3 shadow-sm">
+                        <span className="text-sm text-slate-600">Durchschnittspreis</span>
+                        <span className="text-lg font-bold text-slate-900">
+                          €{groupData.lastResult.averageMarketPrice?.toFixed(2) || "0.00"}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between rounded bg-white p-3 shadow-sm">
+                        <span className="text-sm text-slate-600">Gesamtnachfrage</span>
+                        <span className="text-lg font-bold text-slate-900">
+                          {groupData.lastResult.totalMarketDemand || 0} Einheiten
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between rounded bg-white p-3 shadow-sm">
+                        <span className="text-sm text-slate-600">Mein Marktanteil</span>
+                        <span className="text-lg font-bold text-sky-700">
+                          {groupData.lastResult.marketShare?.toFixed(1) || "0.0"}%
+                        </span>
+                      </div>
+                    </div>
+                  </details>
+
+                  {/* 3. Box: Competitor Analysis (Collapsible) */}
+                  <details className="rounded-lg border border-amber-200 bg-amber-50 shadow-sm">
+                    <summary className="cursor-pointer p-4 font-semibold text-amber-900 hover:bg-amber-100 transition rounded-lg flex items-center justify-between">
+                      <span className="flex items-center gap-2">
+                        <span>🔎</span>
+                        <span>Marktanalyse der Konkurrenz</span>
+                      </span>
+                      <span className="text-xs font-normal text-amber-700">▼ ausklappen</span>
+                    </summary>
+                    <div className="p-4 pt-2">
+                      {groupData.lastResult.marketAnalysisCost > 0 ? (
+                        isSolo ? (
+                          insightsLoading ? (
+                            <p className="text-sm text-amber-800">Analyse wird geladen...</p>
+                          ) : competitorInsights.length > 0 ? (
+                            <div className="space-y-2">
+                              {competitorInsights.map((c) => (
+                                <div key={c.name} className="rounded bg-white p-3 shadow-sm">
+                                  <p className="text-xs font-semibold text-slate-600">{c.name}</p>
+                                  <div className="mt-2 flex justify-between text-sm">
+                                    <div>
+                                      <p className="text-xs text-slate-500">Preis</p>
+                                      <p className="font-semibold text-slate-900">€{c.price.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs text-slate-500">Verkauft</p>
+                                      <p className="font-semibold text-slate-900">{c.soldUnits} Einh.</p>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            ))}
-                          </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-amber-800">Keine Konkurrenzdaten verfügbar.</p>
+                          )
                         ) : (
-                          <p className="text-sm text-amber-800">Keine Konkurrenzdaten verfügbar.</p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Performance Metrics - 2x2 Grid */}
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 p-4 border border-slate-200">
-                      <p className="text-xs font-semibold text-slate-600 uppercase">Verkaufte Einheiten</p>
-                      <p className="mt-2 text-3xl font-bold text-slate-900">
-                        {groupData.lastResult.soldUnits}
-                      </p>
+                          <p className="text-sm text-amber-800 italic">Marktanalyse wurde von Ihrer Gruppe gekauft.</p>
+                        )
+                      ) : (
+                        <p className="text-sm text-amber-700 italic">Es wurde keine Analyse von Ihrer Gruppe gekauft.</p>
+                      )}
                     </div>
-                    <div className="rounded-lg bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 border border-emerald-200">
-                      <p className="text-xs font-semibold text-emerald-700 uppercase">Umsatz</p>
-                      <p className="mt-2 text-3xl font-bold text-emerald-700">
-                        €{groupData.lastResult.revenue.toLocaleString("de-DE")}
-                      </p>
-                    </div>
-                    <div className="rounded-lg bg-gradient-to-br from-red-50 to-red-100 p-4 border border-red-200">
-                      <p className="text-xs font-semibold text-red-700 uppercase">Gesamtkosten</p>
-                      <p className="mt-2 text-3xl font-bold text-red-700">
-                        €{groupData.lastResult.totalCosts.toLocaleString("de-DE")}
-                      </p>
-                    </div>
-                    <div className="rounded-lg bg-gradient-to-br from-sky-50 to-sky-100 p-4 border-2 border-sky-300 ring-2 ring-sky-200 ring-offset-2">
-                      <p className="text-xs font-semibold text-sky-700 uppercase">Gewinn / Verlust</p>
-                      <p className={`mt-2 text-3xl font-bold ${groupData.lastResult.profit >= 0 ? 'text-sky-700' : 'text-red-700'}`}>
-                        €{groupData.lastResult.profit.toLocaleString("de-DE")}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Summary Info */}
-                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                    <div className="grid gap-3 sm:grid-cols-3 text-sm">
-                      <div>
-                        <p className="text-xs font-semibold text-slate-600">Neues Kapital</p>
-                        <p className="mt-1 text-lg font-bold text-slate-900">
-                          €{groupData.lastResult.endingCapital.toLocaleString("de-DE")}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold text-slate-600">Lagerbestand</p>
-                        <p className="mt-1 text-lg font-bold text-slate-900">
-                          {groupData.lastResult.endingInventory} Einh.
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold text-slate-600">Kumulierter Gewinn</p>
-                        <p className={`mt-1 text-lg font-bold ${groupData.cumulativeProfit >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
-                          €{groupData.cumulativeProfit.toLocaleString("de-DE")}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                  </details>
 
                   {/* Action Buttons */}
                   {(isAdmin || isSolo) && (
-                    <div className="flex flex-col gap-3 pt-4 sm:flex-row sm:gap-4">
+                    <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:gap-4">
                       <button
                         onClick={handleNextPeriod}
                         disabled={loading}

@@ -19,6 +19,7 @@ export async function calculateMarketResults(
     if (typeof decision.production !== "number" || decision.production < 0) {
       throw new Error(`Invalid decision for group ${groupId}: production=${decision?.production}`);
     }
+    console.log(`[Market] Group ${groupId}: Production=${decision.production}, SellFromInv=${decision.sellFromInventory}, Price=€${decision.price}`);
   }
 
   // Calculate total market supply and average price
@@ -71,28 +72,40 @@ export async function calculateMarketResults(
   const soldByGroup: Record<string, number> = {};
   let remainingDemand = totalDemand;
 
-  // Winner-Takes-Most: 
-  // 1. Cheapest seller gets 70% of demand (or their full supply, whichever is less)
-  // 2. Second cheapest gets 15% of remaining
-  // 3. Third cheapest gets 10% of remaining
-  // 4. Fourth cheapest gets 5% of remaining
-  const allocationPercentages = [0.70, 0.15, 0.10, 0.05];
-
+  // Winner-Takes-Most: Allocate demand greedily starting with cheapest
+  // Cheapest gets first pick at a max of 70% of original demand
+  // Others get percentages from WHAT'S LEFT
   for (let i = 0; i < priceRanking.length && remainingDemand > 0; i++) {
     const entry = priceRanking[i];
-    const percentage = allocationPercentages[i] || 0;
     
-    if (percentage === 0 || entry.supply <= 0) continue;
+    if (entry.supply <= 0) continue;
     
-    // Calculate how much this seller gets
-    const desiredUnits = Math.floor(remainingDemand * percentage);
-    const allocated = Math.min(entry.supply, desiredUnits);
+    let maxAllowed: number;
+    if (i === 0) {
+      // Cheapest: max 70% of original demand
+      maxAllowed = Math.floor(totalDemand * 0.70);
+    } else if (i === 1) {
+      // Second: max 15% of original demand
+      maxAllowed = Math.floor(totalDemand * 0.15);
+    } else if (i === 2) {
+      // Third: max 10% of original demand
+      maxAllowed = Math.floor(totalDemand * 0.10);
+    } else {
+      // Others: max 5% of original demand
+      maxAllowed = Math.floor(totalDemand * 0.05);
+    }
+    
+    // Allocate: min of (what they can sell, what they want to sell, what's left in demand)
+    const allocated = Math.min(entry.supply, maxAllowed, remainingDemand);
     
     if (allocated > 0) {
       soldByGroup[entry.id] = allocated;
       remainingDemand -= allocated;
+      console.log(`[Market] Allocated ${allocated} units to ${entry.id} at price €${entry.price}`);
     }
   }
+
+  console.log(`[Market] Total demand: ${totalDemand}, allocated: ${totalDemand - remainingDemand}, unmet: ${remainingDemand}`);
 
   // If there's still demand left, it goes unsold (simulating market demand constraints)
   // This is realistic for a digital market where customers are price-sensitive
@@ -102,7 +115,16 @@ export async function calculateMarketResults(
     const decision = decisions[group.id];
     if (!decision) continue;
 
-    const soldUnits = Math.min(groupSupplies[group.id], soldByGroup[group.id] || 0);
+    const supply = groupSupplies[group.id] || 0;
+    const allocated = soldByGroup[group.id] || 0;
+    const soldUnits = Math.min(supply, allocated);
+    
+    // CRITICAL: Verify sold units don't exceed supply
+    if (soldUnits > supply) {
+      console.error(`[CRITICAL] Group ${group.id}: Sold (${soldUnits}) > Supply (${supply})!`);
+      console.error(`  Production: ${decision.production}, Inventory: ${group.inventory}, SellFromInv: ${decision.sellFromInventory}`);
+    }
+    
     const revenue = soldUnits * decision.price;
     
     // Variable cost per unit: from machine OR default 5€
