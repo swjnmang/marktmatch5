@@ -170,10 +170,10 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
     setIsAdmin(checkPinFromLocalStorage(gameId));
   }, [gameId]);
 
-  // Load competitor insights for Solo mode when market analysis was purchased
+  // Load competitor insights when market analysis was purchased (solo & multiplayer)
   useEffect(() => {
     const loadInsights = async () => {
-      if (!isSolo || !gameId || !groupId || !game || game.phase !== "results") return;
+      if (!gameId || !groupId || !game || game.phase !== "results") return;
       if (!groupData?.lastResult || !(groupData.lastResult.marketAnalysisCost > 0)) return;
       setInsightsLoading(true);
       try {
@@ -207,7 +207,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       }
     };
     loadInsights();
-  }, [isSolo, gameId, groupId, game?.phase, groupData?.lastResult?.marketAnalysisCost]);
+  }, [gameId, groupId, game?.phase, groupData?.lastResult?.marketAnalysisCost]);
 
   // Load current decision for results display
   useEffect(() => {
@@ -1173,32 +1173,28 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                     </summary>
                     <div className="p-4 pt-2">
                       {groupData.lastResult.marketAnalysisCost > 0 ? (
-                        isSolo ? (
-                          insightsLoading ? (
-                            <p className="text-sm text-amber-800">Analyse wird geladen...</p>
-                          ) : competitorInsights.length > 0 ? (
-                            <div className="space-y-2">
-                              {competitorInsights.map((c) => (
-                                <div key={c.name} className="rounded bg-white p-3 shadow-sm">
-                                  <p className="text-xs font-semibold text-slate-600">{c.name}</p>
-                                  <div className="mt-2 flex justify-between text-sm">
-                                    <div>
-                                      <p className="text-xs text-slate-500">Preis</p>
-                                      <p className="font-semibold text-slate-900">€{c.price.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                                    </div>
-                                    <div>
-                                      <p className="text-xs text-slate-500">Verkauft</p>
-                                      <p className="font-semibold text-slate-900">{c.soldUnits} Einh.</p>
-                                    </div>
+                        insightsLoading ? (
+                          <p className="text-sm text-amber-800">Analyse wird geladen...</p>
+                        ) : competitorInsights.length > 0 ? (
+                          <div className="space-y-2">
+                            {competitorInsights.map((c) => (
+                              <div key={c.name} className="rounded bg-white p-3 shadow-sm">
+                                <p className="text-xs font-semibold text-slate-600">{c.name}</p>
+                                <div className="mt-2 flex justify-between text-sm">
+                                  <div>
+                                    <p className="text-xs text-slate-500">Preis</p>
+                                    <p className="font-semibold text-slate-900">€{c.price.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-slate-500">Verkauft</p>
+                                    <p className="font-semibold text-slate-900">{c.soldUnits} Einh.</p>
                                   </div>
                                 </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <p className="text-sm text-amber-800">Keine Konkurrenzdaten verfügbar.</p>
-                          )
+                              </div>
+                            ))}
+                          </div>
                         ) : (
-                          <p className="text-sm text-amber-800 italic">Marktanalyse wurde von Ihrer Gruppe gekauft.</p>
+                          <p className="text-sm text-amber-800">Keine Konkurrenzdaten verfügbar.</p>
                         )
                       ) : (
                         <p className="text-sm text-amber-700 italic">Es wurde keine Analyse von Ihrer Gruppe gekauft.</p>

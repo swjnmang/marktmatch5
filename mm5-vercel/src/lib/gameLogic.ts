@@ -61,7 +61,7 @@ export function calculateMarket(
     1 - parameters.priceElasticityFactor * (priceRatio - 1)
   );
 
-  const adjustedDemand = baseDemand * priceElasticityMultiplier;
+  const adjustedDemand = Math.min(baseDemand * priceElasticityMultiplier, totalCapacity);
 
   // 5. Berechne Marketing-Scores (ab Periode 5)
   const marketingScores: { [groupId: string]: number } = {};
@@ -169,7 +169,7 @@ export function calculateMarket(
       profit,
       endingInventory,
       endingCapital,
-      marketShare: totalOffered > 0 ? soldUnits / adjustedDemand : 0,
+      marketShare: adjustedDemand > 0 ? (soldUnits / adjustedDemand) * 100 : 0,
       averageMarketPrice: decision.buyMarketAnalysis ? avgPrice : 0,
       totalMarketDemand: decision.buyMarketAnalysis ? Math.floor(adjustedDemand) : 0,
     };
