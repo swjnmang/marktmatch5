@@ -41,6 +41,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   const [machineLoading, setMachineLoading] = useState(false);
   const [calculating, setCalculating] = useState(false);
   const [currentDecision, setCurrentDecision] = useState<PeriodDecision | null>(null);
+  const [otherGroups, setOtherGroups] = useState<GroupState[]>([]);
 
   // Auto-calculate results in Solo mode when phase is "results" - only once per period
   useEffect(() => {
@@ -236,6 +237,21 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
     });
 
     return () => unsubscribe();
+  }, [gameId]);
+
+  // Load all groups in the game (for lobby view and other groups status)
+  useEffect(() => {
+    if (!gameId) return;
+
+    const unsubscribeGroups = onSnapshot(
+      collection(db, "games", gameId, "groups"),
+      (snapshot) => {
+        const allGroups = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as GroupState));
+        setOtherGroups(allGroups);
+      }
+    );
+
+    return () => unsubscribeGroups();
   }, [gameId]);
 
   // Listen to group data changes
@@ -619,26 +635,50 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
 
           {joined && (
             <div className="flex flex-col gap-4">
-              {/* Waiting for Game to Start */}
+              {/* Waiting for Game to Start - with Lobby Info */}
               {!game || game.status !== "in_progress" ? (
-                <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-slate-50 p-6 text-center">
-                  <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-sky-200 border-t-sky-600"></div>
-                  <h3 className="text-lg font-semibold text-slate-900">
-                    Warte auf Spielstart
-                  </h3>
-                  <p className="text-sm text-slate-600">
-                    Die Spielleitung startet das Spiel gleich. Du wirst automatisch weitergeleitet.
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    Aktueller Status: {game ? (game.status === "lobby" ? "Warte auf Spielstart" : "Lädt...") : "Lädt..."}
-                  </p>
-                  <button
-                    onClick={handleReadyClick}
-                    disabled={loading || groupData?.status === "ready"}
-                    className="mt-2 inline-flex items-center justify-center rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:opacity-60 disabled:cursor-not-allowed"
-                  >
-                    {groupData?.status === "ready" ? "✓ Bereit" : loading ? "Wird gespeichert..." : "Bereit"}
-                  </button>
+                <div className="flex flex-col gap-4">
+                  {/* Lobby Status Card */}
+                  <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-slate-50 p-6 text-center">
+                    <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-sky-200 border-t-sky-600"></div>
+                    <h3 className="text-lg font-semibold text-slate-900">
+                      Warte auf Spielstart
+                    </h3>
+                    <p className="text-sm text-slate-600">
+                      Die Spielleitung startet das Spiel gleich. Du wirst automatisch weitergeleitet.
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      Aktueller Status: {game ? (game.status === "lobby" ? "Warte auf Spielstart" : "Lädt...") : "Lädt..."}
+                    </p>
+                    <button
+                      onClick={handleReadyClick}
+                      disabled={loading || groupData?.status === "ready"}
+                      className="mt-2 inline-flex items-center justify-center rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {groupData?.status === "ready" ? "✓ Bereit" : loading ? "Wird gespeichert..." : "Bereit"}
+                    </button>
+                  </div>
+
+                  {/* Groups in Lobby */}
+                  {game?.status === "lobby" && (
+                    <div className="rounded-lg border border-slate-200 bg-white p-6">
+                      <h4 className="text-sm font-semibold text-slate-900 mb-3">👥 Gruppen in der Lobby ({otherGroups.length})</h4>
+                      <div className="space-y-2">
+                        {otherGroups.map((grp) => (
+                          <div key={grp.id} className="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50">
+                            <span className="text-sm font-medium text-slate-900">{grp.name}</span>
+                            <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                              grp.status === "ready" 
+                                ? "bg-emerald-100 text-emerald-800" 
+                                : "bg-amber-100 text-amber-800"
+                            }`}>
+                              {grp.status === "ready" ? "✓ Bereit" : "⏳ Wartet"}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <>
@@ -840,6 +880,42 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                     </button>
                   </form>
                 )}
+
+              {/* Waiting for Other Groups After Decision Submitted */}
+              {game.phase === "decisions" && groupData?.status === "submitted" && (
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-slate-50 p-6 text-center">
+                    <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-purple-200 border-t-purple-600"></div>
+                    <h3 className="text-lg font-semibold text-slate-900">
+                      Warte auf andere Gruppen
+                    </h3>
+                    <p className="text-sm text-slate-600">
+                      Deine Entscheidungen wurden eingereicht. Bitte warte, bis alle anderen Gruppen ihre Entscheidungen auch eingereicht haben.
+                    </p>
+                  </div>
+
+                  {/* Groups Status */}
+                  <div className="rounded-lg border border-slate-200 bg-white p-6">
+                    <h4 className="text-sm font-semibold text-slate-900 mb-3">📊 Status aller Gruppen</h4>
+                    <div className="space-y-2">
+                      {otherGroups.map((grp) => (
+                        <div key={grp.id} className="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50">
+                          <div>
+                            <span className="text-sm font-medium text-slate-900">{grp.name}</span>
+                            {grp.id === groupId && <span className="text-xs text-sky-600 ml-2">(Du)</span>}
+                          </div>
+                          <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                            grp.status === "submitted" 
+                              ? "bg-emerald-100 text-emerald-800" 
+                              : "bg-amber-100 text-amber-800"
+                          }`}>
+                            {grp.status === "submitted" ? "✓ Eingereicht" : "⏳ Wartet"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
 
               {/* Waiting for Results (hide when results available) */}
               {game.phase === "results" && (!groupData?.lastResult || groupData.lastResult.period !== game.period) && (
