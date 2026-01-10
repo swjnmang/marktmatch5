@@ -742,7 +742,6 @@ export default function GameDashboardPage() {
               {startLoading ? "Startet..." : `⏭️ Starte Periode ${game.period + 1}`}
             </button>
           )}
-          </div>
         </div>
 
         {/* Special Task Modal */}

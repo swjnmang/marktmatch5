@@ -228,7 +228,30 @@ function GruppeContent() {
                   className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg transition"
                 >
                   ✕ Scannen beenden
-                </button>6">
+                </button>
+                <p className="text-xs text-slate-500 text-center">
+                  Für beste Ergebnisse: QR-Code vor die Kamera halten
+                </p>
+              </>
+            )}
+
+            {error && (
+              <div className="rounded-lg bg-red-50 p-4 border border-red-200">
+                <p className="text-sm text-red-800">{error}</p>
+              </div>
+            )}
+
+            <div className="rounded-lg bg-blue-50 p-4">
+              <p className="text-sm text-blue-800">
+                💡 <strong>Tipp:</strong> Wenn der QR-Scanner nicht funktioniert, verwende stattdessen die "PIN eingeben" Option.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Manual PIN Tab */}
+        {activeTab === "manual" && (
+          <form onSubmit={handleManualJoin} className="space-y-6">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">
                 PIN-Code
@@ -264,29 +287,6 @@ function GruppeContent() {
             <div className="rounded-lg bg-emerald-50 p-4 border border-emerald-200">
               <p className="text-sm text-emerald-800">
                 ✓ <strong>Einfach:</strong> Nur den 5-stelligen PIN eingeben - das System findet automatisch dein Spiel!
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-600 tracking-widest text-center text-2xl"
-              />
-              <p className="text-xs text-slate-500 mt-1">
-                5-stelliger Code vom Spielleiter
-              </p>
-            </div>
-
-            {error && (
-              <div className="rounded-lg bg-red-50 p-4 border border-red-200">
-                <p className="text-sm text-red-800">{error}</p>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              className="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 px-4 rounded-lg transition"
-            >
-              Spiel beitreten
-            </button>
-
-            <div className="rounded-lg bg-amber-50 p-4">
-              <p className="text-sm text-amber-800">
-                ⚠️ <strong>Hinweis:</strong> Du benötigst sowohl die Spiel-ID als auch den PIN-Code von deinem Spielleiter.
               </p>
             </div>
           </form>
