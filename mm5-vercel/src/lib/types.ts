@@ -88,3 +88,10 @@ export interface GameDocument {
   isSoloMode?: boolean; // Flag for Solo mode games
   humanGroupId?: string; // ID of the human player's group in Solo mode
 }
+export interface SpecialTask {
+  id: string;
+  period: number;
+  title: string;
+  description: string;
+  createdAt?: any; // Firestore Timestamp
+}
