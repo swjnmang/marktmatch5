@@ -413,18 +413,19 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
         {/* Only show rest of UI if no special task is active */}
         {!currentTask && (
           <>
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-sky-600">Gruppe</p>
-          <h1 className="text-3xl font-semibold text-slate-900 sm:text-4xl">
-            {joined && groupData ? groupData.name : "Mit Code einer Lobby beitreten"}
-          </h1>
-          <p className="text-base text-slate-600">
-            {joined && groupData
-              ? `Spiel-ID: ${gameId.substring(0, 8)}... • Kapital: €${groupData.capital.toLocaleString(
-                  "de-DE"
-                )}`
-              : "Gib die Gruppen-PIN ein, die du von der Spielleitung erhalten hast. Du siehst nur die Daten deiner eigenen Gruppe."}
-          </p>
-        </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-sky-600">Gruppe</p>
+              <h1 className="text-3xl font-semibold text-slate-900 sm:text-4xl">
+                {joined && groupData ? groupData.name : "Mit Code einer Lobby beitreten"}
+              </h1>
+              <p className="text-base text-slate-600">
+                {joined && groupData
+                  ? `Spiel-ID: ${gameId.substring(0, 8)}... • Kapital: €${groupData.capital.toLocaleString(
+                      "de-DE"
+                    )}`
+                  : "Gib die Gruppen-PIN ein, die du von der Spielleitung erhalten hast. Du siehst nur die Daten deiner eigenen Gruppe."}
+              </p>
+            </div>
 
         <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200">
           {error && (
