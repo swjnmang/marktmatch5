@@ -11,6 +11,16 @@ export async function calculateMarketResults(
   const params = game.parameters;
   const results: Record<string, PeriodResult> = {};
 
+  // Validate decisions
+  for (const [groupId, decision] of Object.entries(decisions)) {
+    if (!decision || typeof decision.price !== "number" || decision.price < 0) {
+      throw new Error(`Invalid decision for group ${groupId}: price=${decision?.price}`);
+    }
+    if (typeof decision.production !== "number" || decision.production < 0) {
+      throw new Error(`Invalid decision for group ${groupId}: production=${decision?.production}`);
+    }
+  }
+
   // Calculate total market supply and average price
   let totalSupply = 0;
   let totalPriceWeight = 0;
@@ -20,7 +30,7 @@ export async function calculateMarketResults(
     const decision = decisions[group.id];
     if (!decision) continue;
 
-    const supply = decision.production + decision.sellFromInventory;
+    const supply = Math.max(0, decision.production + decision.sellFromInventory);
     groupSupplies[group.id] = supply;
     totalSupply += supply;
     totalPriceWeight += decision.price * supply;
@@ -28,17 +38,22 @@ export async function calculateMarketResults(
 
   const avgMarketPrice = totalSupply > 0 ? totalPriceWeight / totalSupply : params.demandReferencePrice;
 
+  // Validate avgMarketPrice
+  if (!isFinite(avgMarketPrice) || avgMarketPrice < 0) {
+    throw new Error(`Invalid market price: ${avgMarketPrice}`);
+  }
+
   // Calculate base market demand
   const baseDemand = 1000 * params.initialMarketSaturationFactor;
   
-  // Price elasticity effect
-  const priceRatio = avgMarketPrice / params.demandReferencePrice;
+  // Price elasticity effect with safety bounds
+  const priceRatio = Math.max(0.01, avgMarketPrice / params.demandReferencePrice);
   const priceElasticityEffect = Math.max(
     params.minPriceElasticityDemandMultiplier,
-    1 - (priceRatio - 1) * params.priceElasticityFactor
+    Math.min(2, 1 - (priceRatio - 1) * params.priceElasticityFactor)
   );
   
-  const totalDemand = Math.floor(baseDemand * priceElasticityEffect);
+  const totalDemand = Math.max(1, Math.floor(baseDemand * priceElasticityEffect));
 
   // Calculate market share and sales for each group
   for (const group of groups) {

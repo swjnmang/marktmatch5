@@ -49,13 +49,19 @@ export function GruppeGameForm() {
       calculatedPeriods.current.add(game.period);
       setCalculating(true);
       try {
-        // Get all groups and decisions
-        const groupsSnapshot = await getDocs(collection(db, "games", gameId, "groups"));
-        const allGroups = groupsSnapshot.docs.map(d => ({ id: d.id, ...d.data() } as GroupState));
+        // Get all groups and decisions with timeout
+        const groupsSnapshot = await Promise.race([
+          getDocs(collection(db, "games", gameId, "groups")),
+          new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout fetching groups")), 10000))
+        ]);
+        const allGroups = (groupsSnapshot as any).docs.map((d: any) => ({ id: d.id, ...d.data() } as GroupState));
         
-        const decisionsSnapshot = await getDocs(collection(db, "games", gameId, "decisions"));
+        const decisionsSnapshot = await Promise.race([
+          getDocs(collection(db, "games", gameId, "decisions")),
+          new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout fetching decisions")), 10000))
+        ]);
         const allDecisions: Record<string, PeriodDecision> = {};
-        decisionsSnapshot.docs.forEach(d => {
+        (decisionsSnapshot as any).docs.forEach((d: any) => {
           allDecisions[d.id] = d.data() as PeriodDecision;
         });
 
@@ -81,8 +87,11 @@ export function GruppeGameForm() {
             status: "waiting"
           });
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("Calculation error:", err);
+        setError(`Berechnung fehlgeschlagen: ${err.message}`);
+        // Reset calculating state even on error
+        setCalculating(false);
       } finally {
         setCalculating(false);
       }
@@ -569,16 +578,43 @@ export function GruppeGameForm() {
               {game?.status === "in_progress" &&
                 game.phase === "results" && (
                   <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-6 text-center">
-                    <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-purple-200 border-t-purple-600"></div>
-                    <h3 className="text-lg font-semibold text-slate-800">
-                      Berechnung läuft...
-                    </h3>
-                    <p className="text-sm text-slate-600">
-                      Die KI-Gegner haben ihre Entscheidungen getroffen. Die Marktberechnung wird durchgeführt.
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      Dies kann einige Sekunden dauern...
-                    </p>
+                    {error ? (
+                      <>
+                        <div className="mx-auto h-12 w-12 rounded-full bg-red-100 flex items-center justify-center">
+                          <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <h3 className="text-lg font-semibold text-red-800">
+                          Berechnung fehlgeschlagen
+                        </h3>
+                        <p className="text-sm text-red-600">
+                          {error}
+                        </p>
+                        <button
+                          onClick={() => {
+                            setError("");
+                            calculatedPeriods.current.delete(game.period);
+                          }}
+                          className="mx-auto inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+                        >
+                          Erneut versuchen
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-purple-200 border-t-purple-600"></div>
+                        <h3 className="text-lg font-semibold text-slate-800">
+                          Berechnung läuft...
+                        </h3>
+                        <p className="text-sm text-slate-600">
+                          Die KI-Gegner haben ihre Entscheidungen getroffen. Die Marktberechnung wird durchgeführt.
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          Dies kann einige Sekunden dauern...
+                        </p>
+                      </>
+                    )}
                   </div>
                 )}
 
