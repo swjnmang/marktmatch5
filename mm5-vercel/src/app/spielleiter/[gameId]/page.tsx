@@ -571,6 +571,7 @@ export default function GameDashboardPage() {
           </div>
         </div>
 
+        <div className="flex flex-col gap-2">
           {/* Lobby Start Button */}
           {game.status === "lobby" && (
             <button
