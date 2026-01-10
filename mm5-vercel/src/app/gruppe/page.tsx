@@ -22,6 +22,17 @@ function GruppeContent() {
   // Auto-load gameId from URL params if present
   useEffect(() => {
     const urlGameId = searchParams.get("gameId");
+    const urlPin = searchParams.get("pin");
+    
+    if (urlGameId && urlPin) {
+      // Direct link with PIN - auto-join
+      setPin(urlPin);
+      setGameId(urlGameId);
+      // Auto-navigate to the game with PIN prefilled
+      router.push(`/gruppe/${urlGameId}?pin=${urlPin}`);
+      return;
+    }
+
     if (urlGameId) {
       setGameId(urlGameId);
       // Auto-navigate to the game

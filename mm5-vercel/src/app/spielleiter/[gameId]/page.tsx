@@ -303,6 +303,32 @@ export default function GameDashboardPage() {
                   </p>
                 </div>
 
+                {/* Share Link */}
+                <div>
+                  <p className="text-xs font-semibold text-slate-600 mb-2">🔗 Direkt-Link zum Beitreten:</p>
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="text"
+                      readOnly
+                      value={`${typeof window !== 'undefined' ? window.location.origin : 'https://marktmatch5.vercel.app'}/gruppe/${gameId}?pin=${game.joinPin}`}
+                      className="flex-1 text-xs bg-white px-3 py-2 rounded-lg border border-sky-300 text-slate-700 font-mono"
+                    />
+                    <button
+                      onClick={() => {
+                        const link = `${typeof window !== 'undefined' ? window.location.origin : 'https://marktmatch5.vercel.app'}/gruppe/${gameId}?pin=${game.joinPin}`;
+                        navigator.clipboard.writeText(link);
+                        alert("✅ Link kopiert!");
+                      }}
+                      className="rounded-lg bg-emerald-600 px-3 py-2 text-sm text-white font-semibold hover:bg-emerald-700 transition whitespace-nowrap"
+                    >
+                      📋
+                    </button>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Link direkt teilen - PIN ist automatisch eingefügt
+                  </p>
+                </div>
+
                 {/* Admin-PIN Bereich inline */}
                 <div className="border-t pt-3">
                   <button
