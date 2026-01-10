@@ -4,34 +4,34 @@ import Link from "next/link";
 
 const materialien = [
   {
-    title: "Schülervorlage: Entscheidungen & Ergebnisse",
-    description: "Vorlage für Schüler zur Dokumentation ihrer Entscheidungen und Ergebnisse pro Periode.",
-    icon: "📋",
-  },
-  {
     title: "Arbeitsauftrag: Vorstellungsrunde",
     description: "Strukturierter Ablauf für die Vorstellung der Gruppen und Rollenverteilung.",
     icon: "👥",
+    pdfUrl: "https://markt-match.de/materialien/arbeitsauftrag-vorstellungsrunde.pdf",
   },
   {
     title: "Arbeitsauftrag: Marketingkonzept",
     description: "Anleitung zur Entwicklung eines Marketingkonzepts für die Smartwatch-Produkte.",
     icon: "📊",
+    pdfUrl: "https://markt-match.de/materialien/arbeitsauftrag-marketingkonzept.pdf",
   },
   {
     title: "Reflexionsphasen & Auswertung",
     description: "Leitfaden für Reflexionsphasen nach jeder Periode und Gesamtauswertung.",
     icon: "💭",
+    pdfUrl: "https://markt-match.de/materialien/reflexionsphasen-auswertung.pdf",
   },
   {
     title: "Glossar wirtschaftlicher Begriffe",
     description: "Übersicht wichtiger wirtschaftlicher Fachbegriffe für das Planspiel.",
     icon: "📖",
+    pdfUrl: "https://markt-match.de/materialien/glossar-wirtschaftliche-begriffe.pdf",
   },
   {
     title: "Kennenlernspiele Vorschläge",
     description: "Sammlung von Kennenlernspielen für den Einstieg in das Planspiel.",
     icon: "🎯",
+    pdfUrl: "https://markt-match.de/materialien/kennenlernspiele-vorschlaege.pdf",
   },
 ];
 
@@ -58,12 +58,14 @@ export default function MaterialienPage() {
                   <h3 className="font-semibold text-slate-900">{material.title}</h3>
                   <p className="mt-1 text-sm text-slate-600">{material.description}</p>
                 </div>
-                <button
-                  onClick={() => alert("Download-Funktion wird in Kürze verfügbar sein.")}
+                <a
+                  href={material.pdfUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700"
                 >
                   📥 Download
-                </button>
+                </a>
               </div>
             ))}
           </div>
