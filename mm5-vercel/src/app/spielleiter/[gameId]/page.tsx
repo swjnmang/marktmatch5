@@ -549,25 +549,6 @@ export default function GameDashboardPage() {
                 </button>
               )}
             </div>
-
-            {/* Ranking & End Game Buttons */}
-            <div className="mt-6 pt-6 border-t border-slate-200">
-              <h3 className="text-sm font-semibold text-slate-900 mb-3">Spielabschluss</h3>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowRankingModal(true)}
-                  className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
-                >
-                  🏆 Ranking anzeigen
-                </button>
-                <button
-                  onClick={() => setShowConfirmEndModal(true)}
-                  className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700"
-                >
-                  🏁 Spiel beenden
-                </button>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -744,6 +725,27 @@ export default function GameDashboardPage() {
             </button>
           )}
         </div>
+
+        {/* Ranking & End Game Buttons - Only show after period 1 */}
+        {game.status === "in_progress" && game.period >= 1 && (
+          <div className="rounded-xl bg-white p-4 shadow-lg ring-1 ring-slate-200">
+            <h3 className="text-sm font-semibold text-slate-900 mb-3">Spielabschluss</h3>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowRankingModal(true)}
+                className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+              >
+                🏆 Ranking anzeigen
+              </button>
+              <button
+                onClick={() => setShowConfirmEndModal(true)}
+                className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700"
+              >
+                🏁 Spiel beenden
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Special Task Modal */}
         {showTaskModal && (
