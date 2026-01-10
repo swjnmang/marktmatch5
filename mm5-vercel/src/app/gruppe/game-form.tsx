@@ -29,6 +29,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   const [currentTask, setCurrentTask] = useState<SpecialTask | null>(null);
   const [storedGroupId, setStoredGroupId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isSolo, setIsSolo] = useState(false);
   const [production, setProduction] = useState(0);
   const [sellFromInventory, setSellFromInventory] = useState(0);
   const [price, setPrice] = useState(0);
@@ -110,6 +111,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
     const isSoloMode = localStorage.getItem(`solo_mode_${gameId}`);
 
     if (existingGroupId && isSoloMode) {
+      setIsSolo(true);
       // In Solo mode, resume automatically
       const loadGroup = async () => {
         try {
@@ -887,7 +889,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                     </div>
                   </div>
 
-                  {isAdmin && (
+                  {(isAdmin || isSolo) && (
                     <div className="flex flex-col gap-2 sm:flex-row sm:gap-3 pt-2">
                       <button
                         onClick={handleNextPeriod}
@@ -906,7 +908,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                     </div>
                   )}
                   
-                  {!isAdmin && (
+                  {!(isAdmin || isSolo) && (
                     <div className="rounded-lg border border-dashed border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
                       ℹ️ Du wartest auf die Spielleitung, um die nächste Periode zu starten.
                     </div>
