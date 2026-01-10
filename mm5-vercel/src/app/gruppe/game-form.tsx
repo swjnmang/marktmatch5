@@ -572,6 +572,103 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
         </div>
       )}
 
+      {/* Game Instructions Modal - Shows once at game start */}
+      {joined && 
+       groupData && 
+       game?.status === "in_progress" && 
+       !groupData.instructionsAcknowledged && 
+       !currentTask && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="w-full max-w-3xl rounded-2xl bg-gradient-to-br from-sky-50 to-white p-8 shadow-2xl my-8 max-h-[90vh] overflow-y-auto border-2 border-sky-200">
+            <div className="text-center mb-6">
+              <div className="text-6xl mb-4">🎯</div>
+              <h1 className="text-3xl font-bold text-slate-900 mb-2">Willkommen zu MarktMatch!</h1>
+              <p className="text-lg text-slate-600">Digitales Unternehmensplanspiel</p>
+            </div>
+
+            <div className="space-y-6 text-left">
+              <div className="rounded-lg bg-white p-5 shadow-sm border border-slate-200">
+                <h2 className="text-xl font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                  <span className="text-2xl">🏭</span>
+                  Spielziel
+                </h2>
+                <p className="text-slate-700 leading-relaxed">
+                  Führt euer Unternehmen zum Erfolg! Trefft kluge Entscheidungen über <strong>Produktion</strong>, <strong>Preise</strong> und <strong>Investitionen</strong>. Euer Ziel: Am Ende des Spiels das meiste Kapital erwirtschaften.
+                </p>
+              </div>
+
+              <div className="rounded-lg bg-white p-5 shadow-sm border border-slate-200">
+                <h2 className="text-xl font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                  <span className="text-2xl">⚙️</span>
+                  Spielablauf
+                </h2>
+                <ul className="space-y-2 text-slate-700">
+                  <li className="flex gap-2">
+                    <span className="font-semibold text-sky-600">1.</span>
+                    <span><strong>Maschinenauswahl:</strong> Wählt eure Produktionsmaschine (Balance zwischen Kosten und Kapazität)</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="font-semibold text-sky-600">2.</span>
+                    <span><strong>Entscheidungen:</strong> Jede Periode legt ihr Produktionsmenge, Verkaufspreis und optionale Investitionen fest</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="font-semibold text-sky-600">3.</span>
+                    <span><strong>Ergebnisse:</strong> Seht eure Verkaufszahlen, Gewinn und aktuelle Marktposition</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="rounded-lg bg-white p-5 shadow-sm border border-slate-200">
+                <h2 className="text-xl font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                  <span className="text-2xl">💡</span>
+                  Wichtige Hinweise
+                </h2>
+                <ul className="space-y-2 text-slate-700">
+                  <li className="flex gap-2">
+                    <span>•</span>
+                    <span><strong>Marktanalyse</strong> (optional): Zeigt euch Preise und Verkäufe der Konkurrenz</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span>•</span>
+                    <span><strong>Lager:</strong> Unverkaufte Produkte lagert ihr für die nächste Periode (Lagerkosten beachten!)</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span>•</span>
+                    <span><strong>Negativzinsen:</strong> Bei negativem Kapital fallen Zinsen an</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span>•</span>
+                    <span><strong>Spezialaufträge:</strong> Die Spielleitung kann jederzeit besondere Aufgaben verteilen</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="rounded-lg bg-gradient-to-r from-emerald-100 to-emerald-50 p-5 border-2 border-emerald-300">
+                <p className="text-center text-emerald-900 font-semibold">
+                  🚀 Bereit? Klickt auf "Verstanden" und wählt eure Maschine aus!
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={async () => {
+                if (!gameId || !groupId) return;
+                try {
+                  await updateDoc(doc(db, "games", gameId, "groups", groupId), {
+                    instructionsAcknowledged: true,
+                  });
+                } catch (err) {
+                  console.error("Error acknowledging instructions:", err);
+                }
+              }}
+              className="mt-6 w-full rounded-lg bg-sky-600 px-6 py-4 text-lg font-semibold text-white shadow-lg transition hover:bg-sky-700 focus:outline-none focus:ring-4 focus:ring-sky-200"
+            >
+              ✓ Verstanden, los geht's!
+            </button>
+          </div>
+        </div>
+      )}
+
       <main className="mx-auto flex max-w-3xl flex-col gap-10 px-6 py-14 sm:px-10">
         {/* Only show rest of UI if no special task is active */}
         {!currentTask && (

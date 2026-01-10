@@ -42,9 +42,10 @@ export default function GameDashboardPage() {
 
   const allGroupsReady = groups.length > 0 && groups.every((g) => g.status === "ready");
   const allGroupsSubmitted = groups.length > 0 && groups.every((g) => g.status === "submitted");
+  const allGroupsAcknowledged = groups.length > 0 && groups.every((g) => g.instructionsAcknowledged === true);
   const lobbyStartDisabled = game?.status !== "lobby" || groups.length === 0 || !allGroupsReady || startLoading;
   const canAdvanceAfterSelection =
-    game?.status === "in_progress" && game.phase === "machine_selection" && allGroupsReady;
+    game?.status === "in_progress" && game.phase === "machine_selection" && allGroupsReady && allGroupsAcknowledged;
   const canCalculate = 
     game?.status === "in_progress" && game.phase === "decisions" && allGroupsSubmitted;
 
@@ -426,16 +427,35 @@ export default function GameDashboardPage() {
               groups.map((group, index) => (
                 <div
                   key={group.id}
-                  className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 hover:border-sky-400 hover:bg-sky-50 transition"
+                  className={`flex items-center justify-between rounded-lg border px-3 py-2 transition ${
+                    group.status === "submitted"
+                      ? "border-emerald-300 bg-emerald-50"
+                      : group.status === "ready"
+                      ? "border-sky-300 bg-sky-50"
+                      : "border-red-300 bg-red-50"
+                  }`}
                 >
                   <div>
                     <p className="font-semibold text-sm text-slate-900">
                       {group.name || `Gruppe ${index + 1}`}
                     </p>
-                    <div className="flex gap-3 text-xs text-slate-600">
-                      <span>{group.status === "ready" ? "✓ Bereit" : group.status === "submitted" ? "✓ Eingereicht" : "⏳ Wartend"}</span>
+                    <div className="flex gap-3 text-xs">
+                      <span className={
+                        group.status === "submitted"
+                          ? "text-emerald-700 font-semibold"
+                          : group.status === "ready"
+                          ? "text-sky-700"
+                          : "text-red-700"
+                      }>
+                        {group.status === "ready" ? "✓ Bereit" : group.status === "submitted" ? "✅ Eingereicht" : "⏳ Wartend"}
+                      </span>
+                      {game.status === "in_progress" && game.phase === "machine_selection" && (
+                        <span className={group.instructionsAcknowledged ? "text-emerald-600" : "text-amber-600"}>
+                          {group.instructionsAcknowledged ? "📖 Anleitung gelesen" : "⏳ Liest Anleitung"}
+                        </span>
+                      )}
                       {group.selectedMachine && (
-                        <span>• {group.selectedMachine}</span>
+                        <span className="text-slate-600">• {group.selectedMachine}</span>
                       )}
                     </div>
                   </div>
@@ -591,34 +611,41 @@ export default function GameDashboardPage() {
 
           {/* Advance to Decisions Phase */}
           {game.status === "in_progress" && game.phase === "machine_selection" && (
-            <button
-              disabled={!canAdvanceAfterSelection || startLoading}
-              onClick={async () => {
-                if (!game) return;
-                setStartLoading(true);
-                setStartError("");
-                try {
-                  const endsAt = Date.now() + (game.parameters?.periodDurationMinutes || 10) * 60 * 1000;
-                  const batch = writeBatch(db);
-                  batch.update(doc(db, "games", gameId), {
-                    phase: "decisions",
-                    phaseEndsAt: endsAt,
-                  });
-                  groups.forEach((g) => {
-                    batch.update(doc(db, "games", gameId, "groups", g.id), { status: "waiting" });
-                  });
-                  await batch.commit();
-                } catch (err: any) {
-                  console.error("Error advancing phase:", err);
-                  setStartError(`Fehler: ${err.message}`);
-                } finally {
-                  setStartLoading(false);
-                }
-              }}
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
-            >
-              {startLoading ? "Nächste..." : "▶️ Entscheidungsphase"}
-            </button>
+            <>
+              {!allGroupsAcknowledged && (
+                <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                  ⏳ Warte auf Gruppen: Alle müssen die Spielanleitung bestätigen, bevor es weitergeht.
+                </p>
+              )}
+              <button
+                disabled={!canAdvanceAfterSelection || startLoading}
+                onClick={async () => {
+                  if (!game) return;
+                  setStartLoading(true);
+                  setStartError("");
+                  try {
+                    const endsAt = Date.now() + (game.parameters?.periodDurationMinutes || 10) * 60 * 1000;
+                    const batch = writeBatch(db);
+                    batch.update(doc(db, "games", gameId), {
+                      phase: "decisions",
+                      phaseEndsAt: endsAt,
+                    });
+                    groups.forEach((g) => {
+                      batch.update(doc(db, "games", gameId, "groups", g.id), { status: "waiting" });
+                    });
+                    await batch.commit();
+                  } catch (err: any) {
+                    console.error("Error advancing phase:", err);
+                    setStartError(`Fehler: ${err.message}`);
+                  } finally {
+                    setStartLoading(false);
+                  }
+                }}
+                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
+              >
+                {startLoading ? "Startet..." : `▶️ Start Periode ${game.period}`}
+              </button>
+            </>
           )}
 
           {/* Calculate Results */}
@@ -678,7 +705,7 @@ export default function GameDashboardPage() {
               }}
               className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
             >
-              {calculateLoading ? "Berechne..." : "🔢 Ergebnisse"}
+              {calculateLoading ? "Berechne..." : `🔢 Auswertung Periode ${game.period}`}
             </button>
           )}
 

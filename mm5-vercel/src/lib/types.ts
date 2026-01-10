@@ -39,6 +39,7 @@ export interface GroupState {
   lastResult?: PeriodResult;
   isAI?: boolean; // Flag for AI-controlled groups in Solo mode
   aiStrategy?: "aggressive" | "conservative" | "balanced" | "innovative";
+  instructionsAcknowledged?: boolean; // Flag for acknowledging game instructions
 }
 
 export interface PeriodDecision {
