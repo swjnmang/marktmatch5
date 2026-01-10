@@ -11,7 +11,7 @@ import type { GameParameters } from "@/lib/types";
 
 export default function SpielleiterPage() {
   const router = useRouter();
-  const [view, setView] = useState<"login" | "create" | "pins" | "list">("list");
+  const [view, setView] = useState<"login" | "create" | "pins" | "list">("create");
   const [preset, setPreset] = useState<"easy" | "medium" | "hard">("easy");
   const [parameters, setParameters] = useState<GameParameters>(PRESET_PARAMETERS.easy);
   const [loading, setLoading] = useState(false);
