@@ -877,6 +877,38 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                             <p className="text-sm text-slate-600">
                               Alle Gruppen haben ihre Entscheidungen eingereicht und die Marktberechnung ist fertig.
                             </p>
+                            {isSolo && (
+                              <button
+                                onClick={async () => {
+                                  setLoading(true);
+                                  try {
+                                    // Force-refresh group data from Firestore
+                                    const groupDoc = await getDoc(doc(db, "games", gameId, "groups", groupId!));
+                                    if (groupDoc.exists()) {
+                                      const refreshedData = { id: groupDoc.id, ...groupDoc.data() } as GroupState;
+                                      console.log(`[Manual] Refreshed group data: period=${refreshedData.lastResult?.period}, game.period=${game.period}`);
+                                      setGroupData(refreshedData);
+                                      
+                                      // If still no matching result, force recalculation
+                                      if (!refreshedData.lastResult || refreshedData.lastResult.period !== game.period) {
+                                        console.log(`[Manual] No valid results found, triggering recalculation...`);
+                                        setCalculating(true);
+                                        setLoading(false);
+                                      }
+                                    }
+                                  } catch (err: any) {
+                                    console.error("Error refreshing results:", err);
+                                    setError(`Fehler beim Laden: ${err.message}`);
+                                  } finally {
+                                    setLoading(false);
+                                  }
+                                }}
+                                disabled={loading}
+                                className="mt-4 inline-flex items-center justify-center gap-2 rounded-lg bg-sky-600 px-6 py-3 text-base font-semibold text-white shadow-md transition hover:bg-sky-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                              >
+                                {loading ? "Lädt..." : "📊 Zu den Ergebnissen"}
+                              </button>
+                            )}
                           </>
                         )}
                       </>
