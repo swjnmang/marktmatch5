@@ -30,6 +30,8 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   const [storedGroupId, setStoredGroupId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isSolo, setIsSolo] = useState(false);
+  const [competitorInsights, setCompetitorInsights] = useState<Array<{name: string; price: number; soldUnits: number}>>([]);
+  const [insightsLoading, setInsightsLoading] = useState(false);
   const [production, setProduction] = useState(0);
   const [sellFromInventory, setSellFromInventory] = useState(0);
   const [price, setPrice] = useState(0);
@@ -138,6 +140,45 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
     // Admin PIN might already be stored
     setIsAdmin(checkPinFromLocalStorage(gameId));
   }, [gameId]);
+
+  // Load competitor insights for Solo mode when market analysis was purchased
+  useEffect(() => {
+    const loadInsights = async () => {
+      if (!isSolo || !gameId || !groupId || !game || game.phase !== "results") return;
+      if (!groupData?.lastResult || !(groupData.lastResult.marketAnalysisCost > 0)) return;
+      setInsightsLoading(true);
+      try {
+        const groupsSnapshot = await getDocs(collection(db, "games", gameId, "groups"));
+        const decisionsSnapshot = await getDocs(collection(db, "games", gameId, "decisions"));
+        const decisionsMap: Record<string, PeriodDecision> = {};
+        decisionsSnapshot.docs.forEach((d) => {
+          decisionsMap[d.id] = d.data() as PeriodDecision;
+        });
+
+        const insights: Array<{name: string; price: number; soldUnits: number}> = [];
+        groupsSnapshot.docs.forEach((docSnap) => {
+          const gid = docSnap.id;
+          if (gid === groupId) return; // skip self
+          const data = docSnap.data() as any;
+          const lr = data.lastResult;
+          const dec = decisionsMap[gid];
+          if (lr && dec) {
+            insights.push({
+              name: data.name || `Gruppe ${gid.substring(0, 4)}`,
+              price: dec.price,
+              soldUnits: lr.soldUnits || 0,
+            });
+          }
+        });
+        setCompetitorInsights(insights);
+      } catch (err) {
+        console.error("Error loading competitor insights", err);
+      } finally {
+        setInsightsLoading(false);
+      }
+    };
+    loadInsights();
+  }, [isSolo, gameId, groupId, game?.phase, groupData?.lastResult?.marketAnalysisCost]);
 
   // Load game data and listen to changes
   useEffect(() => {
@@ -840,6 +881,35 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                       </div>
                     </div>
                   </div>
+
+                  {/* Marktanalyse der Konkurrenz (Solo + gekauft) */}
+                  {isSolo && groupData.lastResult.marketAnalysisCost > 0 && (
+                    <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
+                      <h4 className="mb-3 text-sm font-semibold text-amber-900">🔎 Marktanalyse der Konkurrenz</h4>
+                      {insightsLoading ? (
+                        <p className="text-sm text-amber-800">Analyse wird geladen...</p>
+                      ) : competitorInsights.length > 0 ? (
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          {competitorInsights.map((c) => (
+                            <div key={c.name} className="rounded bg-white p-3 shadow-sm">
+                              <p className="text-xs text-slate-600">Gruppe</p>
+                              <p className="text-sm font-semibold text-slate-900">{c.name}</p>
+                              <div className="mt-2 flex justify-between">
+                                <span className="text-xs text-slate-600">Preis</span>
+                                <span className="text-sm font-semibold text-slate-900">€{c.price.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-xs text-slate-600">Verkaufte Einheiten</span>
+                                <span className="text-sm font-semibold text-slate-900">{c.soldUnits}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-amber-800">Keine Konkurrenzdaten verfügbar.</p>
+                      )}
+                    </div>
+                  )}
                   
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div className="rounded bg-slate-50 p-3">
