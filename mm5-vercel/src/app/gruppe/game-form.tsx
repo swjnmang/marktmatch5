@@ -680,9 +680,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
               </h1>
               <p className="text-base text-slate-600">
                 {joined && groupData
-                  ? `Spiel-ID: ${gameId.substring(0, 8)}... • Kapital: €${groupData.capital.toLocaleString(
-                      "de-DE"
-                    )}`
+                  ? `Kapital: €${groupData.capital.toLocaleString("de-DE")}`
                   : "Gib die Gruppen-PIN ein, die du von der Spielleitung erhalten hast. Du siehst nur die Daten deiner eigenen Gruppe."}
               </p>
             </div>
