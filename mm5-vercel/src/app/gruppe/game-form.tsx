@@ -716,7 +716,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                 </div>
               )}
             </>
-            )}
+          )}
 
           {!joined && (
             <div className="mt-6 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-4 text-sm text-slate-600">
