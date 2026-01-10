@@ -18,7 +18,7 @@ export default function Home() {
           </p>
         </header>
 
-        <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <section className="grid gap-6 grid-cols-1">
           <div className="space-y-4 rounded-2xl bg-white p-8 shadow-lg ring-1 ring-slate-200">
             <h2 className="text-xl font-semibold text-slate-900">Rollen wählen</h2>
             <p className="text-slate-600">
