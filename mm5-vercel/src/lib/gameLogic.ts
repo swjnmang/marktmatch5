@@ -76,19 +76,15 @@ export function calculateMarket(
     });
   }
 
-  // 6. Berechne Verkaufsanteile basierend auf Preis und (optional) Marketing
-  const salesShares = calculateSalesShares(inputs, marketingScores, parameters);
+  // 6. Sequentielle Nachfrageverteilung: Günstigster Preis zuerst
+  const soldUnitsMap = calculateSequentialSales(inputs, adjustedDemand);
 
-  // 7. Verteile Nachfrage auf Gruppen
+  // 7. Berechne Ergebnisse für jede Gruppe
   const results: MarketCalculationResult[] = inputs.map((input) => {
     const { groupId, decision, groupState } = input;
 
-    // Angebotene Menge
-    const offered = decision.production + decision.sellFromInventory;
-
-    // Verkaufte Menge
-    const allocatedDemand = adjustedDemand * salesShares[groupId];
-    const soldUnits = Math.min(offered, Math.floor(allocatedDemand));
+    // Verkaufte Menge aus sequentieller Verteilung
+    const soldUnits = soldUnitsMap[groupId] || 0;
 
     // Lagerbestand
     const endingInventory = groupState.inventory + decision.production - soldUnits;
@@ -192,7 +188,41 @@ export function calculateMarket(
 }
 
 /**
- * Berechnet Verkaufsanteile basierend auf Preis und Marketing
+ * Verteilt Nachfrage sequentiell: Günstigster Preis verkauft zuerst alles, dann nächster, etc.
+ */
+function calculateSequentialSales(
+  inputs: MarketCalculationInput[],
+  totalDemand: number
+): { [groupId: string]: number } {
+  // Sortiere Gruppen nach Preis (günstigster zuerst)
+  const sortedInputs = [...inputs].sort((a, b) => a.decision.price - b.decision.price);
+
+  const soldUnits: { [groupId: string]: number } = {};
+  let remainingDemand = totalDemand;
+
+  // Verteile Nachfrage sequentiell
+  for (const input of sortedInputs) {
+    if (remainingDemand <= 0) {
+      soldUnits[input.groupId] = 0;
+      continue;
+    }
+
+    // Angebotene Menge dieser Gruppe
+    const offered = input.decision.production + input.decision.sellFromInventory;
+
+    // Diese Gruppe verkauft entweder alles, was sie anbietet, oder die restliche Nachfrage
+    const sold = Math.min(offered, remainingDemand);
+    soldUnits[input.groupId] = sold;
+
+    // Reduziere verbleibende Nachfrage
+    remainingDemand -= sold;
+  }
+
+  return soldUnits;
+}
+
+/**
+ * Berechnet Verkaufsanteile basierend auf Preis und Marketing (VERALTET - nur für Referenz)
  */
 function calculateSalesShares(
   inputs: MarketCalculationInput[],

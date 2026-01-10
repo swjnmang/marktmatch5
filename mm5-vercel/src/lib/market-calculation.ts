@@ -57,8 +57,8 @@ export async function calculateMarketResults(
   const totalDemand = Math.max(1, Math.floor(baseDemand * priceElasticityEffect));
 
 
-  // Demand allocation: Winner-Takes-Most model (lowest price gets majority of demand)
-  // Sort by price (lowest first)
+  // Demand allocation: Sequentielles Modell (günstigster Preis verkauft zuerst ALLES)
+  // Sortiere nach Preis (niedrigster zuerst)
   const priceRanking = groups
     .map((group) => {
       const decision = decisions[group.id];
@@ -67,36 +67,25 @@ export async function calculateMarketResults(
       return { id: group.id, price: decision.price, supply, decision };
     })
     .filter((entry): entry is { id: string; price: number; supply: number; decision: PeriodDecision } => !!entry)
-    .sort((a, b) => a.price - b.price); // Lowest price first
+    .sort((a, b) => a.price - b.price); // Niedrigster Preis zuerst
 
   const soldByGroup: Record<string, number> = {};
   let remainingDemand = totalDemand;
 
-  // Winner-Takes-Most: Allocate demand greedily starting with cheapest
-  // Cheapest gets first pick at a max of 70% of original demand
-  // Others get percentages from WHAT'S LEFT
-  for (let i = 0; i < priceRanking.length && remainingDemand > 0; i++) {
-    const entry = priceRanking[i];
-    
-    if (entry.supply <= 0) continue;
-    
-    let maxAllowed: number;
-    if (i === 0) {
-      // Cheapest: max 70% of original demand
-      maxAllowed = Math.floor(totalDemand * 0.70);
-    } else if (i === 1) {
-      // Second: max 15% of original demand
-      maxAllowed = Math.floor(totalDemand * 0.15);
-    } else if (i === 2) {
-      // Third: max 10% of original demand
-      maxAllowed = Math.floor(totalDemand * 0.10);
-    } else {
-      // Others: max 5% of original demand
-      maxAllowed = Math.floor(totalDemand * 0.05);
+  // Sequentielle Verteilung: Jedes Team verkauft alles was es anbietet (oder was von der Nachfrage übrig ist)
+  for (const entry of priceRanking) {
+    if (remainingDemand <= 0) {
+      soldByGroup[entry.id] = 0;
+      continue;
     }
     
-    // Allocate: min of (what they can sell, what they want to sell, what's left in demand)
-    const allocated = Math.min(entry.supply, maxAllowed, remainingDemand);
+    // Diese Gruppe verkauft entweder ihr gesamtes Angebot oder die verbleibende Nachfrage
+    const sold = Math.min(entry.supply, remainingDemand);
+    soldByGroup[entry.id] = sold;
+    
+    // Reduziere verbleibende Nachfrage
+    remainingDemand -= sold;
+  }
     
     if (allocated > 0) {
       soldByGroup[entry.id] = allocated;
@@ -105,21 +94,17 @@ export async function calculateMarketResults(
     }
   }
 
-  console.log(`[Market] Total demand: ${totalDemand}, allocated: ${totalDemand - remainingDemand}, unmet: ${remainingDemand}`);
+  console.log(`[Market] Total demand: ${totalDemand}, remaining unmet: ${remainingDemand}`);
 
-  // If there's still demand left, it goes unsold (simulating market demand constraints)
-  // This is realistic for a digital market where customers are price-sensitive
-
-  // Calculate market share and sales for each group
+  // Berechne Marktanteil und Verkäufe für jede Gruppe
   for (const group of groups) {
     const decision = decisions[group.id];
     if (!decision) continue;
 
     const supply = groupSupplies[group.id] || 0;
-    const allocated = soldByGroup[group.id] || 0;
-    const soldUnits = Math.min(supply, allocated);
+    const soldUnits = soldByGroup[group.id] || 0;
     
-    // CRITICAL: Verify sold units don't exceed supply
+    // CRITICAL: Verkaufte Einheiten dürfen Angebot nicht überschreiten
     if (soldUnits > supply) {
       console.error(`[CRITICAL] Group ${group.id}: Sold (${soldUnits}) > Supply (${supply})!`);
       console.error(`  Production: ${decision.production}, Inventory: ${group.inventory}, SellFromInv: ${decision.sellFromInventory}`);
