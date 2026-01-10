@@ -107,9 +107,32 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   // Check localStorage on mount for existing group session (same device/browser)
   useEffect(() => {
     const existingGroupId = localStorage.getItem(`group_${gameId}`);
-    if (existingGroupId) {
+    const isSoloMode = localStorage.getItem(`solo_mode_${gameId}`);
+
+    if (existingGroupId && isSoloMode) {
+      // In Solo mode, resume automatically
+      const loadGroup = async () => {
+        try {
+          const groupDoc = await getDoc(doc(db, "games", gameId, "groups", existingGroupId));
+          if (groupDoc.exists()) {
+            setGroupId(existingGroupId);
+            setGroupData({ id: groupDoc.id, ...groupDoc.data() } as GroupState);
+            setJoined(true);
+          } else {
+            // If not found, fall back to manual resume option
+            setStoredGroupId(existingGroupId);
+          }
+        } catch (err) {
+          console.error("Error loading group:", err);
+          setStoredGroupId(existingGroupId);
+        }
+      };
+      loadGroup();
+    } else if (existingGroupId) {
+      // In group mode, offer explicit resume button
       setStoredGroupId(existingGroupId);
     }
+
     // Admin PIN might already be stored
     setIsAdmin(checkPinFromLocalStorage(gameId));
   }, [gameId]);
