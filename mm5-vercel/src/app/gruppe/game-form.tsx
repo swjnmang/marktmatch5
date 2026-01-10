@@ -40,6 +40,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   const [machineChoice, setMachineChoice] = useState("");
   const [machineLoading, setMachineLoading] = useState(false);
   const [calculating, setCalculating] = useState(false);
+  const [currentDecision, setCurrentDecision] = useState<PeriodDecision | null>(null);
 
   // Auto-calculate results in Solo mode when phase is "results" - only once per period
   useEffect(() => {
@@ -206,6 +207,22 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
     };
     loadInsights();
   }, [isSolo, gameId, groupId, game?.phase, groupData?.lastResult?.marketAnalysisCost]);
+
+  // Load current decision for results display
+  useEffect(() => {
+    const loadDecision = async () => {
+      if (!gameId || !groupId || !game || game.phase !== "results") return;
+      try {
+        const decisionDoc = await getDoc(doc(db, "games", gameId, "decisions", groupId));
+        if (decisionDoc.exists()) {
+          setCurrentDecision(decisionDoc.data() as PeriodDecision);
+        }
+      } catch (err) {
+        console.error("Error loading decision:", err);
+      }
+    };
+    loadDecision();
+  }, [gameId, groupId, game?.phase]);
 
   // Load game data and listen to changes
   useEffect(() => {
@@ -930,55 +947,66 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                       </span>
                     </div>
 
-                    {/* Performance Metrics - 2x2 Grid */}
-                    <div className="grid gap-4 sm:grid-cols-2 mb-4">
+                    {/* Performance Metrics - 3 Column Grid */}
+                    <div className="grid gap-3 sm:grid-cols-3 mb-4">
+                      {/* Row 1 */}
+                      <div className="rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 p-4 border border-slate-200">
+                        <p className="text-xs font-semibold text-slate-600 uppercase">Produzierte Einheiten</p>
+                        <p className="mt-2 text-2xl font-bold text-slate-900">
+                          {currentDecision?.production || 0}
+                        </p>
+                      </div>
+                      <div className="rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 p-4 border border-blue-200">
+                        <p className="text-xs font-semibold text-blue-700 uppercase">Verkaufspreis</p>
+                        <p className="mt-2 text-2xl font-bold text-blue-700">
+                          €{currentDecision?.price?.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0.00"}
+                        </p>
+                      </div>
                       <div className="rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 p-4 border border-slate-200">
                         <p className="text-xs font-semibold text-slate-600 uppercase">Verkaufte Einheiten</p>
-                        <p className="mt-2 text-3xl font-bold text-slate-900">
+                        <p className="mt-2 text-2xl font-bold text-slate-900">
                           {groupData.lastResult.soldUnits}
                         </p>
                       </div>
+                      
+                      {/* Row 2 */}
                       <div className="rounded-lg bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 border border-emerald-200">
                         <p className="text-xs font-semibold text-emerald-700 uppercase">Umsatz</p>
-                        <p className="mt-2 text-3xl font-bold text-emerald-700">
+                        <p className="mt-2 text-2xl font-bold text-emerald-700">
                           €{groupData.lastResult.revenue.toLocaleString("de-DE")}
                         </p>
                       </div>
                       <div className="rounded-lg bg-gradient-to-br from-red-50 to-red-100 p-4 border border-red-200">
                         <p className="text-xs font-semibold text-red-700 uppercase">Gesamtkosten</p>
-                        <p className="mt-2 text-3xl font-bold text-red-700">
+                        <p className="mt-2 text-2xl font-bold text-red-700">
                           €{groupData.lastResult.totalCosts.toLocaleString("de-DE")}
                         </p>
                       </div>
-                      <div className="rounded-lg bg-gradient-to-br from-sky-50 to-sky-100 p-4 border-2 border-sky-300 ring-2 ring-sky-200 ring-offset-2">
+                      <div className="rounded-lg bg-gradient-to-br from-sky-50 to-sky-100 p-4 border-2 border-sky-300">
                         <p className="text-xs font-semibold text-sky-700 uppercase">Gewinn / Verlust</p>
-                        <p className={`mt-2 text-3xl font-bold ${groupData.lastResult.profit >= 0 ? 'text-sky-700' : 'text-red-700'}`}>
+                        <p className={`mt-2 text-2xl font-bold ${groupData.lastResult.profit >= 0 ? 'text-sky-700' : 'text-red-700'}`}>
                           €{groupData.lastResult.profit.toLocaleString("de-DE")}
                         </p>
                       </div>
-                    </div>
-
-                    {/* Summary Info */}
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                      <div className="grid gap-3 sm:grid-cols-3 text-sm">
-                        <div>
-                          <p className="text-xs font-semibold text-slate-600">Neues Kapital</p>
-                          <p className="mt-1 text-lg font-bold text-slate-900">
-                            €{groupData.lastResult.endingCapital.toLocaleString("de-DE")}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs font-semibold text-slate-600">Lagerbestand</p>
-                          <p className="mt-1 text-lg font-bold text-slate-900">
-                            {groupData.lastResult.endingInventory} Einh.
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs font-semibold text-slate-600">Kumulierter Gewinn</p>
-                          <p className={`mt-1 text-lg font-bold ${groupData.cumulativeProfit >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
-                            €{groupData.cumulativeProfit.toLocaleString("de-DE")}
-                          </p>
-                        </div>
+                      
+                      {/* Row 3 */}
+                      <div className="rounded-lg bg-gradient-to-br from-purple-50 to-purple-100 p-4 border border-purple-200">
+                        <p className="text-xs font-semibold text-purple-700 uppercase">Neues Kapital</p>
+                        <p className="mt-2 text-2xl font-bold text-purple-700">
+                          €{groupData.lastResult.endingCapital.toLocaleString("de-DE")}
+                        </p>
+                      </div>
+                      <div className="rounded-lg bg-gradient-to-br from-amber-50 to-amber-100 p-4 border border-amber-200">
+                        <p className="text-xs font-semibold text-amber-700 uppercase">Neuer Lagerbestand</p>
+                        <p className="mt-2 text-2xl font-bold text-amber-700">
+                          {groupData.lastResult.endingInventory} Einh.
+                        </p>
+                      </div>
+                      <div className="rounded-lg bg-gradient-to-br from-teal-50 to-teal-100 p-4 border border-teal-200">
+                        <p className="text-xs font-semibold text-teal-700 uppercase">Kumulierter Gewinn</p>
+                        <p className={`mt-2 text-2xl font-bold ${groupData.cumulativeProfit >= 0 ? 'text-teal-700' : 'text-red-700'}`}>
+                          €{groupData.cumulativeProfit.toLocaleString("de-DE")}
+                        </p>
                       </div>
                     </div>
                   </div>
