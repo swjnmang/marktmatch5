@@ -384,22 +384,35 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
 
   return (
     <>
-      <main className="mx-auto flex max-w-3xl flex-col gap-10 px-6 py-14 sm:px-10">
-        {/* Special Task Banner */}
-        {currentTask && joined && (
-          <div className="rounded-xl border-2 border-amber-300 bg-amber-50 p-6">
+      {/* Full-screen Task Modal when Special Task exists */}
+      {currentTask && joined && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm p-4">
+          <div className="w-full max-w-2xl rounded-2xl bg-white p-8 shadow-2xl">
             <div className="flex gap-4">
-              <div className="mt-1 text-2xl">📋</div>
+              <div className="text-5xl flex-shrink-0">📋</div>
               <div className="flex-1">
-                <h2 className="text-lg font-bold text-amber-900">Spezialauftrag: {currentTask.title}</h2>
-                <p className="mt-2 text-sm text-amber-800 whitespace-pre-wrap">{currentTask.description}</p>
-                <p className="mt-3 text-xs text-amber-700">Bearbeitet diesen Auftrag zwischen den Perioden!</p>
+                <h1 className="text-3xl font-bold text-amber-900 mb-4">Spezialauftrag</h1>
+                <h2 className="text-2xl font-semibold text-amber-800 mb-6">{currentTask.title}</h2>
+                <div className="prose prose-sm max-w-none mb-8">
+                  <p className="text-base text-slate-700 whitespace-pre-wrap leading-relaxed">
+                    {currentTask.description}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-amber-50 p-4 border border-amber-200">
+                  <p className="text-sm font-semibold text-amber-900">
+                    ⏰ Bitte bearbeitet diesen Auftrag zwischen den Perioden und kehrt dann zur Spielleitung zurück.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        <div className="flex flex-col gap-2">
+      <main className="mx-auto flex max-w-3xl flex-col gap-10 px-6 py-14 sm:px-10">
+        {/* Only show rest of UI if no special task is active */}
+        {!currentTask && (
+          <>
           <p className="text-sm font-semibold uppercase tracking-[0.25em] text-sky-600">Gruppe</p>
           <h1 className="text-3xl font-semibold text-slate-900 sm:text-4xl">
             {joined && groupData ? groupData.name : "Mit Code einer Lobby beitreten"}
@@ -827,6 +840,8 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
         >
           Zurück zur Startseite
         </Link>
+          </>
+        )}
       </main>
     </>
   );
