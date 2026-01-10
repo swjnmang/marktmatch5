@@ -841,7 +841,6 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                         <button
                           onClick={() => {
                             setError("");
-                            calculatedPeriods.current.delete(game.period);
                           }}
                           className="mx-auto inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
                         >
