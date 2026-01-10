@@ -170,8 +170,8 @@ export function calculateMarket(
       endingInventory,
       endingCapital,
       marketShare: totalOffered > 0 ? soldUnits / adjustedDemand : 0,
-      averageMarketPrice: decision.buyMarketAnalysis ? avgPrice : undefined,
-      totalMarketDemand: decision.buyMarketAnalysis ? Math.floor(adjustedDemand) : undefined,
+      averageMarketPrice: decision.buyMarketAnalysis ? avgPrice : 0,
+      totalMarketDemand: decision.buyMarketAnalysis ? Math.floor(adjustedDemand) : 0,
     };
 
     return {
