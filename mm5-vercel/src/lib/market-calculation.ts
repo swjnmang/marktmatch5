@@ -113,47 +113,46 @@ export async function calculateMarketResults(
     if (!decision) continue;
 
     const soldUnits = Math.min(groupSupplies[group.id], soldByGroup[group.id] || 0);
-    
-    // Calculate revenues and costs
     const revenue = soldUnits * decision.price;
     
-    // Production costs
-    const avgVariableCost = group.machines?.length 
-      ? group.machines.reduce((sum, m) => sum + m.variableCostPerUnit, 0) / group.machines.length
-      : 5;
+    // Variable cost per unit: from machine OR default 5€
+    let varCostPerUnit = 5;
+    if (group.machines && group.machines.length > 0) {
+      varCostPerUnit = group.machines[0].variableCostPerUnit;
+    }
     
-    const rndBenefit = group.rndBenefitApplied ? params.rndVariableCostReduction : 0;
-    const effectiveVariableCost = Math.max(0, avgVariableCost - rndBenefit);
+    // Apply R&D benefit if applicable
+    const rndBenefit = group.rndBenefitApplied ? 2 : 0; // 2€ cost reduction
+    const effectiveVarCost = Math.max(0, varCostPerUnit - rndBenefit);
     
-    const productionCosts = decision.production * effectiveVariableCost;
-    const variableCosts = productionCosts;
+    // Production costs = quantity × per-unit cost
+    const productionCosts = decision.production * effectiveVarCost;
     
-    // Inventory costs
+    // Inventory: beginning + produced - sold
     const newInventory = group.inventory + decision.production - soldUnits;
-    const inventoryCost = newInventory * params.inventoryCostPerUnit;
+    const inventoryCost = Math.max(0, newInventory) * params.inventoryCostPerUnit;
     
-    // Other costs
-    const rndCost = decision.rndInvestment;
-    const machineCost = 0; // Machine depreciation could be added here
+    // Explicit costs
+    const rndCost = decision.rndInvestment || 0;
     const marketAnalysisCost = decision.buyMarketAnalysis ? params.marketAnalysisCost : 0;
+    const marketingCost = decision.marketingEffort || 0;
+    const machineCost = 0;
     
     // Total costs
-    const totalCosts = productionCosts + inventoryCost + rndCost + machineCost + marketAnalysisCost + decision.marketingEffort;
+    const totalCosts = productionCosts + inventoryCost + rndCost + marketAnalysisCost + marketingCost;
     
-    // Profit calculation
+    // Profit before interest
     let profit = revenue - totalCosts;
-    
-    // Calculate ending capital
     let endingCapital = group.capital + profit;
     
-    // Apply interest if negative
+    // Apply interest on negative capital
     let interest = 0;
     if (endingCapital < 0) {
       interest = Math.abs(endingCapital) * params.negativeCashInterestRate;
       endingCapital -= interest;
     }
 
-    // Check for R&D benefit
+    // R&D benefit check
     const newCumulativeRnd = group.cumulativeRndInvestment + rndCost;
     const rndBenefitApplied = newCumulativeRnd >= params.rndBenefitThreshold && !group.rndBenefitApplied;
 
@@ -163,7 +162,7 @@ export async function calculateMarketResults(
       soldUnits,
       revenue,
       productionCosts,
-      variableCosts,
+      variableCosts: productionCosts,
       inventoryCost,
       rndCost,
       machineCost,
@@ -174,7 +173,7 @@ export async function calculateMarketResults(
       endingInventory: Math.max(0, newInventory),
       endingCapital,
       marketShare: totalDemand > 0 ? (soldUnits / totalDemand) * 100 : 0,
-      averageMarketPrice: 0, // placeholder; set after loop with demand-weighted average
+      averageMarketPrice: 0,
       totalMarketDemand: totalDemand,
     };
   }
