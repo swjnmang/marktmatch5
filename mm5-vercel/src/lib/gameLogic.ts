@@ -38,8 +38,8 @@ export function calculateMarket(
     return sum + groupCapacity;
   }, 0);
 
-  // 2. Berechne Basisnachfrage
-  const baseDemand = parameters.initialMarketSaturationFactor * totalCapacity;
+  // 2. Berechne Basisnachfrage (70% der Gesamtkapazität für realistischen Wettbewerb)
+  const baseDemand = 0.7 * totalCapacity;
 
   // 3. Berechne Durchschnittspreis
   const totalOffered = inputs.reduce((sum, input) => {

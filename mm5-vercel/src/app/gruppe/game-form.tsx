@@ -532,8 +532,8 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
     <>
       {/* Full-screen Task Modal when Special Task exists */}
       {currentTask && joined && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm p-4">
-          <div className="w-full max-w-2xl rounded-2xl bg-white p-8 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="w-full max-w-2xl rounded-2xl bg-white p-8 shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
             <div className="flex gap-4">
               <div className="text-5xl flex-shrink-0">📋</div>
               <div className="flex-1">
