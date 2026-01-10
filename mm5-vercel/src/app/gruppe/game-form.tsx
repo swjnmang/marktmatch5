@@ -696,7 +696,9 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                           Berechnung läuft...
                         </h3>
                         <p className="text-sm text-slate-600">
-                          Die KI-Gegner haben ihre Entscheidungen getroffen. Die Marktberechnung wird durchgeführt.
+                          {localStorage.getItem(`solo_mode_${gameId}`) 
+                            ? "Die KI-Gegner haben ihre Entscheidungen getroffen. Die Marktberechnung wird durchgeführt."
+                            : "Alle Gruppen haben ihre Entscheidungen eingereicht. Die Marktberechnung wird durchgeführt."}
                         </p>
                         <p className="text-xs text-slate-500">
                           Dies kann einige Sekunden dauern...
