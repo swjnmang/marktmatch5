@@ -36,6 +36,8 @@ export default function GameDashboardPage() {
   const [taskLoading, setTaskLoading] = useState(false);
   const [allowMachinePurchaseNext, setAllowMachinePurchaseNext] = useState(false);
   const [showEndGameModal, setShowEndGameModal] = useState(false);
+  const [showRankingModal, setShowRankingModal] = useState(false);
+  const [showConfirmEndModal, setShowConfirmEndModal] = useState(false);
   const [endGameLoading, setEndGameLoading] = useState(false);
 
   const allGroupsReady = groups.length > 0 && groups.every((g) => g.status === "ready");
@@ -655,62 +657,70 @@ export default function GameDashboardPage() {
               {startLoading ? "Startet..." : `⏭️ Starte Periode ${game.period + 1}`}
             </button>
           )}
-
-          {/* End Game Button - always available when in progress */}
-          {game?.status === "in_progress" && (
-            <button
-              disabled={endGameLoading}
-              onClick={() => setShowEndGameModal(true)}
-              className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
-            >
-              🏁 Spiel beenden
-            </button>
-          )}
           </div>
         </div>
 
-        {/* Special Tasks Section - now available jederzeit (auch vor Spielstart) */}
-        {game && (
-          <div className="rounded-xl bg-white p-4 shadow-lg ring-1 ring-slate-200">
-            <div className="space-y-3">
-              <div>
-                <h2 className="text-lg font-semibold text-slate-900">📋 Spezialaufträge</h2>
-                <p className="text-xs text-slate-600 mt-1">
-                  Sie können jederzeit Spezialaufträge senden (auch vor Periode 1). Empfehlung vor Spielstart: <span className="font-semibold text-amber-800">"Unternehmensplakat gestalten"</span> an alle Gruppen verteilen.
-                </p>
-              </div>
-              
-              {currentTask ? (
-                <div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-amber-900">{currentTask.title}</h3>
-                      <p className="mt-2 text-sm text-amber-800 whitespace-pre-wrap">{currentTask.description}</p>
-                    </div>
-                    <button
-                      onClick={handleDeleteTask}
-                      disabled={taskLoading}
-                      className="ml-4 rounded bg-red-100 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-200 disabled:opacity-50"
-                    >
-                      Löschen
-                    </button>
+        {/* Aktionen & Spezialaufträge - kombiniert */}
+        <div className="rounded-xl bg-white p-6 shadow-lg ring-1 ring-slate-200 space-y-6">
+          {/* Spezialaufträge */}
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900 mb-3">📋 Spezialaufträge</h2>
+            <p className="text-xs text-slate-600 mb-4">
+              Sie können jederzeit Spezialaufträge senden (auch vor Periode 1). Empfehlung vor Spielstart: <span className="font-semibold text-amber-800">"Unternehmensplakat gestalten"</span> an alle Gruppen verteilen.
+            </p>
+            
+            {currentTask ? (
+              <div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-amber-900">{currentTask.title}</h3>
+                    <p className="mt-2 text-sm text-amber-800 whitespace-pre-wrap">{currentTask.description}</p>
                   </div>
-                  <p className="mt-3 text-xs text-amber-700">✓ Den Gruppen angezeigt</p>
+                  <button
+                    onClick={handleDeleteTask}
+                    disabled={taskLoading}
+                    className="ml-4 rounded bg-red-100 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-200 disabled:opacity-50"
+                  >
+                    Löschen
+                  </button>
                 </div>
-              ) : (
-                <button
-                  onClick={() => {
-                    setSelectedTaskId((prev) => prev || "presentation-poster");
-                    setShowTaskModal(true);
-                  }}
-                  className="w-full rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-100"
-                >
-                  + Spezialauftrag auswählen
-                </button>
-              )}
+                <p className="mt-3 text-xs text-amber-700">✓ Den Gruppen angezeigt</p>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  setSelectedTaskId((prev) => prev || "presentation-poster");
+                  setShowTaskModal(true);
+                }}
+                className="w-full rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-100"
+              >
+                + Spezialauftrag auswählen
+              </button>
+            )}
+          </div>
+
+          {/* Divider */}
+          <div className="h-px bg-slate-200"></div>
+
+          {/* Ranking & End Game Buttons */}
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900 mb-3">Spielabschluss</h3>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowRankingModal(true)}
+                className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+              >
+                🏆 Ranking anzeigen
+              </button>
+              <button
+                onClick={() => setShowConfirmEndModal(true)}
+                className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700"
+              >
+                🏁 Spiel beenden
+              </button>
             </div>
           </div>
-        )}
+        </div>
 
         {/* Special Task Modal */}
         {showTaskModal && (
@@ -819,7 +829,118 @@ export default function GameDashboardPage() {
           </div>
         )}
 
-        {/* End Game Modal */}
+        {/* Ranking Modal */}
+        {showRankingModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white shadow-xl">
+              <div className="sticky top-0 border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-slate-900">Ranking - Periode {game?.period}</h2>
+                <button
+                  onClick={() => setShowRankingModal(false)}
+                  className="text-slate-500 hover:text-slate-700"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="p-6">
+                <div className="space-y-3">
+                  {getRanking().map((team, idx) => (
+                    <div
+                      key={team.name}
+                      className={`flex items-center justify-between rounded-lg p-4 ${
+                        idx === 0
+                          ? "border-2 border-amber-400 bg-amber-50"
+                          : idx === 1
+                          ? "border-2 border-gray-300 bg-gray-50"
+                          : idx === 2
+                          ? "border-2 border-amber-700 bg-amber-50"
+                          : "border border-slate-200 bg-white"
+                      }`}
+                    >
+                      <div className="flex items-center gap-4">
+                        <span className="text-2xl font-bold">
+                          {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `${idx + 1}.`}
+                        </span>
+                        <div>
+                          <p className="font-semibold text-slate-900">{team.name}</p>
+                          <p className="text-sm text-slate-600">Kumulativer Gewinn: €{team.profit.toLocaleString("de-DE")}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-slate-900">€{team.capital.toLocaleString("de-DE")}</p>
+                        <p className="text-xs text-slate-500">Kapital</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-6 flex gap-3">
+                  <button
+                    onClick={() => setShowRankingModal(false)}
+                    className="flex-1 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    Schließen
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Confirm End Game Modal */}
+        {showConfirmEndModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="w-full max-w-md rounded-xl bg-white shadow-xl">
+              <div className="border-b border-slate-200 px-6 py-4">
+                <h2 className="text-lg font-semibold text-slate-900">Spiel wirklich beenden?</h2>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <p className="text-sm text-slate-700">
+                  Sind Sie sicher, dass Sie das Spiel jetzt beenden möchten? 
+                </p>
+                <ul className="text-sm text-slate-600 space-y-2 list-disc list-inside">
+                  <li>Gruppen können sich danach nicht mehr anmelden</li>
+                  <li>Das Ranking wird als Abschlussstand gespeichert</li>
+                  <li>Das Spiel kann nicht wiederhergestellt werden</li>
+                </ul>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={() => setShowConfirmEndModal(false)}
+                    className="flex-1 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    Abbrechen
+                  </button>
+                  <button
+                    onClick={async () => {
+                      setEndGameLoading(true);
+                      try {
+                        await updateDoc(doc(db, "games", gameId), {
+                          status: "finished",
+                          phase: "results"
+                        });
+                        setShowConfirmEndModal(false);
+                      } catch (err: any) {
+                        console.error("Error ending game:", err);
+                        setStartError(`Fehler beim Beenden: ${err.message}`);
+                      } finally {
+                        setEndGameLoading(false);
+                      }
+                    }}
+                    disabled={endGameLoading}
+                    className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
+                  >
+                    {endGameLoading ? "Wird beendet..." : "Ja, beenden"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* End Game Modal (old) - kept for backwards compatibility but replaced */}
         {showEndGameModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white shadow-xl">
