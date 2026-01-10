@@ -68,31 +68,38 @@ export async function calculateMarketResults(
     scores[group.id] = Math.pow(priceFactor, exponent) * marketingBoost;
   }
 
-  const remainingSupply: Record<string, number> = { ...groupSupplies };
   const soldByGroup: Record<string, number> = {};
   let remainingDemand = totalDemand;
 
   // Iteratively allocate demand respecting supply caps
   for (let round = 0; round < 5 && remainingDemand > 0; round++) {
     let weightSum = 0;
+    let availableSupply = 0;
     for (const group of groups) {
-      if (remainingSupply[group.id] > 0 && scores[group.id] > 0) {
+      const gSupply = groupSupplies[group.id] || 0;
+      const gSold = soldByGroup[group.id] || 0;
+      const gRemaining = Math.max(0, gSupply - gSold);
+      if (gRemaining > 0 && scores[group.id] > 0) {
         weightSum += scores[group.id];
+        availableSupply += gRemaining;
       }
     }
-    if (weightSum <= 0) break;
+    if (weightSum <= 0 || availableSupply <= 0) break;
 
     let allocatedThisRound = 0;
     for (const group of groups) {
       const decision = decisions[group.id];
       if (!decision) continue;
-      if (remainingSupply[group.id] <= 0) continue;
+      const gSupply = groupSupplies[group.id] || 0;
+      const gSold = soldByGroup[group.id] || 0;
+      const gRemaining = Math.max(0, gSupply - gSold);
+      if (gRemaining <= 0) continue;
+      
       const share = scores[group.id] / weightSum;
       const desired = Math.floor(remainingDemand * share);
-      const allocate = Math.min(remainingSupply[group.id], desired);
+      const allocate = Math.min(gRemaining, desired);
       if (allocate > 0) {
         soldByGroup[group.id] = (soldByGroup[group.id] || 0) + allocate;
-        remainingSupply[group.id] -= allocate;
         remainingDemand -= allocate;
         allocatedThisRound += allocate;
       }
