@@ -937,7 +937,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
               {groupData?.lastResult && game.phase === "results" && groupData.lastResult.period === game.period && (
                 <div className="flex flex-col gap-4">
                   {/* 1. Box: Group Results (Collapsible) */}
-                  <details className="rounded-lg border border-slate-200 bg-white shadow-sm" open>
+                  <details className="rounded-lg border border-slate-200 bg-white shadow-sm">
                     <summary className="cursor-pointer p-4 font-semibold text-slate-900 hover:bg-slate-50 transition rounded-lg flex items-center justify-between">
                       <span className="flex items-center gap-2">
                         <span>📈</span>
