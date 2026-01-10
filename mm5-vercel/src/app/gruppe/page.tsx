@@ -256,16 +256,3 @@ export default function GruppePage() {
     </Suspense>
   );
 }
-          </p>
-        </div>
-      </div>
-
-      <Link
-        href="/"
-        className="text-sm font-semibold text-sky-700 underline-offset-4 hover:underline"
-      >
-        Zurück zur Startseite
-      </Link>
-    </main>
-  );
-}
