@@ -3,6 +3,8 @@
 import { Suspense, useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { db } from "@/lib/firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +20,7 @@ function GruppeContent() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // Auto-load gameId from URL params if present
   useEffect(() => {
@@ -97,13 +100,36 @@ function GruppeContent() {
     }
   };
 
-  const handleManualJoin = (e: React.FormEvent) => {
+  const handleManualJoin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!gameId || !pin) {
-      setError("Bitte geben Sie sowohl die Spiel-ID als auch den PIN ein");
+    if (!pin || pin.length !== 5) {
+      setError("Bitte gib einen 5-stelligen PIN ein");
       return;
     }
-    router.push(`/gruppe/${gameId}?pin=${pin}`);
+
+    setLoading(true);
+    setError("");
+
+    try {
+      // Search for game with this joinPin
+      const gamesRef = collection(db, "games");
+      const q = query(gamesRef, where("joinPin", "==", pin.toUpperCase()));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        setError("Kein Spiel mit diesem PIN gefunden. Bitte überprüfe den Code.");
+        setLoading(false);
+        return;
+      }
+
+      // Found the game - redirect to it
+      const gameDoc = querySnapshot.docs[0];
+      router.push(`/gruppe/${gameDoc.id}?pin=${pin.toUpperCase()}`);
+    } catch (err: any) {
+      console.error("Error finding game:", err);
+      setError(`Fehler beim Suchen des Spiels: ${err.message}`);
+      setLoading(false);
+    }
   };
 
   return (
@@ -202,12 +228,24 @@ function GruppeContent() {
                   className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg transition"
                 >
                   ✕ Scannen beenden
-                </button>
-                <p className="text-xs text-slate-500 text-center">
-                  Für beste Ergebnisse: QR-Code vor die Kamera halten
-                </p>
-              </>
-            )}
+                </button>6">
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                PIN-Code
+              </label>
+              <input
+                type="text"
+                value={pin}
+                onChange={(e) => setPin(e.target.value.toUpperCase())}
+                placeholder="ABCDE"
+                maxLength={5}
+                disabled={loading}
+                className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-600 focus:border-sky-600 tracking-widest text-center text-3xl font-bold text-slate-900 uppercase disabled:bg-slate-100"
+              />
+              <p className="text-xs text-slate-500 mt-2 text-center">
+                5-stelliger Code vom Spielleiter (z.B. aus QR-Code)
+              </p>
+            </div>
 
             {error && (
               <div className="rounded-lg bg-red-50 p-4 border border-red-200">
@@ -215,43 +253,17 @@ function GruppeContent() {
               </div>
             )}
 
-            <div className="rounded-lg bg-blue-50 p-4">
-              <p className="text-sm text-blue-800">
-                💡 <strong>Tipp:</strong> Wenn der QR-Scanner nicht funktioniert, verwende stattdessen die "PIN eingeben" Option.
-              </p>
-            </div>
-          </div>
-        )}
+            <button
+              type="submit"
+              disabled={loading || pin.length !== 5}
+              className="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 px-4 rounded-lg transition disabled:bg-slate-300 disabled:cursor-not-allowed"
+            >
+              {loading ? "🔍 Suche Spiel..." : "🚀 Spiel beitreten"}
+            </button>
 
-        {/* Manual PIN Tab */}
-        {activeTab === "manual" && (
-          <form onSubmit={handleManualJoin} className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Spiel-ID
-              </label>
-              <input
-                type="text"
-                value={gameId}
-                onChange={(e) => setGameId(e.target.value.toUpperCase())}
-                placeholder="z.B. OnSt1Qj2x57x..."
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-600"
-              />
-              <p className="text-xs text-slate-500 mt-1">
-                Diese erhältst du von deinem Spielleiter
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                PIN-Code
-              </label>
-              <input
-                type="password"
-                value={pin}
-                onChange={(e) => setPin(e.target.value)}
-                placeholder="z.B. ABCDE"
-                maxLength={5}
+            <div className="rounded-lg bg-emerald-50 p-4 border border-emerald-200">
+              <p className="text-sm text-emerald-800">
+                ✓ <strong>Einfach:</strong> Nur den 5-stelligen PIN eingeben - das System findet automatisch dein Spiel!
                 className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-600 tracking-widest text-center text-2xl"
               />
               <p className="text-xs text-slate-500 mt-1">
