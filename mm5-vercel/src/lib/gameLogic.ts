@@ -41,9 +41,9 @@ export function calculateMarket(
     return sum + groupCapacity;
   }, 0);
 
-  // 2. Berechne Basisnachfrage (70% der Gesamtkapazität für realistischen Wettbewerb)
+  // 2. Berechne Basisnachfrage (Marktsättigung als Anteil der Gesamtkapazität)
   const demandBoostMultiplier = actions?.demandBoost ? 1.3 : 1;
-  const baseDemand = 0.7 * totalCapacity * demandBoostMultiplier;
+  const baseDemand = parameters.initialMarketSaturationFactor * totalCapacity * demandBoostMultiplier;
 
   // 3. Berechne Durchschnittspreis
   const totalOffered = inputs.reduce((sum, input) => {
@@ -66,7 +66,11 @@ export function calculateMarket(
   );
 
   // Nachfrage darf Kapazität und tatsächliches Angebot nicht überschreiten
-  const adjustedDemand = Math.floor(Math.min(baseDemand * priceElasticityMultiplier, totalCapacity, totalOffered || totalCapacity));
+  // Begrenze zusätzlich unterhalb der Gesamtkapazität (Marktsättigungsfaktor)
+  const capacityCap = Math.floor(totalCapacity * parameters.initialMarketSaturationFactor);
+  const adjustedDemand = Math.floor(
+    Math.min(baseDemand * priceElasticityMultiplier, capacityCap, totalOffered || capacityCap)
+  );
 
   // 5. Berechne Marketing-Scores (ab Periode 5)
   const marketingScores: { [groupId: string]: number } = {};

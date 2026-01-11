@@ -50,17 +50,29 @@ export async function calculateMarketResults(
     throw new Error(`Invalid market price: ${avgMarketPrice}`);
   }
 
-  // Calculate base market demand
-  const baseDemand = 1000 * params.initialMarketSaturationFactor;
+  // Calculate total machine capacity across all groups
+  const totalCapacity = groups.reduce((sum, g) => {
+    const cap = g.machines?.reduce((c, m) => c + m.capacity, 0) || 0;
+    return sum + cap;
+  }, 0);
+
+  // Base demand as a fraction of total capacity (market saturation)
+  const baseDemand = Math.floor(totalCapacity * params.initialMarketSaturationFactor);
   
   // Price elasticity effect with safety bounds
   const priceRatio = Math.max(0.01, avgMarketPrice / params.demandReferencePrice);
+  // Price elasticity only reduces demand from base (cap at 1.0)
   const priceElasticityEffect = Math.max(
     params.minPriceElasticityDemandMultiplier,
-    Math.min(2, 1 - (priceRatio - 1) * params.priceElasticityFactor)
+    1 - (priceRatio - 1) * params.priceElasticityFactor
   );
-  
-  const totalDemand = Math.max(1, Math.floor(baseDemand * priceElasticityEffect * demandBoostMultiplier));
+
+  // Final demand capped below total capacity to avoid "sell-all" scenarios
+  const demandCap = Math.floor(totalCapacity * params.initialMarketSaturationFactor);
+  const totalDemand = Math.max(
+    1,
+    Math.min(demandCap, Math.floor(baseDemand * priceElasticityEffect * demandBoostMultiplier))
+  );
 
 
   // Demand allocation: Sequentielles Modell (günstigster Preis verkauft zuerst ALLES)
