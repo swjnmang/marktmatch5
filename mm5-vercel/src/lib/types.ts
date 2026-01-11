@@ -22,6 +22,9 @@ export interface GameParameters {
   freeMarketAnalysisNextPeriod?: boolean;
   noInventoryCostsNextPeriod?: boolean;
   customEventNextPeriod?: string;
+  // Inverse Preisverteilung Steuerung
+  priceExponent?: number; // α: Preissensitivität (z. B. 2)
+  maxMarketShareCap?: number; // s_max: Anteilscap pro Anbieter (z. B. 0.5)
 }
 
 export interface PeriodActions {

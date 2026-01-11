@@ -75,34 +75,68 @@ export async function calculateMarketResults(
   );
 
 
-  // Demand allocation: Sequentielles Modell (günstigster Preis verkauft zuerst ALLES)
-  // Sortiere nach Preis (niedrigster zuerst)
-  const priceRanking = groups
+  // Inverse-Preis-Verteilung: Nachfrageanteile nach (p_min / p_i)^alpha
+  const entries = groups
     .map((group) => {
       const decision = decisions[group.id];
       if (!decision) return null;
       const supply = groupSupplies[group.id] || 0;
-      return { id: group.id, price: decision.price, supply, decision };
+      return { id: group.id, price: Math.max(0.01, decision.price), supply };
     })
-    .filter((entry): entry is { id: string; price: number; supply: number; decision: PeriodDecision } => !!entry)
-    .sort((a, b) => a.price - b.price); // Niedrigster Preis zuerst
+    .filter((e): e is { id: string; price: number; supply: number } => !!e);
+
+  const pMin = Math.min(...entries.map(e => e.price));
+  const alpha = params.priceExponent ?? 2;
+  const sCap = Math.max(0, Math.min(1, params.maxMarketShareCap ?? 0.5));
+  const capUnits = Math.floor(sCap * totalDemand);
+
+  const weights = entries.map(e => ({ id: e.id, w: Math.pow(pMin / e.price, alpha), supply: e.supply }));
+  const totalW = weights.reduce((s, x) => s + x.w, 0) || 1;
 
   const soldByGroup: Record<string, number> = {};
-  let remainingDemand = totalDemand;
+  // Initial Allokation
+  for (const x of weights) {
+    const share = x.w / totalW;
+    const target = Math.floor(share * totalDemand);
+    const sold = Math.min(target, x.supply, capUnits);
+    soldByGroup[x.id] = sold;
+  }
 
-  // Sequentielle Verteilung: Jedes Team verkauft alles was es anbietet (oder was von der Nachfrage übrig ist)
-  for (const entry of priceRanking) {
-    if (remainingDemand <= 0) {
-      soldByGroup[entry.id] = 0;
-      continue;
+  let remainingDemand = totalDemand - Object.values(soldByGroup).reduce((s, v) => s + v, 0);
+
+  // Proportionale Restverteilung nach Gewicht, begrenzt durch verbleibende Kapazitäten und Cap
+  if (remainingDemand > 0) {
+    const eligible = weights.filter(x => {
+      const sold = soldByGroup[x.id] || 0;
+      return x.supply - sold > 0 && capUnits - sold > 0;
+    });
+    const sumEligW = eligible.reduce((s, x) => s + x.w, 0) || 1;
+    for (const x of eligible) {
+      if (remainingDemand <= 0) break;
+      const sold = soldByGroup[x.id] || 0;
+      const supplyLeft = x.supply - sold;
+      const capLeft = capUnits - sold;
+      const add = Math.min(supplyLeft, capLeft, Math.floor((x.w / sumEligW) * remainingDemand));
+      if (add > 0) {
+        soldByGroup[x.id] = sold + add;
+        remainingDemand -= add;
+      }
     }
-    
-    // Diese Gruppe verkauft entweder ihr gesamtes Angebot oder die verbleibende Nachfrage
-    const sold = Math.floor(Math.min(entry.supply, remainingDemand));
-    soldByGroup[entry.id] = sold;
-    
-    // Reduziere verbleibende Nachfrage
-    remainingDemand -= sold;
+  }
+
+  // Falls noch Einheiten übrig (durch Rundung), verteile 1er-Inkremente nach Gewicht
+  if (remainingDemand > 0) {
+    const order = [...weights].sort((a, b) => b.w - a.w);
+    let idx = 0;
+    while (remainingDemand > 0 && idx < order.length) {
+      const x = order[idx];
+      const sold = soldByGroup[x.id] || 0;
+      if (x.supply - sold > 0 && capUnits - sold > 0) {
+        soldByGroup[x.id] = sold + 1;
+        remainingDemand -= 1;
+      }
+      idx = (idx + 1) % order.length;
+    }
   }
 
   console.log(`[Market] Total demand: ${totalDemand}, remaining unmet: ${remainingDemand}`);
