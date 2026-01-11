@@ -1019,7 +1019,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                             <div className="space-y-1 text-sm">
                               <p className="flex justify-between">
                                 <span className="text-slate-700">Lagerbestand:</span>
-                                <span className="font-semibold text-slate-900">{groupData.inventory} Einheiten</span>
+                                <span className="font-semibold text-slate-900">{Math.floor(groupData.inventory ?? 0).toLocaleString("de-DE")} Einheiten</span>
                               </p>
                               <p className="flex justify-between">
                                 <span className="text-slate-700">Produktionskapazität:</span>
@@ -1037,7 +1037,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                               <div className="space-y-1 text-sm">
                                 <p className="flex justify-between">
                                   <span className="text-slate-700">Verkaufte Menge:</span>
-                                  <span className="font-semibold text-slate-900">{groupData.lastResult.soldUnits} Einheiten</span>
+                                  <span className="font-semibold text-slate-900">{Math.floor(groupData.lastResult?.soldUnits ?? 0).toLocaleString("de-DE")} Einheiten</span>
                                 </p>
                                 <p className="flex justify-between">
                                   <span className="text-slate-700">Umsatz:</span>
