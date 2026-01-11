@@ -66,7 +66,7 @@ export function calculateMarket(
   );
 
   // Nachfrage darf Kapazität und tatsächliches Angebot nicht überschreiten
-  const adjustedDemand = Math.min(baseDemand * priceElasticityMultiplier, totalCapacity, totalOffered || totalCapacity);
+  const adjustedDemand = Math.floor(Math.min(baseDemand * priceElasticityMultiplier, totalCapacity, totalOffered || totalCapacity));
 
   // 5. Berechne Marketing-Scores (ab Periode 5)
   const marketingScores: { [groupId: string]: number } = {};
@@ -91,10 +91,10 @@ export function calculateMarket(
     const soldUnits = soldUnitsMap[groupId] || 0;
 
     // Lagerbestand
-    const endingInventory = groupState.inventory + decision.production - soldUnits;
+    const endingInventory = Math.floor(groupState.inventory + decision.production - soldUnits);
 
     // Umsatz
-    const revenue = soldUnits * decision.price;
+    const revenue = Math.round(soldUnits * decision.price * 100) / 100;
 
     // Kosten
 
@@ -107,14 +107,14 @@ export function calculateMarket(
       effectiveVariableCost *= 1 - parameters.rndVariableCostReduction;
     }
 
-    const productionCosts = decision.production * effectiveVariableCost;
+    const productionCosts = Math.round(decision.production * effectiveVariableCost * 100) / 100;
 
     // Lagerkosten
     const inventoryCostPerUnit = actions?.noInventoryCosts ? 0 : parameters.inventoryCostPerUnit;
-    const inventoryCost = endingInventory * inventoryCostPerUnit;
+    const inventoryCost = Math.round(endingInventory * inventoryCostPerUnit * 100) / 100;
 
     // F&E-Kosten
-    const rndCost = decision.rndInvestment || 0;
+    const rndCost = Math.round((decision.rndInvestment || 0) * 100) / 100;
 
     // Maschinenkauf
     let machineCost = 0;
@@ -122,34 +122,34 @@ export function calculateMarket(
     if (decision.newMachine) {
       const machine = MACHINE_OPTIONS.find((m) => m.name === decision.newMachine);
       if (machine) {
-        machineCost = machine.cost;
+        machineCost = Math.round(machine.cost * 100) / 100;
         newMachines.push(machine);
       }
     }
 
     // Marktanalyse
     const hasMarketAnalysis = actions?.freeMarketAnalysis || decision.buyMarketAnalysis;
-    const marketAnalysisCost = hasMarketAnalysis ? (actions?.freeMarketAnalysis ? 0 : parameters.marketAnalysisCost) : 0;
+    const marketAnalysisCost = hasMarketAnalysis ? (actions?.freeMarketAnalysis ? 0 : Math.round(parameters.marketAnalysisCost * 100) / 100) : 0;
 
     // Gesamtkosten
-    const totalCosts = productionCosts + inventoryCost + rndCost + machineCost + marketAnalysisCost;
+    const totalCosts = Math.round((productionCosts + inventoryCost + rndCost + machineCost + marketAnalysisCost) * 100) / 100;
 
     // Gewinn vor Zinsen
-    const profitBeforeInterest = revenue - totalCosts;
+    const profitBeforeInterest = Math.round((revenue - totalCosts) * 100) / 100;
 
     // Neues Kapital berechnen (vor Zinsen)
-    const capitalBeforeInterest = groupState.capital + profitBeforeInterest;
+    const capitalBeforeInterest = Math.round((groupState.capital + profitBeforeInterest) * 100) / 100;
 
     // Negativzinsen
     const interest = capitalBeforeInterest < 0 
-      ? Math.abs(capitalBeforeInterest) * parameters.negativeCashInterestRate 
+      ? Math.round(Math.abs(capitalBeforeInterest) * parameters.negativeCashInterestRate * 100) / 100
       : 0;
 
     // Endgültiger Gewinn
-    const profit = profitBeforeInterest - interest;
+    const profit = Math.round((profitBeforeInterest - interest) * 100) / 100;
 
     // Neues Kapital
-    const endingCapital = capitalBeforeInterest - interest;
+    const endingCapital = Math.round((capitalBeforeInterest - interest) * 100) / 100;
 
     // F&E-Vorteil prüfen
     const newCumulativeRndInvestment = groupState.cumulativeRndInvestment + rndCost;
@@ -159,7 +159,7 @@ export function calculateMarket(
     // Ergebnis
     const result: PeriodResult = {
       period,
-      price: decision.price,
+      price: Math.round(decision.price * 100) / 100,
       soldUnits,
       revenue,
       productionCosts,
@@ -173,8 +173,8 @@ export function calculateMarket(
       profit,
       endingInventory,
       endingCapital,
-      marketShare: adjustedDemand > 0 ? (soldUnits / adjustedDemand) * 100 : 0,
-      averageMarketPrice: hasMarketAnalysis ? avgPrice : 0,
+      marketShare: adjustedDemand > 0 ? Math.round((soldUnits / adjustedDemand) * 100 * 100) / 100 : 0,
+      averageMarketPrice: hasMarketAnalysis ? Math.round(avgPrice * 100) / 100 : 0,
       totalMarketDemand: hasMarketAnalysis ? Math.floor(adjustedDemand) : 0,
     };
 
@@ -217,7 +217,7 @@ function calculateSequentialSales(
     const offered = input.decision.production + input.decision.sellFromInventory;
 
     // Diese Gruppe verkauft entweder alles, was sie anbietet, oder die restliche Nachfrage
-    const sold = Math.min(offered, remainingDemand);
+    const sold = Math.floor(Math.min(offered, remainingDemand));
     soldUnits[input.groupId] = sold;
 
     // Reduziere verbleibende Nachfrage

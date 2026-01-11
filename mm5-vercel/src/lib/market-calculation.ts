@@ -86,7 +86,7 @@ export async function calculateMarketResults(
     }
     
     // Diese Gruppe verkauft entweder ihr gesamtes Angebot oder die verbleibende Nachfrage
-    const sold = Math.min(entry.supply, remainingDemand);
+    const sold = Math.floor(Math.min(entry.supply, remainingDemand));
     soldByGroup[entry.id] = sold;
     
     // Reduziere verbleibende Nachfrage
@@ -109,7 +109,7 @@ export async function calculateMarketResults(
       console.error(`  Production: ${decision.production}, Inventory: ${group.inventory}, SellFromInv: ${decision.sellFromInventory}`);
     }
     
-    const revenue = soldUnits * decision.price;
+    const revenue = Math.round(soldUnits * decision.price * 100) / 100;
     
     // Variable cost per unit: from machine OR default 5€
     let varCostPerUnit = 5;
@@ -122,31 +122,31 @@ export async function calculateMarketResults(
     const effectiveVarCost = Math.max(0, varCostPerUnit - rndBenefit);
     
     // Production costs = quantity × per-unit cost
-    const productionCosts = decision.production * effectiveVarCost;
+    const productionCosts = Math.round(decision.production * effectiveVarCost * 100) / 100;
     
     // Inventory: beginning + produced - sold
-    const newInventory = group.inventory + decision.production - soldUnits;
-    const inventoryCost = Math.max(0, newInventory) * inventoryCostPerUnit;
+    const newInventory = Math.floor(group.inventory + decision.production - soldUnits);
+    const inventoryCost = Math.round(Math.max(0, newInventory) * inventoryCostPerUnit * 100) / 100;
     
     // Explicit costs
-    const rndCost = decision.rndInvestment || 0;
+    const rndCost = Math.round((decision.rndInvestment || 0) * 100) / 100;
     const hasMarketAnalysis = freeMarketAnalysis || decision.buyMarketAnalysis;
-    const marketAnalysisCost = hasMarketAnalysis ? (freeMarketAnalysis ? 0 : params.marketAnalysisCost) : 0;
-    const marketingCost = decision.marketingEffort || 0;
+    const marketAnalysisCost = hasMarketAnalysis ? (freeMarketAnalysis ? 0 : Math.round(params.marketAnalysisCost * 100) / 100) : 0;
+    const marketingCost = Math.round((decision.marketingEffort || 0) * 100) / 100;
     const machineCost = 0;
     
     // Total costs
-    const totalCosts = productionCosts + inventoryCost + rndCost + marketAnalysisCost + marketingCost;
+    const totalCosts = Math.round((productionCosts + inventoryCost + rndCost + marketAnalysisCost + marketingCost) * 100) / 100;
     
     // Profit before interest
-    const profit = revenue - totalCosts;
-    let endingCapital = group.capital + profit;
+    const profit = Math.round((revenue - totalCosts) * 100) / 100;
+    let endingCapital = Math.round((group.capital + profit) * 100) / 100;
     
     // Apply interest on negative capital
     let interest = 0;
     if (endingCapital < 0) {
-      interest = Math.abs(endingCapital) * params.negativeCashInterestRate;
-      endingCapital -= interest;
+      interest = Math.round(Math.abs(endingCapital) * params.negativeCashInterestRate * 100) / 100;
+      endingCapital = Math.round((endingCapital - interest) * 100) / 100;
     }
 
     // R&D benefit check
@@ -165,12 +165,12 @@ export async function calculateMarketResults(
       machineCost,
       marketAnalysisCost,
       interest,
-      totalCosts: totalCosts + interest,
-      profit: profit - interest,
+      totalCosts: Math.round((totalCosts + interest) * 100) / 100,
+      profit: Math.round((profit - interest) * 100) / 100,
       endingInventory: Math.max(0, newInventory),
       endingCapital,
-      marketShare: totalDemand > 0 ? (soldUnits / totalDemand) * 100 : 0,
-      averageMarketPrice: hasMarketAnalysis ? avgMarketPrice : 0,
+      marketShare: totalDemand > 0 ? Math.round((soldUnits / totalDemand) * 100 * 100) / 100 : 0,
+      averageMarketPrice: hasMarketAnalysis ? Math.round(avgMarketPrice * 100) / 100 : 0,
       totalMarketDemand: hasMarketAnalysis ? totalDemand : 0,
     };
   }
