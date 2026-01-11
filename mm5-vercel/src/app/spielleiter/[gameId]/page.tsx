@@ -46,6 +46,8 @@ export default function GameDashboardPage() {
   const [endGameLoading, setEndGameLoading] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [settingsLoading, setSettingsLoading] = useState(false);
+  const [showSpecialSection, setShowSpecialSection] = useState(false);
+  const [showActionsSection, setShowActionsSection] = useState(false);
 
   const allGroupsReady = groups.length > 0 && groups.every((g) => g.status === "ready");
   const allGroupsSubmitted = groups.length > 0 && groups.every((g) => g.status === "submitted");
@@ -516,54 +518,74 @@ export default function GameDashboardPage() {
             <div className="mb-4 rounded bg-red-50 p-2 text-xs text-red-700">{startError}</div>
           )}
 
-          {/* Special Tasks Section */}
+          {/* Special Tasks Section (collapsible) */}
           <div className="pt-4 border-t border-slate-200">
-            <h3 className="text-sm font-semibold text-slate-900 mb-2">📋 Spezialaufträge an Gruppen schicken</h3>
-            <p className="text-xs text-slate-600 mb-3">
-              Spezialaufträge werden allen Gruppen als <strong>große Vollbild-Meldung</strong> angezeigt und müssen bestätigt werden. 
-              Sie können jederzeit gesendet werden (auch vor Periode 1). 
-              Empfehlung: <span className="font-semibold text-amber-800">"Unternehmensplakat gestalten"</span> vor Spielstart.
-            </p>
-            
-            {currentTask ? (
-              <div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-amber-900">{currentTask.title}</h4>
-                    <p className="mt-2 text-sm text-amber-800 whitespace-pre-wrap">{currentTask.description}</p>
+            <button
+              type="button"
+              onClick={() => setShowSpecialSection((v) => !v)}
+              aria-expanded={showSpecialSection}
+              className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-left hover:bg-slate-50"
+            >
+              <h3 className="text-sm font-semibold text-slate-900">📋 Spezialaufträge an Gruppen schicken</h3>
+              <span className="text-xs text-slate-500">{showSpecialSection ? "Ausklappen schließen" : "Ausklappen"}</span>
+            </button>
+            {showSpecialSection && (
+              <div className="mt-2">
+                <p className="text-xs text-slate-600 mb-3">
+                  Spezialaufträge werden allen Gruppen als <strong>große Vollbild-Meldung</strong> angezeigt und müssen bestätigt werden. 
+                  Sie können jederzeit gesendet werden (auch vor Periode 1). 
+                  Empfehlung: <span className="font-semibold text-amber-800">"Unternehmensplakat gestalten"</span> vor Spielstart.
+                </p>
+                {currentTask ? (
+                  <div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-amber-900">{currentTask.title}</h4>
+                        <p className="mt-2 text-sm text-amber-800 whitespace-pre-wrap">{currentTask.description}</p>
+                      </div>
+                      <button
+                        onClick={handleDeleteTask}
+                        disabled={taskLoading}
+                        className="ml-4 rounded bg-red-100 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-200 disabled:opacity-50"
+                      >
+                        Löschen
+                      </button>
+                    </div>
+                    <p className="mt-3 text-xs text-amber-700">✓ Wird den Gruppen als Vollbild-Overlay angezeigt</p>
                   </div>
+                ) : (
                   <button
-                    onClick={handleDeleteTask}
-                    disabled={taskLoading}
-                    className="ml-4 rounded bg-red-100 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-200 disabled:opacity-50"
+                    onClick={() => {
+                      setSelectedTaskId((prev) => prev || "presentation-poster");
+                      setShowTaskModal(true);
+                    }}
+                    className="w-full rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-100"
                   >
-                    Löschen
+                    + Spezialauftrag auswählen
                   </button>
-                </div>
-                <p className="mt-3 text-xs text-amber-700">✓ Wird den Gruppen als Vollbild-Overlay angezeigt</p>
+                )}
               </div>
-            ) : (
-              <button
-                onClick={() => {
-                  setSelectedTaskId((prev) => prev || "presentation-poster");
-                  setShowTaskModal(true);
-                }}
-                className="w-full rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-100"
-              >
-                + Spezialauftrag auswählen
-              </button>
             )}
           </div>
 
-          {/* Actions for Next Period */}
+          {/* Actions for Next Period (collapsible) */}
           {game.status === "in_progress" && (
             <div className="mt-6 pt-6 border-t border-slate-200">
-              <h3 className="text-sm font-semibold text-slate-900 mb-3">⚡ Aktionen für die nächste Periode</h3>
-              <p className="text-xs text-slate-600 mb-4">
-                Diese Einstellungen gelten nur für die kommende Periode {game.period + 1} und werden danach automatisch zurückgesetzt.
-              </p>
-
-              <div className="space-y-3">
+              <button
+                type="button"
+                onClick={() => setShowActionsSection((v) => !v)}
+                aria-expanded={showActionsSection}
+                className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-left hover:bg-slate-50"
+              >
+                <h3 className="text-sm font-semibold text-slate-900">⚡ Aktionen für die nächste Periode</h3>
+                <span className="text-xs text-slate-500">{showActionsSection ? "Ausklappen schließen" : "Ausklappen"}</span>
+              </button>
+              {showActionsSection && (
+                <div className="mt-2">
+                  <p className="text-xs text-slate-600 mb-4">
+                    Diese Einstellungen gelten nur für die kommende Periode {game.period + 1} und werden danach automatisch zurückgesetzt.
+                  </p>
+                  <div className="space-y-3">
                 {/* Machine Purchase */}
                 <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 cursor-pointer hover:bg-slate-100 transition">
                   <input
@@ -687,6 +709,8 @@ export default function GameDashboardPage() {
                   </p>
                 </div>
               </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -922,11 +946,11 @@ export default function GameDashboardPage() {
 
               <div className="p-6 space-y-4">
                 {/* Predefined Tasks */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-900 mb-3">Vorgefertigte Aufträge:</label>
-                  <div className="space-y-2">
-                    {PREDEFINED_TASKS.map((task) => (
-                      <label
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
                         key={task.id}
                         className="flex items-start gap-3 rounded-lg border border-slate-200 p-3 cursor-pointer hover:bg-sky-50"
                       >
