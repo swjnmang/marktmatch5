@@ -127,13 +127,13 @@ export default function SoloModePage() {
 
         <div className={ui.card.padded}>
         {error && (
-          <div className="mb-4 rounded-lg bg-red-50 p-4 text-red-700 text-sm">{error}</div>
+          <div className="mb-4 rounded-lg bg-red-500/20 p-4 text-red-100 text-sm ring-1 ring-red-400/40">{error}</div>
         )}
 
         <form onSubmit={handleStartSolo} className="flex flex-col gap-4">
-          <div className="rounded-lg bg-purple-50 p-4 text-sm text-purple-900">
+          <div className="rounded-lg bg-white/10 p-4 text-sm text-white ring-1 ring-white/10">
             <p className="font-semibold mb-2">🤖 Solo-Modus Features:</p>
-            <ul className="space-y-1 text-purple-800">
+            <ul className="space-y-1 text-slate-200">
               <li>• 4 KI-Gegner mit unterschiedlichen Strategien</li>
               <li>• Automatische Entscheidungen der KI-Teams</li>
               <li>• Sofortiger Start ohne Wartezeit</li>
@@ -141,7 +141,7 @@ export default function SoloModePage() {
             </ul>
           </div>
 
-          <label className="flex flex-col gap-2 text-sm text-slate-700">
+          <label className="flex flex-col gap-2 text-sm text-white">
             Dein Team-Name
             <input
               type="text"
@@ -149,27 +149,27 @@ export default function SoloModePage() {
               onChange={(e) => setTeamName(e.target.value)}
               placeholder="z.B. Mein Unternehmen"
               required
-              className="rounded-lg border border-slate-200 px-3 py-2 text-base text-slate-900 shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200"
+              className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-base text-white placeholder:text-slate-400 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-300/40"
             />
           </label>
 
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-            <p className="text-sm font-semibold text-slate-800 mb-2">KI-Gegner:</p>
-            <div className="grid gap-2 text-sm text-slate-600">
+          <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+            <p className="text-sm font-semibold text-white mb-2">KI-Gegner:</p>
+            <div className="grid gap-2 text-sm text-slate-200">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded">AGG</span>
+                <span className="font-mono text-xs bg-red-500/30 text-red-100 px-2 py-0.5 rounded ring-1 ring-red-400/40">AGG</span>
                 <span><strong>TechTitans:</strong> Aggressiv – Hohe Produktion, niedrige Preise</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-mono text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">CON</span>
+                <span className="font-mono text-xs bg-green-500/30 text-green-100 px-2 py-0.5 rounded ring-1 ring-green-400/40">CON</span>
                 <span><strong>SmartSolutions:</strong> Konservativ – Moderate Strategie</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-mono text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">BAL</span>
+                <span className="font-mono text-xs bg-blue-500/30 text-blue-100 px-2 py-0.5 rounded ring-1 ring-blue-400/40">BAL</span>
                 <span><strong>MarketMasters:</strong> Ausgewogen – Mix aller Strategien</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-mono text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded">INN</span>
+                <span className="font-mono text-xs bg-purple-500/30 text-purple-100 px-2 py-0.5 rounded ring-1 ring-purple-400/40">INN</span>
                 <span><strong>InnoVentures:</strong> Innovativ – F&E und Premium-Preise</span>
               </div>
             </div>

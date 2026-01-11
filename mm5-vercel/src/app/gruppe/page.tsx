@@ -152,10 +152,10 @@ function GruppeContent() {
 
         <div className={ui.card.padded}>
         {resumeGameId && resumeGroupId && (
-          <div className="mb-6 flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+          <div className="mb-6 flex items-center justify-between rounded-lg border border-emerald-400/40 bg-emerald-500/20 p-4">
             <div>
-              <p className="text-sm font-semibold text-emerald-900">Vorherige Sitzung gefunden</p>
-              <p className="text-xs text-emerald-800">Du kannst dein letztes Spiel sofort fortsetzen.</p>
+              <p className="text-sm font-semibold text-emerald-100">Vorherige Sitzung gefunden</p>
+              <p className="text-xs text-emerald-200">Du kannst dein letztes Spiel sofort fortsetzen.</p>
             </div>
             <button
               onClick={() => router.push(`/gruppe/${resumeGameId}`)}
@@ -167,7 +167,7 @@ function GruppeContent() {
         )}
 
         {/* Tab Navigation */}
-        <div className="flex gap-2 mb-6 border-b border-slate-200">
+        <div className="flex gap-2 mb-6 border-b border-white/10">
           <button
             onClick={() => {
               setActiveTab("qr");
@@ -175,8 +175,8 @@ function GruppeContent() {
             }}
             className={`px-4 py-2 font-semibold border-b-2 transition ${
               activeTab === "qr"
-                ? "border-sky-600 text-sky-600"
-                : "border-transparent text-slate-600 hover:text-slate-900"
+                ? "border-sky-400 text-sky-300"
+                : "border-transparent text-slate-300 hover:text-white"
             }`}
           >
             📱 QR-Code scannen
@@ -188,8 +188,8 @@ function GruppeContent() {
             }}
             className={`px-4 py-2 font-semibold border-b-2 transition ${
               activeTab === "manual"
-                ? "border-sky-600 text-sky-600"
-                : "border-transparent text-slate-600 hover:text-slate-900"
+                ? "border-sky-400 text-sky-300"
+                : "border-transparent text-slate-300 hover:text-white"
             }`}
           >
             🔐 PIN eingeben
@@ -199,7 +199,7 @@ function GruppeContent() {
         {/* QR Code Tab */}
         {activeTab === "qr" && (
           <div className="space-y-4">
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-slate-200">
               Starte den QR-Scanner oder lade einen QR-Code mit der Kamera hoch
             </p>
 
@@ -225,20 +225,20 @@ function GruppeContent() {
                 >
                   ✕ Scannen beenden
                 </button>
-                <p className="text-xs text-slate-500 text-center">
+                <p className="text-xs text-slate-300 text-center">
                   Für beste Ergebnisse: QR-Code vor die Kamera halten
                 </p>
               </>
             )}
 
             {error && (
-              <div className="rounded-lg bg-red-50 p-4 border border-red-200">
-                <p className="text-sm text-red-800">{error}</p>
+              <div className="rounded-lg bg-red-500/20 p-4 border border-red-400/40 text-red-100 text-sm">
+                <p>{error}</p>
               </div>
             )}
 
-            <div className="rounded-lg bg-blue-50 p-4">
-              <p className="text-sm text-blue-800">
+            <div className="rounded-lg bg-white/10 p-4 ring-1 ring-white/10">
+              <p className="text-sm text-slate-200">
                 💡 <strong>Tipp:</strong> Wenn der QR-Scanner nicht funktioniert, verwende stattdessen die "PIN eingeben" Option.
               </p>
             </div>
