@@ -71,28 +71,23 @@ export default function Home() {
                 </p>
               </Link>
             </div>
-            <div className="mt-4 space-y-3">
-              <Link
-                href="/materialien"
-                className={`flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 px-5 py-3 ring-1 ring-emerald-200 transition hover:-translate-y-0.5 hover:shadow-md`}
-              >
-                <span className="text-xl">📚</span>
-                <span className="text-base font-semibold text-emerald-800">Begleitmaterial</span>
-                <span className="text-xs font-medium text-emerald-700">
-                  Vorlagen & Anleitungen
-                </span>
-              </Link>
-              <Link
-                href="/einstellungen"
-                className={`flex items-center justify-center gap-2 rounded-xl ${theme.card} px-5 py-3 ring-1 ${theme.cardBorder} transition hover:-translate-y-0.5 hover:shadow-md`}
-              >
-                <span className="text-xl">⚙️</span>
-                <span className={`text-base font-semibold ${theme.text}`}>Einstellungen</span>
-              </Link>
+            <div className="mt-6 grid gap-4 sm:grid-cols-3">
+              <div className="rounded-xl bg-white/70 backdrop-blur p-4 ring-1 ring-white/30">
+                <p className="text-sm font-semibold text-slate-900">Kostenlos & im Browser</p>
+                <p className="text-xs text-slate-600">Keine Installation. Ideal für Schule, Workshops und Trainings.</p>
+              </div>
+              <div className="rounded-xl bg-white/70 backdrop-blur p-4 ring-1 ring-white/30">
+                <p className="text-sm font-semibold text-slate-900">Mehrere Rollen</p>
+                <p className="text-xs text-slate-600">Gruppe, Spielleitung, Solo – klare Abläufe und Auswertungen.</p>
+              </div>
+              <div className="rounded-xl bg-white/70 backdrop-blur p-4 ring-1 ring-white/30">
+                <p className="text-sm font-semibold text-slate-900">Realistische Entscheidungen</p>
+                <p className="text-xs text-slate-600">Produktion, Preis, Lager & Markt mit nachvollziehbarer Logik.</p>
+              </div>
             </div>
           </div>
 
-          <div className={`rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 px-6 py-7 text-slate-50 shadow-lg ring-1 ring-white/10`}>
+          <div className={`rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 px-6 py-10 text-slate-50 shadow-lg ring-1 ring-white/10`}>            
             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Letzte Aktualisierung</p>
             <div className="mt-4 space-y-2">
               <p className="text-2xl font-bold text-white">v{VERSION.number}</p>
@@ -107,6 +102,14 @@ export default function Home() {
                   <li>• Solo-Modus gegen KI-Gegner</li>
                   <li>• Vollständige Spielmechanik</li>
                 </ul>
+              </div>
+              <div className="mt-6 grid gap-2 sm:grid-cols-2">
+                <Link href="/spiel-erstellen" className="inline-flex items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700">
+                  🚀 Jetzt Spiel erstellen
+                </Link>
+                <Link href="/gruppe" className="inline-flex items-center justify-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-white/20">
+                  🎯 Spiel beitreten
+                </Link>
               </div>
             </div>
           </div>
