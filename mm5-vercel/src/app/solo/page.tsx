@@ -7,6 +7,7 @@ import Link from "next/link";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp, type Timestamp } from "firebase/firestore";
 import type { GameDocument, GroupState } from "@/lib/types";
+import { ui } from "@/lib/ui";
 
 const DEFAULT_PARAMETERS = {
   startingCapital: 30000,
@@ -113,19 +114,18 @@ export default function SoloModePage() {
   };
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-10 px-6 py-14 sm:px-10">
-      <div className="flex flex-col gap-2">
-        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-purple-600">Solo-Modus</p>
-        <h1 className="text-3xl font-semibold text-slate-900 sm:text-4xl">
-          Gegen KI-Gegner spielen
-        </h1>
-        <p className="text-base text-slate-600">
-          Im Solo-Modus trittst du gegen 4 KI-gesteuerte Unternehmen an. Perfekt zum Üben,
-          Lernen oder einfach zum Spaß spielen – ohne auf andere Spieler warten zu müssen!
-        </p>
-      </div>
+    <main className={ui.page.shell}>
+      <div className={ui.page.overlay} />
+      <div className={ui.page.container}>
+        <div className="flex flex-col gap-2">
+          <p className={ui.header.kicker}>Solo-Modus</p>
+          <h1 className={ui.header.title}>Gegen KI-Gegner spielen</h1>
+          <p className={ui.header.subtitle}>
+            Im Solo-Modus trittst du gegen 4 KI-gesteuerte Unternehmen an. Perfekt zum Üben oder einfach zum Spaß – ohne Warten.
+          </p>
+        </div>
 
-      <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200">
+        <div className={ui.card.padded}>
         {error && (
           <div className="mb-4 rounded-lg bg-red-50 p-4 text-red-700 text-sm">{error}</div>
         )}
@@ -185,12 +185,13 @@ export default function SoloModePage() {
         </form>
       </div>
 
-      <Link
-        href="/"
-        className="text-sm font-semibold text-purple-700 underline-offset-4 hover:underline"
-      >
-        ← Zurück zur Startseite
-      </Link>
+        <Link
+          href="/"
+          className={ui.header.backLink}
+        >
+          ← Zurück zur Startseite
+        </Link>
+      </div>
     </main>
   );
 }

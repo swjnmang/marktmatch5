@@ -9,6 +9,7 @@ import { collection, addDoc, serverTimestamp, query, where, onSnapshot, getDocs 
 import { generateAdminPin, generateGroupCode, savePinToLocalStorage } from "@/lib/auth";
 import { PRESET_PARAMETERS } from "@/lib/presets";
 import type { GameParameters } from "@/lib/types";
+import { ui } from "@/lib/ui";
 
 export default function SpielleiterPage() {
   const router = useRouter();
@@ -129,12 +130,14 @@ export default function SpielleiterPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-sky-100 px-4 py-10">
-      <section className="mx-auto max-w-3xl space-y-8">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-slate-900">Spiel erstellen & verwalten</h1>
-          <p className="mt-2 text-slate-600">
-            Konfiguriere ein neues Planspiel oder tritt einem bestehenden bei
+    <main className={ui.page.shell}>
+      <div className={ui.page.overlay} />
+      <section className={ui.page.container}>
+        <div className="text-center space-y-2">
+          <p className={ui.header.kicker}>Spielleitung</p>
+          <h1 className="text-4xl font-bold text-white">Spiel erstellen & verwalten</h1>
+          <p className={ui.header.subtitle}>
+            Konfiguriere ein neues Planspiel oder tritt einem bestehenden bei.
           </p>
         </div>
 
@@ -464,7 +467,7 @@ export default function SpielleiterPage() {
 
         <Link
           href="/"
-          className="text-sm font-semibold text-sky-700 underline-offset-4 hover:underline block text-center"
+          className={`${ui.header.backLink} block text-center`}
         >
           ← Zurück zur Startseite
         </Link>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { themes, type ThemeName } from "@/lib/themes";
+import { ui } from "@/lib/ui";
 
 export default function Settings() {
   const [selectedTheme, setSelectedTheme] = useState<ThemeName>(() => {
@@ -21,26 +22,27 @@ export default function Settings() {
   if (!mounted) return null;
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50 px-6 py-16">
-      <div className="mx-auto max-w-2xl">
-        <div className="mb-8">
+    <main className={ui.page.shell}>
+      <div className={ui.page.overlay} />
+      <div className={`${ui.page.container} max-w-2xl`}>
+        <div className="flex items-center justify-between">
           <Link
             href="/"
-            className="text-sm font-semibold text-sky-600 hover:text-sky-700 flex items-center gap-2"
+            className={ui.header.backLink}
           >
             ← Zurück zur Startseite
           </Link>
         </div>
 
-        <div className="rounded-2xl bg-white p-8 shadow-lg ring-1 ring-slate-200">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Einstellungen</h1>
-          <p className="text-slate-600 mb-8">
+        <div className={ui.card.padded}>
+          <h1 className="text-3xl font-bold text-white mb-2">Einstellungen</h1>
+          <p className={ui.header.subtitle}>
             Passe das Aussehen von Markt-Match 5 an deine Vorlieben an.
           </p>
 
           <div className="space-y-6">
             <div>
-              <h2 className="text-lg font-semibold text-slate-900 mb-4">
+              <h2 className="text-lg font-semibold text-white mb-4">
                 Design wählen
               </h2>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -48,14 +50,11 @@ export default function Settings() {
                   <button
                     key={key}
                     onClick={() => handleThemeChange(key as ThemeName)}
-                    className={`relative rounded-xl p-6 text-left transition ${
+                    className={`relative rounded-xl p-6 text-left transition text-white ${
                       selectedTheme === key
-                        ? "ring-2 ring-sky-500 shadow-lg"
-                        : "ring-1 ring-slate-200 hover:ring-sky-300"
+                        ? "bg-white/10 ring-2 ring-sky-400/70 shadow-lg"
+                        : "bg-white/5 ring-1 ring-white/10 hover:ring-sky-300/50"
                     }`}
-                    style={{
-                      backgroundColor: key === "dark" ? "#000000" : "#ffffff",
-                    }}
                   >
                     {selectedTheme === key && (
                       <div className="absolute top-3 right-3">
@@ -66,9 +65,6 @@ export default function Settings() {
                     )}
                     <h3
                       className="font-semibold mb-3"
-                      style={{
-                        color: key === "dark" ? "#ffffff" : "#1e293b",
-                      }}
                     >
                       {theme.label}
                     </h3>
@@ -100,9 +96,9 @@ export default function Settings() {
               </div>
             </div>
 
-            <div className="rounded-lg bg-slate-50 p-4 text-sm text-slate-600">
+            <div className="rounded-lg bg-white/5 p-4 text-sm text-slate-200 ring-1 ring-white/10">
               <p>
-                <span className="font-semibold">💡 Tipp:</span> Deine Designauswahl wird gespeichert und beim nächsten Besuch automatisch geladen.
+                <span className="font-semibold text-white">💡 Tipp:</span> Deine Designauswahl wird gespeichert und beim nächsten Besuch automatisch geladen.
               </p>
             </div>
           </div>

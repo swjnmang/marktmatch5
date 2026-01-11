@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
+import { ui } from "@/lib/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -135,28 +136,21 @@ function GruppeContent() {
   };
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-10 px-6 py-14 sm:px-10">
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col gap-2">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-sky-600">
-            Gruppe
-          </p>
-          <h1 className="text-3xl font-semibold text-slate-900 sm:text-4xl">
-            Spiel beitreten
-          </h1>
-          <p className="text-base text-slate-600">
-            Scanne einen QR-Code oder gib deinen PIN manuell ein
-          </p>
+    <main className={ui.page.shell}>
+      <div className={ui.page.overlay} />
+      <div className={ui.page.container}>
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-2">
+            <p className={ui.header.kicker}>Gruppe</p>
+            <h1 className={ui.header.title}>Spiel beitreten</h1>
+            <p className={ui.header.subtitle}>Scanne einen QR-Code oder gib deinen PIN manuell ein.</p>
+          </div>
+          <Link href="/" className={ui.header.backLink}>
+            ← Zurück
+          </Link>
         </div>
-        <Link
-          href="/"
-          className="text-sm font-semibold text-sky-600 hover:text-sky-700"
-        >
-          ← Zurück
-        </Link>
-      </div>
 
-      <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200">
+        <div className={ui.card.padded}>
         {resumeGameId && resumeGroupId && (
           <div className="mb-6 flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50 p-4">
             <div>
@@ -296,9 +290,10 @@ function GruppeContent() {
       </div>
 
       <div className="text-center">
-        <Link href="/" className="text-sm text-slate-600 hover:text-slate-900">
+        <Link href="/" className={ui.header.backLink}>
           ← Zurück zur Startseite
         </Link>
+      </div>
       </div>
     </main>
   );

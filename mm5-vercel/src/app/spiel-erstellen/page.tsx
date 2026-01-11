@@ -1,65 +1,57 @@
 "use client";
 
 import Link from "next/link";
+import { ui } from "@/lib/ui";
 
 export default function CreateGame() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50 px-6 py-16">
-      <div className="mx-auto max-w-3xl">
-        <div className="mb-8">
-          <Link
-            href="/"
-            className="text-sm font-semibold text-sky-600 hover:text-sky-700 flex items-center gap-2"
-          >
+    <main className={ui.page.shell}>
+      <div className={ui.page.overlay} />
+      <div className={ui.page.container}>
+        <div className="flex items-center justify-between">
+          <Link href="/" className={ui.header.backLink}>
             ← Zurück zur Startseite
           </Link>
         </div>
 
-        <div className="rounded-2xl bg-white p-8 shadow-lg ring-1 ring-slate-200 mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Spiel erstellen</h1>
-          <p className="text-slate-600">
-            Wähle, welche Art von Spiel du starten möchtest.
+        <div className={ui.card.padded}>
+          <p className={ui.header.kicker}>Spiel erstellen</p>
+          <h1 className="text-3xl font-bold text-white sm:text-4xl mb-2">Was möchtest du starten?</h1>
+          <p className={ui.header.subtitle}>
+            Wähle Multiplayer für Gruppen oder Solo gegen KI-Gegner.
           </p>
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2">
-          {/* Multiplayer Game */}
           <Link
             href="/spielleiter"
-            className="group flex flex-col gap-4 rounded-2xl bg-white p-8 shadow-lg ring-1 ring-slate-200 transition hover:shadow-xl hover:-translate-y-1"
+            className={`group flex flex-col gap-4 ${ui.card.padded} transition hover:-translate-y-1 hover:ring-white/20`}
           >
-            <div>
-              <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-sky-100 mb-3">
-                <span className="text-xl">👥</span>
-              </div>
-              <h2 className="text-2xl font-bold text-slate-900">Multiplayer Spiel</h2>
+            <div className="flex items-center justify-between">
+              <div className={ui.pill}>👥 Multiplayer</div>
+              <span className="text-lg text-sky-200 group-hover:translate-x-0.5 transition">▶️</span>
             </div>
-            <p className="text-slate-600 flex-grow">
-              Erstelle ein Spiel für mehrere Gruppen. Du erhältst Codes zum Verteilen und steuert alles über ein Spielleiter-Dashboard.
-            </p>
-            <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-              <span className="text-sm font-semibold text-sky-600">Spiel für Gruppen</span>
-              <span className="text-sky-600 group-hover:translate-x-0.5 transition">→</span>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-white">Spiel für Gruppen</h2>
+              <p className="text-slate-200">
+                Erstelle ein Spiel für mehrere Gruppen. Du erhältst Codes zum Verteilen und steuerst alles über das Spielleiter-Dashboard.
+              </p>
             </div>
           </Link>
 
-          {/* Solo Mode */}
           <Link
             href="/solo"
-            className="group flex flex-col gap-4 rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-50 p-8 shadow-lg ring-1 ring-purple-200 transition hover:shadow-xl hover:-translate-y-1"
+            className={`group flex flex-col gap-4 ${ui.card.padded} transition hover:-translate-y-1 hover:ring-white/20`}
           >
-            <div>
-              <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-purple-200 mb-3">
-                <span className="text-xl">🤖</span>
-              </div>
-              <h2 className="text-2xl font-bold text-purple-900">Solo-Modus</h2>
+            <div className="flex items-center justify-between">
+              <div className={ui.pill}>🤖 Solo</div>
+              <span className="text-lg text-sky-200 group-hover:translate-x-0.5 transition">▶️</span>
             </div>
-            <p className="text-purple-900/80 flex-grow">
-              Spiele allein gegen 4 intelligente KI-Gegner. Perfekt zum Üben, Lernen oder einfach nur zum Spaß!
-            </p>
-            <div className="flex items-center justify-between pt-4 border-t border-purple-200">
-              <span className="text-sm font-semibold text-purple-600">Gegen KI spielen</span>
-              <span className="text-purple-600 group-hover:translate-x-0.5 transition">→</span>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-white">Gegen KI spielen</h2>
+              <p className="text-slate-200">
+                Spiele allein gegen 4 KI-Gegner. Perfekt zum Üben, Lernen oder einfach zum Spaß – ohne Warten.
+              </p>
             </div>
           </Link>
         </div>

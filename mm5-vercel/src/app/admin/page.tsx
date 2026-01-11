@@ -7,6 +7,7 @@ import Link from "next/link";
 import { db } from "@/lib/firebase";
 import { collection, query, onSnapshot, doc, updateDoc, deleteDoc, getDocs } from "firebase/firestore";
 import type { GameDocument } from "@/lib/types";
+import { ui } from "@/lib/ui";
 
 const MASTER_PIN = process.env.NEXT_PUBLIC_MASTER_ADMIN_PIN || "2#Wadlstrumpf";
 
@@ -197,44 +198,45 @@ export default function MasterAdminPage() {
 
   if (!authenticated) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-red-100 px-4 py-10">
-        <section className="mx-auto max-w-md space-y-8">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-slate-900">🔐 Master Admin</h1>
-            <p className="mt-2 text-slate-600">
-              Zugriff auf alle Spiele und Verwaltungsfunktionen
+      <main className={ui.page.shell}>
+        <div className={ui.page.overlay} />
+        <section className={`${ui.page.container} max-w-md`}>
+          <div className="text-center space-y-2">
+            <h1 className="text-4xl font-bold text-white">🔐 Master Admin</h1>
+            <p className={ui.header.subtitle}>
+              Zugriff auf alle Spiele und Verwaltungsfunktionen.
             </p>
           </div>
 
-          <div className="rounded-2xl bg-white p-8 shadow-lg ring-1 ring-slate-200">
+          <div className={ui.card.padded}>
             <form onSubmit={handleLogin} className="flex flex-col gap-4">
               <label className="flex flex-col gap-2">
-                <span className="text-sm font-semibold text-slate-700">Master-Admin-PIN</span>
+                <span className="text-sm font-semibold text-white">Master-Admin-PIN</span>
                 <input
                   type="password"
                   value={pin}
                   onChange={(e) => setPin(e.target.value)}
-                  className="rounded-lg border border-slate-300 px-4 py-3 text-base focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-200"
+                  className={ui.input}
                   placeholder="PIN eingeben..."
                   autoFocus
                 />
               </label>
 
               {error && (
-                <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
+                <div className="rounded-lg bg-red-500/20 p-3 text-sm text-red-100 ring-1 ring-red-400/40">
                   {error}
                 </div>
               )}
 
               <button
                 type="submit"
-                className="rounded-lg bg-red-600 px-6 py-3 font-semibold text-white hover:bg-red-700 transition"
+                className="rounded-lg bg-gradient-to-r from-red-500 to-orange-500 px-6 py-3 font-semibold text-white hover:from-red-400 hover:to-orange-400 transition"
               >
                 Anmelden
               </button>
             </form>
 
-            <Link href="/" className="block mt-4 text-center text-sm text-slate-600 hover:underline">
+            <Link href="/" className={`${ui.header.backLink} block mt-4 text-center`}>
               ← Zurück zur Startseite
             </Link>
           </div>
@@ -244,24 +246,26 @@ export default function MasterAdminPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-red-100 px-4 py-10">
-      <section className="mx-auto max-w-6xl space-y-8">
+    <main className={ui.page.shell}>
+      <div className={ui.page.overlay} />
+      <section className={ui.page.wideContainer}>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-slate-900">🔐 Master Admin Dashboard</h1>
-            <p className="mt-2 text-slate-600">
-              Alle Spiele verwalten und überwachen
+            <p className={ui.header.kicker}>Admin</p>
+            <h1 className="text-4xl font-bold text-white">🔐 Master Admin Dashboard</h1>
+            <p className={ui.header.subtitle}>
+              Alle Spiele verwalten und überwachen.
             </p>
           </div>
           <button
             onClick={handleLogout}
-            className="rounded-lg bg-slate-600 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700 transition"
+            className={ui.cta.secondary}
           >
             Abmelden
           </button>
         </div>
 
-        <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200">
+        <div className={ui.card.padded}>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-slate-900">
               Alle Spiele ({games.length})
