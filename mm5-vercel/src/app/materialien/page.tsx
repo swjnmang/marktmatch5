@@ -1,7 +1,6 @@
 'use client';
 
 import Link from "next/link";
-import { ui } from "@/lib/ui";
 
 const materialien = [
   {
@@ -38,34 +37,40 @@ const materialien = [
 
 export default function MaterialienPage() {
   return (
-    <main className={ui.page.shell}>
-      <div className={ui.page.overlay} />
-      <section className={`${ui.page.container} max-w-4xl`}>
-        <div className="text-center space-y-2">
-          <p className={ui.header.kicker}>Materialien</p>
-          <h1 className="text-4xl font-bold text-white">Begleitmaterial</h1>
-          <p className={ui.header.subtitle}>
+    <main className="relative min-h-screen overflow-hidden" style={{background: "linear-gradient(135deg, #4a5568 0%, #0f172a 100%)"}}>
+      <div className="mx-auto max-w-4xl px-6 py-16 sm:px-10">
+        {/* Back Link */}
+        <Link href="/" className="mb-8 inline-flex items-center text-sm text-white/70 hover:text-white transition">
+          ← Zurück zur Startseite
+        </Link>
+
+        {/* Header */}
+        <header className="mb-12 text-center text-white">
+          <p className="mb-2 text-sm font-semibold text-white/60 uppercase tracking-widest">Materialien</p>
+          <h1 className="mb-4 text-4xl font-bold">Begleitmaterial</h1>
+          <p className="text-lg opacity-90">
             Arbeitsblätter, Anleitungen und Vorlagen für das Planspiel.
           </p>
-        </div>
+        </header>
 
-        <div className={ui.card.padded}>
+        {/* Materials List */}
+        <div className="rounded-2xl bg-white p-10 shadow-2xl">
           <div className="space-y-4">
             {materialien.map((material, index) => (
               <div
                 key={index}
-                className="flex items-start gap-4 rounded-lg border border-white/10 bg-white/5 p-4 transition hover:border-sky-300/60 hover:bg-white/10"
+                className="flex items-start gap-4 rounded-lg border border-slate-200 bg-slate-50 p-4 transition hover:border-sky-300 hover:bg-white"
               >
                 <div className="text-3xl">{material.icon}</div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-white">{material.title}</h3>
-                  <p className="mt-1 text-sm text-slate-200">{material.description}</p>
+                  <h3 className="font-semibold text-slate-900">{material.title}</h3>
+                  <p className="mt-1 text-sm text-slate-600">{material.description}</p>
                 </div>
                 <a
                   href={material.pdfUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={ui.cta.primary}
+                  className="inline-block rounded-lg bg-gradient-to-r from-slate-700 to-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 whitespace-nowrap"
                 >
                   📥 Download
                 </a>
@@ -73,21 +78,14 @@ export default function MaterialienPage() {
             ))}
           </div>
 
-          <div className="mt-6 rounded-lg border border-white/10 bg-white/5 p-4 text-slate-200">
+          <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-4 text-slate-700">
             <p className="text-sm">
               <strong>ℹ️ Hinweis:</strong> Die Materialien basieren auf dem originalen Markt-Match 5 Planspiel.
               Sie können zur Vorbereitung, Durchführung und Nachbereitung des Spiels verwendet werden.
             </p>
           </div>
         </div>
-
-        <Link
-          href="/"
-          className={`${ui.header.backLink} block text-center`}
-        >
-          ← Zurück zur Startseite
-        </Link>
-      </section>
+      </div>
     </main>
   );
 }

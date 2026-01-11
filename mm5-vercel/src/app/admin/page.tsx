@@ -7,7 +7,6 @@ import Link from "next/link";
 import { db } from "@/lib/firebase";
 import { collection, query, onSnapshot, doc, updateDoc, deleteDoc, getDocs } from "firebase/firestore";
 import type { GameDocument } from "@/lib/types";
-import { ui } from "@/lib/ui";
 
 const MASTER_PIN = process.env.NEXT_PUBLIC_MASTER_ADMIN_PIN || "2#Wadlstrumpf";
 
@@ -198,25 +197,24 @@ export default function MasterAdminPage() {
 
   if (!authenticated) {
     return (
-      <main className={ui.page.shell}>
-        <div className={ui.page.overlay} />
-        <section className={`${ui.page.container} max-w-md`}>
+      <main className="relative min-h-screen overflow-hidden" style={{background: "linear-gradient(135deg, #4a5568 0%, #0f172a 100%)"}}>
+        <div className="mx-auto max-w-md px-6 py-16 sm:px-10">
           <div className="text-center space-y-2">
             <h1 className="text-4xl font-bold text-white">🔐 Master Admin</h1>
-            <p className={ui.header.subtitle}>
+            <p className="text-lg text-white/70">
               Zugriff auf alle Spiele und Verwaltungsfunktionen.
             </p>
           </div>
 
-          <div className={ui.card.padded}>
+          <div className="rounded-2xl bg-white p-10 shadow-2xl mt-8">
             <form onSubmit={handleLogin} className="flex flex-col gap-4">
               <label className="flex flex-col gap-2">
-                <span className="text-sm font-semibold text-white">Master-Admin-PIN</span>
+                <span className="text-sm font-semibold text-slate-900">Master-Admin-PIN</span>
                 <input
                   type="password"
                   value={pin}
                   onChange={(e) => setPin(e.target.value)}
-                  className={ui.input}
+                  className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-300/40"
                   placeholder="PIN eingeben..."
                   autoFocus
                 />
@@ -236,36 +234,35 @@ export default function MasterAdminPage() {
               </button>
             </form>
 
-            <Link href="/" className={`${ui.header.backLink} block mt-4 text-center`}>
+            <Link href="/" className="block mt-4 text-center text-sm text-slate-500 hover:text-slate-700 transition">
               ← Zurück zur Startseite
             </Link>
           </div>
-        </section>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className={ui.page.shell}>
-      <div className={ui.page.overlay} />
-      <section className={ui.page.wideContainer}>
-        <div className="flex items-center justify-between">
+    <main className="relative min-h-screen overflow-hidden" style={{background: "linear-gradient(135deg, #4a5568 0%, #0f172a 100%)"}}>
+      <div className="mx-auto max-w-6xl px-6 py-16 sm:px-10">
+        <div className="flex items-center justify-between mb-12">
           <div>
-            <p className={ui.header.kicker}>Admin</p>
+            <p className="mb-2 text-sm font-semibold text-white/60 uppercase tracking-widest">Admin</p>
             <h1 className="text-4xl font-bold text-white">🔐 Master Admin Dashboard</h1>
-            <p className={ui.header.subtitle}>
+            <p className="text-lg text-white/70">
               Alle Spiele verwalten und überwachen.
             </p>
           </div>
           <button
             onClick={handleLogout}
-            className={ui.cta.secondary}
+            className="inline-block rounded-lg bg-gradient-to-r from-red-500 to-red-600 px-6 py-2 text-sm font-semibold text-white transition hover:opacity-90"
           >
             Abmelden
           </button>
         </div>
 
-        <div className={ui.card.padded}>
+        <div className="rounded-2xl bg-white p-10 shadow-2xl">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-slate-900">
               Alle Spiele ({games.length})
@@ -403,7 +400,7 @@ export default function MasterAdminPage() {
         <Link href="/" className="block text-center text-sm font-semibold text-slate-700 hover:underline">
           ← Zurück zur Startseite
         </Link>
-      </section>
+      </div>
     </main>
   );
 }

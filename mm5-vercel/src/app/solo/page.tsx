@@ -7,7 +7,6 @@ import Link from "next/link";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp, type Timestamp } from "firebase/firestore";
 import type { GameDocument, GroupState } from "@/lib/types";
-import { ui } from "@/lib/ui";
 
 const DEFAULT_PARAMETERS = {
   startingCapital: 30000,
@@ -114,83 +113,108 @@ export default function SoloModePage() {
   };
 
   return (
-    <main className={ui.page.shell}>
-      <div className={ui.page.overlay} />
-      <div className={ui.page.container}>
-        <div className="flex flex-col gap-2">
-          <p className={ui.header.kicker}>Solo-Modus</p>
-          <h1 className={ui.header.title}>Gegen KI-Gegner spielen</h1>
-          <p className={ui.header.subtitle}>
-            Im Solo-Modus trittst du gegen 4 KI-gesteuerte Unternehmen an. Perfekt zum Üben oder einfach zum Spaß – ohne Warten.
-          </p>
-        </div>
-
-        <div className={ui.card.padded}>
-        {error && (
-          <div className="mb-4 rounded-lg bg-red-500/20 p-4 text-red-100 text-sm ring-1 ring-red-400/40">{error}</div>
-        )}
-
-        <form onSubmit={handleStartSolo} className="flex flex-col gap-4">
-          <div className="rounded-lg bg-white/10 p-4 text-sm text-white ring-1 ring-white/10">
-            <p className="font-semibold mb-2">🤖 Solo-Modus Features:</p>
-            <ul className="space-y-1 text-slate-200">
-              <li>• 4 KI-Gegner mit unterschiedlichen Strategien</li>
-              <li>• Automatische Entscheidungen der KI-Teams</li>
-              <li>• Sofortiger Start ohne Wartezeit</li>
-              <li>• Gleiche Spielmechanik wie Mehrspieler-Modus</li>
-            </ul>
-          </div>
-
-          <label className="flex flex-col gap-2 text-sm text-white">
-            Dein Team-Name
-            <input
-              type="text"
-              value={teamName}
-              onChange={(e) => setTeamName(e.target.value)}
-              placeholder="z.B. Mein Unternehmen"
-              required
-              className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-base text-white placeholder:text-slate-400 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-300/40"
-            />
-          </label>
-
-          <div className="rounded-lg border border-white/10 bg-white/5 p-4">
-            <p className="text-sm font-semibold text-white mb-2">KI-Gegner:</p>
-            <div className="grid gap-2 text-sm text-slate-200">
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-xs bg-red-500/30 text-red-100 px-2 py-0.5 rounded ring-1 ring-red-400/40">AGG</span>
-                <span><strong>TechTitans:</strong> Aggressiv – Hohe Produktion, niedrige Preise</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-xs bg-green-500/30 text-green-100 px-2 py-0.5 rounded ring-1 ring-green-400/40">CON</span>
-                <span><strong>SmartSolutions:</strong> Konservativ – Moderate Strategie</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-xs bg-blue-500/30 text-blue-100 px-2 py-0.5 rounded ring-1 ring-blue-400/40">BAL</span>
-                <span><strong>MarketMasters:</strong> Ausgewogen – Mix aller Strategien</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-xs bg-purple-500/30 text-purple-100 px-2 py-0.5 rounded ring-1 ring-purple-400/40">INN</span>
-                <span><strong>InnoVentures:</strong> Innovativ – F&E und Premium-Preise</span>
-              </div>
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading || !teamName.trim()}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-purple-200"
-          >
-            {loading ? "Spiel wird erstellt..." : "Solo-Spiel starten 🚀"}
-          </button>
-        </form>
-      </div>
-
-        <Link
-          href="/"
-          className={ui.header.backLink}
-        >
+    <main className="relative min-h-screen overflow-hidden" style={{background: "linear-gradient(135deg, #4a5568 0%, #0f172a 100%)"}}>
+      <div className="mx-auto max-w-4xl px-6 py-16 sm:px-10">
+        {/* Back Link */}
+        <Link href="/" className="mb-8 inline-flex items-center text-sm text-white/70 hover:text-white transition">
           ← Zurück zur Startseite
         </Link>
+
+        {/* Header */}
+        <header className="mb-12 text-center text-white">
+          <p className="mb-2 text-sm font-semibold text-white/60 uppercase tracking-widest">Solo-Modus</p>
+          <h1 className="mb-4 text-4xl font-bold">Gegen KI-Gegner spielen</h1>
+          <p className="mx-auto max-w-2xl text-lg opacity-90">
+            Im Solo-Modus trittst du gegen 4 KI-gesteuerte Unternehmen an. Perfekt zum Üben oder einfach zum Spaß – ohne Warten.
+          </p>
+        </header>
+
+        {/* Form Card */}
+        <div className="rounded-2xl bg-white p-10 shadow-2xl">
+          {error && (
+            <div className="mb-6 rounded-lg bg-red-500/20 p-4 text-red-100 text-sm ring-1 ring-red-400/40">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleStartSolo} className="flex flex-col gap-6">
+            {/* Features Info */}
+            <div className="rounded-xl bg-white/10 p-6 text-white ring-1 ring-white/10">
+              <p className="font-semibold mb-3 text-base">🤖 Solo-Modus Features:</p>
+              <ul className="space-y-2 text-sm text-slate-600">
+                <li className="flex gap-2">
+                  <span>✓</span>
+                  <span><strong>4 KI-Gegner</strong> mit unterschiedlichen Strategien</span>
+                </li>
+                <li className="flex gap-2">
+                  <span>✓</span>
+                  <span><strong>Automatische Entscheidungen</strong> der KI-Teams</span>
+                </li>
+                <li className="flex gap-2">
+                  <span>✓</span>
+                  <span><strong>Sofortiger Start</strong> ohne Wartezeit</span>
+                </li>
+                <li className="flex gap-2">
+                  <span>✓</span>
+                  <span><strong>Gleiche Spielmechanik</strong> wie Mehrspieler-Modus</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Team Name Input */}
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-semibold text-slate-900">Dein Team-Name</span>
+              <input
+                type="text"
+                value={teamName}
+                onChange={(e) => setTeamName(e.target.value)}
+                placeholder="z.B. Mein Unternehmen"
+                required
+                className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-300/40"
+              />
+            </label>
+
+            {/* AI Opponents */}
+            <div className="rounded-xl border border-slate-200 bg-white/50 p-6">
+              <p className="text-sm font-semibold text-slate-900 mb-4">Deine KI-Gegner:</p>
+              <div className="grid gap-3 text-sm">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-white/50 border border-red-200">
+                  <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-red-500/20 text-red-600 font-bold text-xs ring-1 ring-red-300">AGG</span>
+                  <div className="text-slate-700">
+                    <strong>TechTitans:</strong> Aggressiv – Hohe Produktion, niedrige Preise
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-white/50 border border-green-200">
+                  <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-green-500/20 text-green-600 font-bold text-xs ring-1 ring-green-300">CON</span>
+                  <div className="text-slate-700">
+                    <strong>SmartSolutions:</strong> Konservativ – Moderate Strategie
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-white/50 border border-blue-200">
+                  <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-500/20 text-blue-600 font-bold text-xs ring-1 ring-blue-300">BAL</span>
+                  <div className="text-slate-700">
+                    <strong>MarketMasters:</strong> Ausgewogen – Mix aller Strategien
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-white/50 border border-purple-200">
+                  <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-purple-500/20 text-purple-600 font-bold text-xs ring-1 ring-purple-300">INN</span>
+                  <div className="text-slate-700">
+                    <strong>InnoVentures:</strong> Innovativ – F&E und Premium-Preise
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading || !teamName.trim()}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-slate-700 to-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-slate-400"
+            >
+              {loading ? "Spiel wird erstellt..." : "Solo-Spiel starten 🚀"}
+            </button>
+          </form>
+        </div>
       </div>
     </main>
   );

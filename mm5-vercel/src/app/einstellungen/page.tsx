@@ -1,105 +1,81 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { themes, type ThemeName } from "@/lib/themes";
-import { ui } from "@/lib/ui";
 
 export default function Settings() {
-  const [selectedTheme, setSelectedTheme] = useState<ThemeName>(() => {
-    if (typeof window !== "undefined") {
-      return (localStorage.getItem("theme") as ThemeName) || "light";
-    }
-    return "light";
-  });
-  const mounted = typeof window !== "undefined";
-
-  const handleThemeChange = (theme: ThemeName) => {
-    setSelectedTheme(theme);
-    localStorage.setItem("theme", theme);
-  };
-
-  if (!mounted) return null;
-
   return (
-    <main className={ui.page.shell}>
-      <div className={ui.page.overlay} />
-      <div className={`${ui.page.container} max-w-2xl`}>
-        <div className="flex items-center justify-between">
-          <Link
-            href="/"
-            className={ui.header.backLink}
-          >
-            ← Zurück zur Startseite
-          </Link>
-        </div>
+    <main className="relative min-h-screen overflow-hidden" style={{background: "linear-gradient(135deg, #4a5568 0%, #0f172a 100%)"}}>
+      <div className="mx-auto max-w-4xl px-6 py-16 sm:px-10">
+        {/* Back Link */}
+        <Link href="/" className="mb-8 inline-flex items-center text-sm text-white/70 hover:text-white transition">
+          ← Zurück zur Startseite
+        </Link>
 
-        <div className={ui.card.padded}>
-          <h1 className="text-3xl font-bold text-white mb-2">Einstellungen</h1>
-          <p className={ui.header.subtitle}>
-            Passe das Aussehen von Markt-Match 5 an deine Vorlieben an.
+        {/* Header */}
+        <header className="mb-12 text-white">
+          <p className="mb-2 text-sm font-semibold text-white/60 uppercase tracking-widest">Einstellungen</p>
+          <h1 className="mb-4 text-4xl font-bold">Anwendungseinstellungen</h1>
+          <p className="text-lg opacity-90">
+            Konfiguriere deine Markt-Match 5 Erfahrung.
           </p>
+        </header>
 
-          <div className="space-y-6">
+        {/* Settings Card */}
+        <div className="rounded-2xl bg-white p-10 shadow-2xl">
+          <div className="space-y-8">
             <div>
-              <h2 className="text-lg font-semibold text-white mb-4">
-                Design wählen
-              </h2>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {Object.entries(themes).map(([key, theme]) => (
-                  <button
-                    key={key}
-                    onClick={() => handleThemeChange(key as ThemeName)}
-                    className={`relative rounded-xl p-6 text-left transition text-white ${
-                      selectedTheme === key
-                        ? "bg-white/10 ring-2 ring-sky-400/70 shadow-lg"
-                        : "bg-white/5 ring-1 ring-white/10 hover:ring-sky-300/50"
-                    }`}
-                  >
-                    {selectedTheme === key && (
-                      <div className="absolute top-3 right-3">
-                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-sky-500 text-white">
-                          ✓
-                        </div>
-                      </div>
-                    )}
-                    <h3
-                      className="font-semibold mb-3"
-                    >
-                      {theme.label}
-                    </h3>
-                    <div className="flex gap-2">
-                      {key === "light" && (
-                        <>
-                          <div className="h-8 w-8 rounded bg-sky-100"></div>
-                          <div className="h-8 w-8 rounded bg-sky-50"></div>
-                          <div className="h-8 w-8 rounded bg-blue-50"></div>
-                        </>
-                      )}
-                      {key === "dark" && (
-                        <>
-                          <div className="h-8 w-8 rounded bg-gray-800"></div>
-                          <div className="h-8 w-8 rounded bg-gray-700"></div>
-                          <div className="h-8 w-8 rounded bg-white"></div>
-                        </>
-                      )}
-                      {key === "nature" && (
-                        <>
-                          <div className="h-8 w-8 rounded bg-green-100"></div>
-                          <div className="h-8 w-8 rounded bg-emerald-50"></div>
-                          <div className="h-8 w-8 rounded bg-green-50"></div>
-                        </>
-                      )}
-                    </div>
-                  </button>
-                ))}
+              <h2 className="text-2xl font-bold text-slate-900 mb-4">🎨 Design</h2>
+              <p className="text-slate-600 mb-4">
+                Markt-Match 5 verwendet ein modernes, dunkelblau-graues Design für eine optimale Benutzererfahrung.
+              </p>
+              <div className="rounded-lg bg-slate-50 border border-slate-200 p-6">
+                <div className="inline-flex items-center gap-3 px-4 py-2 rounded-lg" style={{background: "linear-gradient(135deg, #4a5568 0%, #0f172a 100%)"}}>
+                  <span className="text-white font-semibold">Aktuelles Design</span>
+                  <span className="text-2xl">✓</span>
+                </div>
               </div>
             </div>
 
-            <div className="rounded-lg bg-white/5 p-4 text-sm text-slate-200 ring-1 ring-white/10">
-              <p>
-                <span className="font-semibold text-white">💡 Tipp:</span> Deine Designauswahl wird gespeichert und beim nächsten Besuch automatisch geladen.
+            <div>
+              <h2 className="text-2xl font-bold text-slate-900 mb-4">🔊 Benachrichtigungen</h2>
+              <p className="text-slate-600 mb-4">
+                Erhalte Benachrichtigungen über wichtige Spielereignisse:
               </p>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-3">
+                  <input type="checkbox" defaultChecked className="mt-1" />
+                  <div>
+                    <p className="font-semibold text-slate-900">Phase endet</p>
+                    <p className="text-sm text-slate-600">Warnung vor Ende der aktuellen Periode</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <input type="checkbox" defaultChecked className="mt-1" />
+                  <div>
+                    <p className="font-semibold text-slate-900">Spielstart</p>
+                    <p className="text-sm text-slate-600">Bestätigung wenn alle Gruppen bereit sind</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <input type="checkbox" defaultChecked className="mt-1" />
+                  <div>
+                    <p className="font-semibold text-slate-900">Spielende</p>
+                    <p className="text-sm text-slate-600">Ankündigung zum Ende des Spiels</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold text-slate-900 mb-4">📱 Über die App</h2>
+              <p className="text-slate-600 mb-4">
+                Markt-Match 5 ist eine moderne, digitale Plattform für Unternehmensplanspiele.
+              </p>
+              <ul className="space-y-2 text-sm text-slate-600">
+                <li><strong>Version:</strong> 1.2.0</li>
+                <li><strong>Erstellt mit:</strong> Next.js 16, React, Tailwind CSS, Firebase</li>
+                <li><strong>Browser:</strong> Chrome, Firefox, Safari (mobile & desktop)</li>
+              </ul>
             </div>
           </div>
         </div>
