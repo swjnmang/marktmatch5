@@ -9,6 +9,7 @@ import { doc, getDoc, collection, addDoc, serverTimestamp, updateDoc, onSnapshot
 import { checkPinFromLocalStorage } from "@/lib/auth";
 import type { GameDocument, GroupState, Machine, PeriodDecision, SpecialTask } from "@/lib/types";
 import { PeriodTimer } from "@/components/PeriodTimer";
+import GameAnalytics from "@/components/GameAnalytics";
 
 const MACHINE_OPTIONS: Machine[] = [
   { name: "SmartMini-Fertiger", cost: 5000, capacity: 100, variableCostPerUnit: 6 },
@@ -199,7 +200,10 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
         const decisionsSnapshot = await getDocs(collection(db, "games", gameId, "decisions"));
         const decisionsMap: Record<string, PeriodDecision> = {};
         decisionsSnapshot.docs.forEach((d) => {
-          decisionsMap[d.id] = d.data() as PeriodDecision;
+          const dd = d.data() as PeriodDecision;
+          if (dd.period === game.period) {
+            decisionsMap[d.id] = dd;
+          }
         });
 
         const insights: Array<{name: string; price: number; soldUnits: number; production: number; endingInventory: number}> = [];
@@ -646,7 +650,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                 <ul className="space-y-2 text-slate-700">
                   <li className="flex gap-2">
                     <span>•</span>
-                    <span><strong>Marktanalyse</strong> (optional): Zeigt euch Preise und Verkäufe der Konkurrenz</span>
+                    <span><strong>Marktanalyse</strong> (optional): Zeigt euch Preise, Verkäufe, Produktion und Lagerbestand der Konkurrenz</span>
                   </li>
                   <li className="flex gap-2">
                     <span>•</span>
@@ -1455,7 +1459,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                       <span className="text-xs font-normal text-amber-700">▼ ausklappen</span>
                     </summary>
                     <div className="p-4 pt-2">
-                      {groupData.lastResult.marketAnalysisCost > 0 ? (
+                      {(groupData.lastResult.marketAnalysisCost > 0 || (game?.activePeriodActions?.period === game?.period && game?.activePeriodActions?.freeMarketAnalysis)) ? (
                         insightsLoading ? (
                           <p className="text-sm text-amber-800">Analyse wird geladen...</p>
                         ) : competitorInsights.length > 0 ? (
@@ -1519,6 +1523,28 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                     </div>
                   )}
                 </div>
+              )}
+
+              {/* Game Finished - Show Analytics */}
+              {joined && (game?.status as unknown as string) === "finished" && groupData && (
+                <>
+                  <div className="rounded-lg border-2 border-emerald-400 bg-emerald-50 p-6 mt-8">
+                    <h2 className="text-2xl font-bold text-emerald-900 mb-2 flex items-center gap-2">
+                      <span>🎉</span>
+                      Spiel beendet!
+                    </h2>
+                    <p className="text-emerald-800 mb-4">
+                      Das Spiel ist vorbei. Schaut euch euren Spielverlauf und das finale Ranking an.
+                    </p>
+                  </div>
+
+                  {/* Analytics with ranking and charts */}
+                  <GameAnalytics
+                    groups={game.groups || []}
+                    currentGroupId={groupId || ""}
+                    gameId={gameId || ""}
+                  />
+                </>
               )}
             </>
               )}
