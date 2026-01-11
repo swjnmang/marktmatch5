@@ -87,42 +87,73 @@ export default function Home() {
             </div>
           </div>
 
-          <div className={`rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 px-6 py-10 text-slate-50 shadow-lg ring-1 ring-white/10`}>            
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Letzte Aktualisierung</p>
-            <div className="mt-4 space-y-2">
-              <p className="text-2xl font-bold text-white">v{VERSION.number}</p>
-              <p className="text-sm text-slate-300">
-                {VERSION.date}, {VERSION.time} Uhr
-              </p>
-              <div className="mt-4 rounded-lg bg-white/5 px-3 py-2.5 text-xs text-slate-200">
-                <p className="font-semibold text-white mb-1">Neue Features:</p>
-                <ul className="space-y-1">
-                  <li>• Design-Einstellungen (Hell, Dunkel, Natur)</li>
-                  <li>• Neu strukturierte Spielerstellung</li>
-                  <li>• Solo-Modus gegen KI-Gegner</li>
-                  <li>• Vollständige Spielmechanik</li>
-                </ul>
-              </div>
-              <div className="mt-6 grid gap-2 sm:grid-cols-2">
-                <Link href="/spiel-erstellen" className="inline-flex items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700">
-                  🚀 Jetzt Spiel erstellen
-                </Link>
-                <Link href="/gruppe" className="inline-flex items-center justify-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-white/20">
-                  🎯 Spiel beitreten
-                </Link>
-              </div>
-            </div>
-          </div>
         </section>
 
-        {/* Admin Link - versteckt am unteren Rand */}
-        <div className="text-center">
+        {/* Footer Links */}
+        <div className="flex flex-wrap items-center justify-center gap-4 text-center text-xs text-slate-400">
           <Link
             href="/admin"
-            className="text-xs text-slate-400 hover:text-slate-600 transition"
+            className="hover:text-slate-600 transition"
           >
             Master Admin
           </Link>
+          <span className="text-slate-300">•</span>
+          <button
+            onClick={() => {
+              const modal = document.getElementById('impressum-modal');
+              if (modal) modal.classList.remove('hidden');
+            }}
+            className="hover:text-slate-600 transition"
+          >
+            Impressum
+          </button>
+          <span className="text-slate-300">•</span>
+          <span>Letzte Aktualisierung: {VERSION.date}, {VERSION.time} Uhr</span>
+        </div>
+
+        {/* Impressum Modal */}
+        <div
+          id="impressum-modal"
+          className="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              const modal = document.getElementById('impressum-modal');
+              if (modal) modal.classList.add('hidden');
+            }
+          }}
+        >
+          <div className="relative max-w-lg mx-4 bg-white rounded-2xl shadow-2xl p-8 ring-1 ring-slate-200">
+            <button
+              onClick={() => {
+                const modal = document.getElementById('impressum-modal');
+                if (modal) modal.classList.add('hidden');
+              }}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition"
+            >
+              ✕
+            </button>
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Impressum</h2>
+            <div className="space-y-4 text-sm text-slate-700">
+              <div>
+                <p className="font-semibold text-slate-900 mb-1">Angaben gemäß § 5 TMG</p>
+                <p>Jonathan Mangold</p>
+                <p>c/o Schenkenstraße 10</p>
+                <p>74544 Michelbach, Deutschland</p>
+              </div>
+              <div>
+                <p className="font-semibold text-slate-900 mb-1">Vertreten durch</p>
+                <p>Jonathan Mangold</p>
+              </div>
+              <div>
+                <p className="font-semibold text-slate-900 mb-1">Kontakt</p>
+                <p>E-Mail: <a href="mailto:info@nachhilfe-wirtschaftsschule.de" className="text-sky-600 hover:underline">info@nachhilfe-wirtschaftsschule.de</a></p>
+              </div>
+              <div>
+                <p className="font-semibold text-slate-900 mb-1">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</p>
+                <p>Jonathan Mangold (Anschrift wie oben)</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </main>
