@@ -555,7 +555,7 @@ export default function GameDashboardPage() {
           </div>
 
           {/* Actions for Next Period */}
-          {game.status === "in_progress" && game.phase === "results" && (
+          {game.status === "in_progress" && (
             <div className="mt-6 pt-6 border-t border-slate-200">
               <h3 className="text-sm font-semibold text-slate-900 mb-3">⚡ Aktionen für die nächste Periode</h3>
               <p className="text-xs text-slate-600 mb-4">
