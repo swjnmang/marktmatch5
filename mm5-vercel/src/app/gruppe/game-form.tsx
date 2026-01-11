@@ -32,7 +32,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   const [storedGroupId, setStoredGroupId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isSolo, setIsSolo] = useState(false);
-  const [competitorInsights, setCompetitorInsights] = useState<Array<{name: string; price: number; soldUnits: number}>>([]);
+  const [competitorInsights, setCompetitorInsights] = useState<Array<{name: string; price: number; soldUnits: number; production: number; endingInventory: number}>>([]);
   const [insightsLoading, setInsightsLoading] = useState(false);
   const [production, setProduction] = useState(0);
   const [sellFromInventory, setSellFromInventory] = useState(0);
@@ -202,7 +202,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
           decisionsMap[d.id] = d.data() as PeriodDecision;
         });
 
-        const insights: Array<{name: string; price: number; soldUnits: number}> = [];
+        const insights: Array<{name: string; price: number; soldUnits: number; production: number; endingInventory: number}> = [];
         groupsSnapshot.docs.forEach((docSnap) => {
           const gid = docSnap.id;
           if (gid === groupId) return; // skip self
@@ -215,6 +215,8 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
               name: data.name || `Gruppe ${gid.substring(0, 4)}`,
               price,
               soldUnits: lr.soldUnits || 0,
+              production: dec?.production ?? 0,
+              endingInventory: lr.endingInventory ?? (data.inventory ?? 0),
             });
           }
         });
@@ -1461,14 +1463,22 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                             {competitorInsights.map((c) => (
                               <div key={c.name} className="rounded bg-white p-3 shadow-sm">
                                 <p className="text-xs font-semibold text-slate-600">{c.name}</p>
-                                <div className="mt-2 flex justify-between text-sm">
+                                <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
                                   <div>
                                     <p className="text-xs text-slate-500">Preis</p>
                                     <p className="font-semibold text-slate-900">€{c.price.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                                   </div>
                                   <div>
                                     <p className="text-xs text-slate-500">Verkauft</p>
-                                    <p className="font-semibold text-slate-900">{c.soldUnits} Einh.</p>
+                                    <p className="font-semibold text-slate-900">{Math.floor(c.soldUnits).toLocaleString("de-DE")} Einh.</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-slate-500">Produziert</p>
+                                    <p className="font-semibold text-slate-900">{Math.floor(c.production).toLocaleString("de-DE")} Einh.</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-slate-500">Lagerbestand</p>
+                                    <p className="font-semibold text-slate-900">{Math.floor(c.endingInventory).toLocaleString("de-DE")} Einh.</p>
                                   </div>
                                 </div>
                               </div>
