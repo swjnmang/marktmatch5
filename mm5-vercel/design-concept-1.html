@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markt-Match 5 – Konzept 1: Modern Minimalist</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #4a5568 0%, #0f172a 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 60px;
+        }
+        
+        h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .cta-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 80px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .card h3 {
+            font-size: 22px;
+            margin-bottom: 12px;
+            color: #374151;
+            font-weight: 700;
+        }
+        
+        .card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+            color: white;
+            padding: 10px 22px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            transition: opacity 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .features {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 40px;
+            color: white;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 25px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 80px;
+        }
+        
+        .feature-item h4 {
+            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .feature-item p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .game-description {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 80px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .game-description h3 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #1f2937;
+            font-weight: 700;
+        }
+        
+        .game-description p {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 15px;
+        }
+        
+        .game-description p strong {
+            color: #1f2937;
+        }
+        
+        .game-description ul {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+            columns: 2;
+            column-gap: 40px;
+        }
+        
+        .game-description li {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+            break-inside: avoid;
+        }
+        
+        .game-description li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+            color: #374151;
+            font-size: 16px;
+        }
+        
+        .footer-section {
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 30px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+        }
+        
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin-bottom: 15px;
+        }
+        
+        .footer-links a,
+        .footer-links button {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            transition: color 0.3s;
+            padding: 0 8px;
+        }
+        
+        .footer-links a:hover,
+        .footer-links button:hover {
+            color: white;
+        }
+        
+        .footer-divider {
+            color: rgba(255, 255, 255, 0.5);
+            margin: 0 4px;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 32px;
+            }
+            
+            .subtitle {
+                font-size: 16px;
+            }
+            
+            .card {
+                padding: 25px;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-description ul {
+                columns: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Markt-Match 5</h1>
+            <p class="subtitle">Dein Unternehmensplanspiel. Modern. Digital. Kostenlos.</p>
+        </header>
+        
+        <div class="cta-section">
+            <div class="card">
+                <div class="card-icon">🚀</div>
+                <h3>Spiel erstellen</h3>
+                <p>Gründe dein Unternehmen und führe es zum Erfolg. Allein oder mit deinem Team.</p>
+                <button class="btn">Spiel erstellen</button>
+            </div>
+            <div class="card">
+                <div class="card-icon">🎮</div>
+                <h3>Spiel beitreten</h3>
+                <p>Tritt einem laufenden Spiel bei und treffe strategische Entscheidungen.</p>
+                <button class="btn">Code eingeben</button>
+            </div>
+        </div>
+        
+        <div class="features">
+            <div class="feature-item">
+                <h4>⚡ Schnell starten</h4>
+                <p>In 2 Min einsatzbereit</p>
+            </div>
+            <div class="feature-item">
+                <h4>📊 Live-Auswertung</h4>
+                <p>Ergebnisse in Echtzeit</p>
+            </div>
+            <div class="feature-item">
+                <h4>🎓 Lehrreich</h4>
+                <p>Wirtschaft verstehen</p>
+            </div>
+            <div class="feature-item">
+                <h4>👥 Multiplayer</h4>
+                <p>Mit Teams spielen</p>
+            </div>
+        </div>
+        
+        <div class="game-description">
+            <h3>🎮 Was ist Markt-Match 5?</h3>
+            <p>
+                Markt-Match 5 ist ein innovatives <strong>digitales Planspiel für Schulen und Universitäten</strong>, das wirtschaftliches Denken 
+                durch praktische Erfahrung vermittelt. Perfekt zum Schuljahres- oder Semesterbeginn geeignet.
+            </p>
+            
+            <p>
+                <strong>So funktioniert's:</strong> Ein Gruppenleiter (Lehrer/Professor) erstellt ein Spiel und verteilt einen Code an die Gruppen. 
+                Diese treten bei und konkurrieren gegeneinander. Alternativ können Einzelne auch im <strong>Solo-Modus</strong> spielen.
+            </p>
+            
+            <p style="margin-top: 20px; margin-bottom: 15px;"><strong>Das machst du im Spiel:</strong></p>
+            <ul>
+                <li><strong>Maschinen kaufen:</strong> Wähle Produktionsmaschinen mit verschiedenen Kapazitäten</li>
+                <li><strong>Produktion planen:</strong> Entscheide, wie viele Einheiten du produzierst</li>
+                <li><strong>Preise setzen:</strong> Berechne den optimalen Verkaufspreis</li>
+                <li><strong>In Marketing investieren:</strong> Erhöhe deine Nachfrage</li>
+                <li><strong>F&E vorantreiben:</strong> Senke deine Kostenstruktur</li>
+                <li><strong>Konkurrieren:</strong> Spiele gegen andere Teams</li>
+                <li><strong>Analysieren:</strong> Verfolge deine Gewinne und Marktanteile</li>
+            </ul>
+            
+            <p style="margin-top: 20px; color: #666; font-style: italic;">
+                Das Ziel: Treffe kluge Entscheidungen, verstehe wie Märkte funktionieren und werde zum erfolgreichsten Unternehmer!
+            </p>
+        </div>
+        
+        <div class="footer-section">
+            <div class="footer-links">
+                <a href="#">Master Admin</a>
+                <span class="footer-divider">•</span>
+                <button onclick="alert('Impressum Modal würde hier öffnen')">Impressum</button>
+                <span class="footer-divider">•</span>
+                <span>Letzte Aktualisierung: 11.01.2026, 14:30 Uhr</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

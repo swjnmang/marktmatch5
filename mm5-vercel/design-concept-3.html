@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markt-Match 5 – Konzept 3: Playful & Colorful</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(180deg, #fff8f0 0%, #e6f3ff 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .logo {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            font-size: 44px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 50%, #6bcf7f 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+        
+        .header p {
+            font-size: 16px;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 60px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .card.card1 {
+            border-color: #ff6b6b;
+        }
+        
+        .card.card2 {
+            border-color: #4ecdc4;
+        }
+        
+        .card.card3 {
+            border-color: #ffd93d;
+        }
+        
+        .card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        
+        .card-title.title1 {
+            color: #ff6b6b;
+        }
+        
+        .card-title.title2 {
+            color: #4ecdc4;
+        }
+        
+        .card-title.title3 {
+            color: #ffd93d;
+        }
+        
+        .card-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn1 {
+            background: linear-gradient(135deg, #ff6b6b, #ff8c8c);
+            color: white;
+        }
+        
+        .btn1:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        }
+        
+        .btn2 {
+            background: linear-gradient(135deg, #4ecdc4, #44b8a3);
+            color: white;
+        }
+        
+        .btn2:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+        }
+        
+        .btn3 {
+            background: linear-gradient(135deg, #ffd93d, #ffed4e);
+            color: #333;
+        }
+        
+        .btn3:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 217, 61, 0.3);
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+        
+        .feature-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-box:hover {
+            transform: translateY(-4px);
+        }
+        
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .feature-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            color: #666;
+            font-size: 12px;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 32px;
+            }
+            
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .features {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🎯</div>
+            <h1>Markt-Match 5</h1>
+            <p>Lerne spielend, wie Märkte funktionieren. Spiele gegen echte Konkurrenz und entwickle deine Business-Strategie!</p>
+        </div>
+        
+        <div class="cards-grid">
+            <div class="card card1">
+                <div class="card-icon">🚀</div>
+                <div class="card-title title1">Spiel erstellen</div>
+                <p class="card-desc">Starte ein neues Multiplayer-Spiel für dein Team oder spiel solo im Einzelspieler-Modus.</p>
+                <button class="btn btn1">Los geht's!</button>
+            </div>
+            <div class="card card2">
+                <div class="card-icon">🎮</div>
+                <div class="card-title title2">Spiel beitreten</div>
+                <p class="card-desc">Tritt einem laufenden Spiel bei, gib deinen Code ein und treffe strategische Entscheidungen.</p>
+                <button class="btn btn2">Beitreten</button>
+            </div>
+            <div class="card card3">
+                <div class="card-icon">📊</div>
+                <div class="card-title title3">Spielleitung</div>
+                <p class="card-desc">Verwalte dein Spiel, steuere die Perioden und schau dir alle Ergebnisse an.</p>
+                <button class="btn btn3">Verwalten</button>
+            </div>
+        </div>
+        
+        <div class="features">
+            <div class="feature-box">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-name">Kostenlos</div>
+            </div>
+            <div class="feature-box">
+                <div class="feature-icon">🌐</div>
+                <div class="feature-name">Im Browser</div>
+            </div>
+            <div class="feature-box">
+                <div class="feature-icon">📱</div>
+                <div class="feature-name">Mobil-freundlich</div>
+            </div>
+            <div class="feature-box">
+                <div class="feature-icon">📈</div>
+                <div class="feature-name">Live-Ergebnisse</div>
+            </div>
+            <div class="feature-box">
+                <div class="feature-icon">👥</div>
+                <div class="feature-name">Multiplayer</div>
+            </div>
+            <div class="feature-box">
+                <div class="feature-icon">🎓</div>
+                <div class="feature-name">Lehrreich</div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>📌 KONZEPT 3: Playful & Colorful (Multicolor)</p>
+            <p style="margin-top: 10px; opacity: 0.7;">Lebendig, freundlich, modern. Für alle Zielgruppen.</p>
+        </div>
+    </div>
+</body>
+</html>

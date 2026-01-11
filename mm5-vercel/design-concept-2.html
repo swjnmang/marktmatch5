@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markt-Match 5 – Konzept 2: Business Professional</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #fafafa;
+            color: #333;
+        }
+        
+        .header {
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .header h1 {
+            font-size: 40px;
+            margin-bottom: 15px;
+            font-weight: 700;
+            color: #1a73e8;
+        }
+        
+        .header p {
+            font-size: 16px;
+            color: #666;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+        
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            margin-bottom: 100px;
+        }
+        
+        .hero-text h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+            font-weight: 700;
+        }
+        
+        .hero-text p {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 15px;
+        }
+        
+        .cta-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 14px 32px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #1a73e8;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1557b0;
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+        }
+        
+        .btn-secondary {
+            border: 2px solid #1a73e8;
+            color: #1a73e8;
+            background: transparent;
+        }
+        
+        .btn-secondary:hover {
+            background: #f0f7ff;
+        }
+        
+        .hero-visual {
+            background: linear-gradient(135deg, #1a73e8 0%, #34a853 100%);
+            border-radius: 12px;
+            padding: 40px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(26, 115, 232, 0.2);
+        }
+        
+        .hero-visual-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .hero-visual p {
+            font-size: 18px;
+            margin-top: 20px;
+            color: white;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a73e8;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid #e0e0e0;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        @media (max-width: 768px) {
+            .hero {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .hero-text h2 {
+                font-size: 24px;
+            }
+            
+            .header h1 {
+                font-size: 28px;
+            }
+            
+            .cta-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Markt-Match 5</h1>
+        <p>Das professionelle Unternehmensplanspiel für Schulen, Universitäten und Unternehmen</p>
+    </div>
+    
+    <div class="container">
+        <div class="hero">
+            <div class="hero-text">
+                <h2>Spielen. Lernen. Gewinnen.</h2>
+                <p>Markt-Match 5 ist ein realistisches Planspiel, in dem du als Unternehmer Entscheidungen triffst – von Produktion über Preisgestaltung bis zum Marketing.</p>
+                <p>Konkurriere mit anderen Teams, optimiere deine Strategie über mehrere Perioden und erzielen Sie messbare Ergebnisse.</p>
+                <div class="cta-group">
+                    <button class="btn btn-primary">Spiel jetzt starten</button>
+                    <button class="btn btn-secondary">Mehr erfahren</button>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-visual-icon">📈</div>
+                <p>Wirtschaft verstehen durch praktische Erfahrung</p>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Kostenlos & im Browser</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">5+</div>
+                <div class="stat-label">Entscheidungsfelder</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">∞</div>
+                <div class="stat-label">Mögliche Strategien</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">📱</div>
+                <div class="stat-label">Vollständig digital</div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>📌 KONZEPT 2: Business Professional (Blue/Green)</p>
+            <p style="margin-top: 10px; opacity: 0.7;">Vertrauen, Kompetenz, etabliert. Ideal für Schulen & Universitäten.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -48,8 +48,8 @@ export default function Home() {
               >
                 <div className="flex items-center justify-between">
                   <span className={`text-base font-semibold ${theme.name === "dark" ? "text-white" : "text-sky-900"}`}>Spiel erstellen</span>
-                  <span className={`text-xs font-medium ${theme.name === "dark" ? "text-gray-300" : "text-sky-700"} group-hover:translate-x-0.5 transition`}>
-                    Los geht&apos;s →
+                  <span className={`text-lg ${theme.name === "dark" ? "text-green-400" : "text-green-500"} group-hover:scale-110 transition`}>
+                    ▶️
                   </span>
                 </div>
                 <p className={`text-sm ${theme.name === "dark" ? "text-gray-300" : "text-sky-900/80"}`}>
@@ -62,8 +62,8 @@ export default function Home() {
               >
                 <div className="flex items-center justify-between">
                   <span className={`text-base font-semibold ${theme.text}`}>Spiel beitreten</span>
-                  <span className={`text-xs font-medium ${theme.subtext} group-hover:translate-x-0.5 transition`}>
-                    Beitreten →
+                  <span className={`text-lg ${theme.subtext} group-hover:scale-110 transition`}>
+                    👥
                   </span>
                 </div>
                 <p className={`text-sm ${theme.subtext}`}>

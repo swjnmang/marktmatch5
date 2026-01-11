@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markt-Match 5 – Design-Konzepte</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #333;
+        }
+        .concepts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .concept {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .concept-preview {
+            width: 100%;
+            min-height: 600px;
+            overflow: hidden;
+            border-bottom: 3px solid #ddd;
+        }
+        .concept-preview iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+        }
+        .concept-info {
+            padding: 20px;
+        }
+        .concept-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .concept-description {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .concept-features {
+            font-size: 13px;
+            color: #555;
+        }
+        .concept-features li {
+            margin-left: 20px;
+            margin-bottom: 5px;
+        }
+        .concept-features strong {
+            color: #333;
+        }
+        .footer-note {
+            background: #e3f2fd;
+            border-left: 4px solid #1976d2;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Markt-Match 5 – Design-Konzepte für die Startseite</h1>
+        
+        <div class="concepts">
+            <!-- Konzept 1: Modern Minimalist -->
+            <div class="concept">
+                <div class="concept-preview">
+                    <iframe srcdoc='
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 60px 20px; }
+        header { text-align: center; color: white; margin-bottom: 80px; }
+        h1 { font-size: 48px; margin-bottom: 20px; font-weight: 800; }
+        .subtitle { font-size: 18px; opacity: 0.95; margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .cta-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; margin-bottom: 60px; }
+        .card { background: white; border-radius: 16px; padding: 40px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); transition: transform 0.3s; }
+        .card:hover { transform: translateY(-8px); }
+        .card-icon { font-size: 48px; margin-bottom: 20px; }
+        .card h3 { font-size: 22px; margin-bottom: 12px; color: #667eea; }
+        .card p { color: #666; line-height: 1.6; margin-bottom: 20px; }
+        .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block; transition: opacity 0.3s; }
+        .btn:hover { opacity: 0.9; }
+        .features { background: rgba(255,255,255,0.1); border-radius: 16px; padding: 40px; color: white; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; }
+        .feature-item h4 { margin-bottom: 10px; }
+        .feature-item p { font-size: 14px; opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Markt-Match 5</h1>
+            <p class="subtitle">Dein Unternehmensplanspiel. Modern. Digital. Kostenlos.</p>
+        </header>
+        
+        <div class="cta-section">
+            <div class="card">
+                <div class="card-icon">🚀</div>
+                <h3>Neues Spiel starten</h3>
+                <p>Gründe dein Unternehmen und führe es zum Erfolg. Allein oder mit deinem Team.</p>
+                <a href="#" class="btn">Spiel erstellen</a>
+            </div>
+            <div class="card">
+                <div class="card-icon">🎮</div>
+                <h3>Spiel beitreten</h3>
+                <p>Tritt einem laufenden Spiel bei und treffe strategische Entscheidungen.</p>
+                <a href="#" class="btn">Code eingeben</a>
+            </div>
+        </div>
+        
+        <div class="features">
+            <div class="feature-item">
+                <h4>⚡ Schnell starten</h4>
+                <p>In 2 Min einsatzbereit</p>
+            </div>
+            <div class="feature-item">
+                <h4>📊 Live-Auswertung</h4>
+                <p>Ergebnisse in Echtzeit</p>
+            </div>
+            <div class="feature-item">
+                <h4>🎓 Lehrreich</h4>
+                <p>Wirtschaft verstehen</p>
+            </div>
+            <div class="feature-item">
+                <h4>👥 Multiplayer</h4>
+                <p>Mit Teams spielen</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+                    '></iframe>
+                </div>
+                <div class="concept-info">
+                    <div class="concept-title">Konzept 1: Modern Minimalist (Purple Gradient)</div>
+                    <div class="concept-description">
+                        Modernes, minimalistisches Design mit großem Purple-Gradient-Header. Klare Hierarchie, große Buttons, moderne Icons. Sehr clean und fokussiert.
+                    </div>
+                    <div class="concept-features">
+                        <strong>Merkmale:</strong>
+                        <ul>
+                            <li>Purple-Gradient-Background (667eea → 764ba2)</li>
+                            <li>2 große CTA-Cards mit Icons</li>
+                            <li>Feature-Grid am unteren Ende</li>
+                            <li>Sehr minimal, modernes feel</li>
+                            <li>Mobile-first Design</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Konzept 2: Business Professional -->
+            <div class="concept">
+                <div class="concept-preview">
+                    <iframe srcdoc='
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui; background: #fafafa; color: #333; }
+        .header { background: white; border-bottom: 1px solid #e0e0e0; padding: 40px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .header h1 { font-size: 40px; margin-bottom: 15px; font-weight: 700; color: #1a73e8; }
+        .header p { font-size: 16px; color: #666; max-width: 700px; margin: 0 auto; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 60px 20px; }
+        .hero { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; margin-bottom: 100px; }
+        .hero-text h2 { font-size: 32px; margin-bottom: 20px; color: #1a1a1a; }
+        .hero-text p { font-size: 15px; line-height: 1.8; color: #555; margin-bottom: 15px; }
+        .cta-group { display: flex; gap: 15px; margin-top: 30px; }
+        .btn { padding: 14px 32px; border-radius: 6px; font-weight: 600; text-decoration: none; font-size: 14px; }
+        .btn-primary { background: #1a73e8; color: white; }
+        .btn-primary:hover { background: #1557b0; }
+        .btn-secondary { border: 2px solid #1a73e8; color: #1a73e8; }
+        .btn-secondary:hover { background: #f0f7ff; }
+        .hero-visual { background: linear-gradient(135deg, #1a73e8 0%, #34a853 100%); border-radius: 12px; padding: 40px; color: white; text-align: center; }
+        .hero-visual-icon { font-size: 80px; margin-bottom: 20px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .stat { text-align: center; }
+        .stat-number { font-size: 32px; font-weight: 700; color: #1a73e8; margin-bottom: 5px; }
+        .stat-label { font-size: 13px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Markt-Match 5</h1>
+        <p>Das professionelle Unternehmensplanspiel für Schulen, Universitäten und Unternehmen</p>
+    </div>
+    
+    <div class="container">
+        <div class="hero">
+            <div class="hero-text">
+                <h2>Spielen. Lernen. Gewinnen.</h2>
+                <p>Markt-Match 5 ist ein realistisches Planspiel, in dem du als Unternehmer Entscheidungen triffst – von Produktion über Preisgestaltung bis zum Marketing.</p>
+                <p>Konkurriere mit anderen Teams, optimiere deine Strategie über mehrere Perioden und erzielen Sie messbare Ergebnisse.</p>
+                <div class="cta-group">
+                    <a href="#" class="btn btn-primary">Spiel jetzt starten</a>
+                    <a href="#" class="btn btn-secondary">Mehr erfahren</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-visual-icon">📈</div>
+                <p style="font-size: 18px; margin-top: 20px;">Wirtschaft verstehen durch praktische Erfahrung</p>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Kostenlos & im Browser</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">5+</div>
+                <div class="stat-label">Entscheidungsfelder</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">∞</div>
+                <div class="stat-label">Mögliche Strategien</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">📱</div>
+                <div class="stat-label">Vollständig digital</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+                    '></iframe>
+                </div>
+                <div class="concept-info">
+                    <div class="concept-title">Konzept 2: Business Professional (Blue/Green)</div>
+                    <div class="concept-description">
+                        Professionelles, klassisches Design mit separatem Header-Bereich. Große Hero-Section mit Text + Visual-Element. Business-Look mit Google-Blue-Akzenten.
+                    </div>
+                    <div class="concept-features">
+                        <strong>Merkmale:</strong>
+                        <ul>
+                            <li>Separater Header mit Beschreibung</li>
+                            <li>Hero-Section mit 2-Spalten-Layout</li>
+                            <li>Primary + Secondary Buttons</li>
+                            <li>Stats-Grid unten</li>
+                            <li>Konservativ, vertrauenswürdig</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Konzept 3: Playful & Colorful -->
+            <div class="concept">
+                <div class="concept-preview">
+                    <iframe srcdoc='
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui; background: linear-gradient(180deg, #fff8f0 0%, #e6f3ff 100%); color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        .header { text-align: center; margin-bottom: 60px; }
+        .logo { font-size: 60px; margin-bottom: 20px; }
+        .header h1 { font-size: 44px; background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 50%, #6bcf7f 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 15px; font-weight: 800; }
+        .header p { font-size: 16px; color: #666; max-width: 600px; margin: 0 auto; }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-bottom: 60px; }
+        .card { background: white; border-radius: 20px; padding: 35px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); border: 3px solid transparent; transition: all 0.3s; }
+        .card.card1 { border-color: #ff6b6b; }
+        .card.card2 { border-color: #4ecdc4; }
+        .card.card3 { border-color: #ffd93d; }
+        .card:hover { transform: translateY(-12px); box-shadow: 0 16px 40px rgba(0,0,0,0.12); }
+        .card-icon { font-size: 50px; margin-bottom: 15px; }
+        .card-title { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
+        .card-title.title1 { color: #ff6b6b; }
+        .card-title.title2 { color: #4ecdc4; }
+        .card-title.title3 { color: #ffd93d; }
+        .card-desc { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 20px; }
+        .btn { display: inline-block; padding: 12px 28px; border-radius: 12px; font-weight: 600; text-decoration: none; font-size: 14px; }
+        .btn1 { background: linear-gradient(135deg, #ff6b6b, #ff8c8c); color: white; }
+        .btn2 { background: linear-gradient(135deg, #4ecdc4, #44b8a3); color: white; }
+        .btn3 { background: linear-gradient(135deg, #ffd93d, #ffed4e); color: #333; }
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
+        .feature-box { background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+        .feature-icon { font-size: 32px; margin-bottom: 10px; }
+        .feature-name { font-size: 12px; font-weight: 600; color: #333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🎯</div>
+            <h1>Markt-Match 5</h1>
+            <p>Lerne spielend, wie Märkte funktionieren. Spiele gegen echte Konkurrenz und entwickle deine Business-Strategie!</p>
+        </div>
+        
+        <div class="cards-grid">
+            <div class="card card1">
+                <div class="card-icon">🚀</div>
+                <div class="card-title title1">Spiel erstellen</div>
+                <p class="card-desc">Starte ein neues Multiplayer-Spiel für dein Team oder spiel solo im Einzelspieler-Modus.</p>
+                <a href="#" class="btn btn1">Los geht's!</a>
+            </div>
+            <div class="card card2">
+                <div class="card-icon">🎮</div>
+                <div class="card-title title2">Spiel beitreten</div>
+                <p class="card-desc">Tritt einem laufenden Spiel bei, gib deinen Code ein und treffe strategische Entscheidungen.</p>
+                <a href="#" class="btn btn2">Beitreten</a>
+            </div>
+            <div class="card card3">
+                <div class="card-icon">📊</div>
+                <div class="card-title title3">Spielleitung</div>
+                <p class="card-desc">Verwalte dein Spiel, steuere die Perioden und schau dir alle Ergebnisse an.</p>
+                <a href="#" class="btn btn3">Verwalten</a>
+            </div>
+        </div>
+        
+        <div class="features">
+            <div class="feature-box">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-name">Kostenlos</div>
+            </div>
+            <div class="feature-box">
+                <div class="feature-icon">🌐</div>
+                <div class="feature-name">Im Browser</div>
+            </div>
+            <div class="feature-box">
+                <div class="feature-icon">📱</div>
+                <div class="feature-name">Mobil-freundlich</div>
+            </div>
+            <div class="feature-box">
+                <div class="feature-icon">📈</div>
+                <div class="feature-name">Live-Ergebnisse</div>
+            </div>
+            <div class="feature-box">
+                <div class="feature-icon">👥</div>
+                <div class="feature-name">Multiplayer</div>
+            </div>
+            <div class="feature-box">
+                <div class="feature-icon">🎓</div>
+                <div class="feature-name">Lehrreich</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+                    '></iframe>
+                </div>
+                <div class="concept-info">
+                    <div class="concept-title">Konzept 3: Playful & Colorful (Multicolor)</div>
+                    <div class="concept-description">
+                        Verspieltes, modernes Design mit farbigen Gradient-Buttons und großen Icons. Jede CTA-Card hat eine eigene Farbe. Sehr lebendig und ansprechend für unterschiedliche Zielgruppen.
+                    </div>
+                    <div class="concept-features">
+                        <strong>Merkmale:</strong>
+                        <ul>
+                            <li>Farbige Gradient-Buttons (Rot, Cyan, Gelb)</li>
+                            <li>3 große CTA-Cards (Spielleitung hinzugefügt!)</li>
+                            <li>Feature-Grid mit Icons</li>
+                            <li>Lebendig, modern, freundlich</li>
+                            <li>Hoher visueller Kontrast</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            <strong>💡 Deine Feedback:</strong> Welches Design spricht dich an? Magst du die minimalistische Eleganz (Konzept 1), den Business-Look (Konzept 2) oder die verspielten Farben (Konzept 3)? Oder möchtest du eine Mischung/Variation?
+        </div>
+    </div>
+</body>
+</html>
