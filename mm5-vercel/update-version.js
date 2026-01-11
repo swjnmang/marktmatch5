@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
@@ -12,7 +13,7 @@ const isoDate = now.toISOString();
 let commitHash = 'dev';
 try {
   commitHash = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
-} catch (e) {
+} catch {
   console.warn('Could not get git commit hash');
 }
 

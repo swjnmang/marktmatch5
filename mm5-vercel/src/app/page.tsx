@@ -6,14 +6,16 @@ import { useEffect, useState } from "react";
 import { getTheme, type ThemeName } from "@/lib/themes";
 
 export default function Home() {
-  const [theme, setTheme] = useState(getTheme());
-  const [mounted, setMounted] = useState(false);
+  const [theme] = useState(() => {
+    if (typeof window !== "undefined") {
+      const savedTheme = (localStorage.getItem("theme") as ThemeName) || "light";
+      return getTheme(savedTheme);
+    }
+    return getTheme();
+  });
+  const mounted = typeof window !== "undefined";
 
-  useEffect(() => {
-    setMounted(true);
-    const savedTheme = (localStorage.getItem("theme") as ThemeName) || "light";
-    setTheme(getTheme(savedTheme));
-  }, []);
+  // Theme is initialized lazily from localStorage; no effect needed.
 
   if (!mounted) return null;
 

@@ -1,15 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useSearchParams, useRouter } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { db } from "@/lib/firebase";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection } from "firebase/firestore";
 import { GruppeGameForm } from "../game-form";
 
 export function GruppeGameWrapper() {
   const params = useParams();
   const searchParams = useSearchParams();
-  const router = useRouter();
   const gameId = params.gameId as string;
   const pinFromUrl = searchParams.get("pin");
   const [validated, setValidated] = useState(false);
@@ -35,14 +34,15 @@ export function GruppeGameWrapper() {
 
       // Validate PIN and join
       try {
-        const groupsRef = collection(db, "games", gameId, "groups");
+        // const groupsRef = collection(db, "games", gameId, "groups");
         // In a real app, you'd validate the PIN against game settings
         // For now, we'll just mark as validated and let the form complete the join
         localStorage.setItem(`pending_pin_${gameId}`, pinFromUrl);
         setValidated(true);
         setValidating(false);
-      } catch (err: any) {
-        setError(`Validierung fehlgeschlagen: ${err.message}`);
+      } catch (err: unknown) {
+        const msg = err && typeof err === "object" && "message" in err ? String((err as Error).message) : "Unbekannter Fehler";
+        setError(`Validierung fehlgeschlagen: ${msg}`);
         setValidating(false);
       }
     };

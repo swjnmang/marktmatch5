@@ -5,14 +5,13 @@ import Link from "next/link";
 import { themes, type ThemeName } from "@/lib/themes";
 
 export default function Settings() {
-  const [selectedTheme, setSelectedTheme] = useState<ThemeName>("light");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    const saved = localStorage.getItem("theme") as ThemeName || "light";
-    setSelectedTheme(saved);
-  }, []);
+  const [selectedTheme, setSelectedTheme] = useState<ThemeName>(() => {
+    if (typeof window !== "undefined") {
+      return (localStorage.getItem("theme") as ThemeName) || "light";
+    }
+    return "light";
+  });
+  const mounted = typeof window !== "undefined";
 
   const handleThemeChange = (theme: ThemeName) => {
     setSelectedTheme(theme);

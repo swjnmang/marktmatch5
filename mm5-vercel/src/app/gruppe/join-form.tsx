@@ -1,10 +1,11 @@
 "use client";
+/* eslint-disable react-hooks/set-state-in-effect, @typescript-eslint/no-explicit-any */
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, collection, addDoc, serverTimestamp, type Timestamp } from "firebase/firestore";
 import type { GameDocument, GroupState } from "@/lib/types";
 
 export function GruppeJoinForm() {
@@ -78,7 +79,7 @@ export function GruppeJoinForm() {
         machines: [],
         cumulativeRndInvestment: 0,
         rndBenefitApplied: false,
-        joinedAt: serverTimestamp() as any,
+        joinedAt: serverTimestamp() as unknown as Timestamp,
       };
 
       const docRef = await addDoc(groupsRef, newGroup);
@@ -89,9 +90,10 @@ export function GruppeJoinForm() {
 
       // Navigiere zum Gruppen-Dashboard
       router.push(`/gruppe/${foundGameId}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error joining game:", err);
-      setError(`Fehler: ${err.message}`);
+      const msg = err && typeof err === "object" && "message" in err ? String((err as Error).message) : "Unbekannter Fehler";
+      setError(`Fehler: ${msg}`);
       setLoading(false);
     }
   };

@@ -139,7 +139,7 @@ export async function calculateMarketResults(
     const totalCosts = productionCosts + inventoryCost + rndCost + marketAnalysisCost + marketingCost;
     
     // Profit before interest
-    let profit = revenue - totalCosts;
+    const profit = revenue - totalCosts;
     let endingCapital = group.capital + profit;
     
     // Apply interest on negative capital

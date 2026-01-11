@@ -1,3 +1,5 @@
+import type { Timestamp } from "firebase/firestore";
+
 export type MarketPreset = "easy" | "medium" | "hard";
 
 export interface GameParameters {
@@ -49,7 +51,7 @@ export interface GroupState {
   rndBenefitApplied: boolean;
   status: "waiting" | "ready" | "submitted" | "calculated" | "selecting";
   selectedMachine?: string;
-  joinedAt?: any; // Firestore Timestamp
+  joinedAt?: Timestamp; // Firestore Timestamp
   lastResult?: PeriodResult;
   isAI?: boolean; // Flag for AI-controlled groups in Solo mode
   aiStrategy?: "aggressive" | "conservative" | "balanced" | "innovative";
@@ -66,7 +68,7 @@ export interface PeriodDecision {
   buyMarketAnalysis: boolean;
   rndInvestment: number;
   newMachine: string;
-  submittedAt?: any; // Firestore Timestamp
+  submittedAt?: Timestamp; // Firestore Timestamp
 }
 
 export interface PeriodResult {
@@ -102,7 +104,7 @@ export interface GameDocument {
   phaseEndsAt?: number;
   allowMachinePurchase?: boolean;
   activePeriodActions?: PeriodActions;
-  createdAt?: any; // Firestore Timestamp
+  createdAt?: Timestamp; // Firestore Timestamp
   isSoloMode?: boolean; // Flag for Solo mode games
   humanGroupId?: string; // ID of the human player's group in Solo mode
 }
@@ -111,5 +113,5 @@ export interface SpecialTask {
   period: number;
   title: string;
   description: string;
-  createdAt?: any; // Firestore Timestamp
+  createdAt?: Timestamp; // Firestore Timestamp
 }

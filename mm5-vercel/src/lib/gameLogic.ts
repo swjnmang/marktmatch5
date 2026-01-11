@@ -118,7 +118,7 @@ export function calculateMarket(
 
     // Maschinenkauf
     let machineCost = 0;
-    let newMachines = [...groupState.machines];
+    const newMachines = [...groupState.machines];
     if (decision.newMachine) {
       const machine = MACHINE_OPTIONS.find((m) => m.name === decision.newMachine);
       if (machine) {
