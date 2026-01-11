@@ -2,113 +2,97 @@
 
 import Link from "next/link";
 import { VERSION } from "@/lib/version";
-import { useEffect, useState } from "react";
-import { getTheme, type ThemeName } from "@/lib/themes";
+import { ui } from "@/lib/ui";
 
 export default function Home() {
-  const [theme] = useState(() => {
-    if (typeof window !== "undefined") {
-      const savedTheme = (localStorage.getItem("theme") as ThemeName) || "light";
-      return getTheme(savedTheme);
-    }
-    return getTheme();
-  });
-  const mounted = typeof window !== "undefined";
-
-  // Theme is initialized lazily from localStorage; no effect needed.
-
-  if (!mounted) return null;
-
   return (
-    <main className={`relative min-h-screen overflow-hidden ${theme.bgGradient}`}>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(14,165,233,0.08),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(37,99,235,0.08),transparent_25%)]" />
-      <div className="relative mx-auto flex max-w-6xl flex-col gap-12 px-6 py-16 sm:px-10">
-        <header className="flex flex-col gap-3 sm:gap-4">
-          <h1 className={`text-3xl font-bold leading-tight ${theme.text} sm:text-4xl lg:text-5xl`}>
-            Markt-Match 5 – ein Wirtschaftsplanspiel für Einsteiger
+    <main className={ui.page.shell}>
+      <div className={ui.page.overlay} />
+      <div className={ui.page.wideContainer}>
+        <header className="space-y-4">
+          <h1 className={ui.header.title}>
+            Markt-Match 5 – Wirtschaftsplanspiel für Schulen & Trainings
           </h1>
-          <p className={`text-base ${theme.subtext} sm:text-lg leading-relaxed text-justify`}>
-            Willkommen bei Markt-Match 5! In diesem digitalen Unternehmensplanspiel gründet ihr eure eigene Firma zur Produktion günstiger Smartwatches für eine junge Zielgruppe. Als Unternehmer trefft ihr wichtige Entscheidungen: Welche Produktionsmaschine kaufen? Wie viele Einheiten produzieren? Zu welchem Preis verkaufen? Investieren in Marketing oder Forschung & Entwicklung?
-          </p>
-          <p className={`text-base ${theme.subtext} sm:text-lg text-justify`}>
-            Wetteifert mit anderen Gruppen am Markt, optimiert eure Strategie über mehrere Perioden und versucht, den größten Gewinn zu erzielen. Die Spielleitung steuert das Spiel über ein Dashboard, verteilt Codes und gibt die Ergebnisse frei – alles digital im Browser.
+          <p className={ui.header.subtitle}>
+            Gründe dein eigenes Unternehmen, triff strategische Entscheidungen und konkurriere mit anderen Gruppen. Alles digital im Browser – kostenlos und ohne Installation.
           </p>
         </header>
 
-        <section className="grid gap-6 grid-cols-1">
-          <div className={`space-y-4 rounded-2xl ${theme.card} p-8 shadow-lg ring-1 ${theme.cardBorder}`}>
-            <h2 className={`text-xl font-semibold ${theme.text}`}>Rollen wählen</h2>
-            <p className={theme.subtext}>
-              Starte ein neues Spiel oder tritt einem bestehenden Spiel bei.
+
+        <section className="space-y-6">
+          <div className="space-y-3">
+            <h2 className={ui.section.title}>Was ist Markt-Match 5?</h2>
+            <p className={ui.text.secondary}>
+              Ein digitales Planspiel für Schulen und Universitäten. Gruppen gründen ihre eigene Smartwatch-Fabrik und treffen realistische unternehmerische Entscheidungen über mehrere Spielperioden. Der Spielleiter kontrolliert das Spiel über ein intuitives Dashboard und teilt Gruppen-Codes aus. Perfekt für Wirtschaftsunterricht, Workshops und betriebliche Trainings.
             </p>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Link
-                href="/spiel-erstellen"
-                className={`group flex flex-col gap-2 rounded-xl ${theme.name === "dark" ? "bg-gray-800" : theme.accentLight} px-5 py-4 ring-1 ${theme.name === "dark" ? "ring-gray-700" : "ring-sky-100"} transition hover:-translate-y-0.5 hover:shadow-md`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className={`text-base font-semibold ${theme.name === "dark" ? "text-white" : "text-sky-900"}`}>Spiel erstellen</span>
-                  <span className={`text-lg ${theme.name === "dark" ? "text-green-400" : "text-green-500"} group-hover:scale-110 transition`}>
-                    ▶️
-                  </span>
-                </div>
-                <p className={`text-sm ${theme.name === "dark" ? "text-gray-300" : "text-sky-900/80"}`}>
-                  Starte ein Multiplayer-Spiel für Gruppen oder spiele allein im Solo-Modus.
-                </p>
-              </Link>
-              <Link
-                href="/gruppe"
-                className={`group flex flex-col gap-2 rounded-xl ${theme.card} px-5 py-4 ring-1 ${theme.cardBorder} transition hover:-translate-y-0.5 hover:shadow-md`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className={`text-base font-semibold ${theme.text}`}>Spiel beitreten</span>
-                  <span className={`text-lg ${theme.subtext} group-hover:scale-110 transition`}>
-                    👥
-                  </span>
-                </div>
-                <p className={`text-sm ${theme.subtext}`}>
-                  Tritt einem laufenden Spiel bei und gib deine Entscheidungen ab.
-                </p>
-              </Link>
-            </div>
-            <div className="mt-6 grid gap-4 sm:grid-cols-3">
-              <div className="rounded-xl bg-white/70 backdrop-blur p-4 ring-1 ring-white/30">
-                <p className="text-sm font-semibold text-slate-900">Kostenlos & im Browser</p>
-                <p className="text-xs text-slate-600">Keine Installation. Ideal für Schule, Workshops und Trainings.</p>
-              </div>
-              <div className="rounded-xl bg-white/70 backdrop-blur p-4 ring-1 ring-white/30">
-                <p className="text-sm font-semibold text-slate-900">Mehrere Rollen</p>
-                <p className="text-xs text-slate-600">Gruppe, Spielleitung, Solo – klare Abläufe und Auswertungen.</p>
-              </div>
-              <div className="rounded-xl bg-white/70 backdrop-blur p-4 ring-1 ring-white/30">
-                <p className="text-sm font-semibold text-slate-900">Realistische Entscheidungen</p>
-                <p className="text-xs text-slate-600">Produktion, Preis, Lager & Markt mit nachvollziehbarer Logik.</p>
-              </div>
-            </div>
           </div>
 
+          {/* Main CTAs */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Link
+              href="/spiel-erstellen"
+              className={`group flex flex-col gap-3 ${ui.card.padded} transition hover:-translate-y-1 hover:ring-white/20`}
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold text-white">Spiel erstellen</h3>
+                <span className="text-3xl group-hover:scale-110 transition">▶️</span>
+              </div>
+              <p className={ui.text.secondary}>
+                Starten Sie ein Multiplayer-Spiel für Ihre Gruppen oder spielen Sie solo gegen KI-Gegner.
+              </p>
+            </Link>
+
+            <Link
+              href="/gruppe"
+              className={`group flex flex-col gap-3 ${ui.card.padded} transition hover:-translate-y-1 hover:ring-white/20`}
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold text-white">Spiel beitreten</h3>
+                <span className="text-3xl group-hover:scale-110 transition">👥</span>
+              </div>
+              <p className={ui.text.secondary}>
+                Treten Sie einem laufenden Spiel bei und geben Sie Ihre Entscheidungen ab.
+              </p>
+            </Link>
+          </div>
+
+          {/* Feature Pills */}
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className={ui.card.base + " " + ui.card.padded}>
+              <p className="font-semibold text-white mb-1">✨ Kostenlos & im Browser</p>
+              <p className={ui.text.muted}>Keine Installation. Funktioniert auf jedem Gerät.</p>
+            </div>
+            <div className={ui.card.base + " " + ui.card.padded}>
+              <p className="font-semibold text-white mb-1">👨‍💼 Mehrere Rollen</p>
+              <p className={ui.text.muted}>Gruppe, Spielleitung, Solo – klare Strukturen.</p>
+            </div>
+            <div className={ui.card.base + " " + ui.card.padded}>
+              <p className="font-semibold text-white mb-1">📊 Realistische Logik</p>
+              <p className={ui.text.muted}>Produktion, Preis, Lager & Markt mit Simulationen.</p>
+            </div>
+          </div>
         </section>
 
         {/* Footer Links */}
-        <div className="flex flex-wrap items-center justify-center gap-4 text-center text-xs text-slate-400">
+        <div className="flex flex-wrap items-center justify-center gap-4 text-center text-xs text-slate-300">
           <Link
             href="/admin"
-            className="hover:text-slate-600 transition"
+            className={ui.header.backLink}
           >
             Master Admin
           </Link>
-          <span className="text-slate-300">•</span>
+          <span className="text-slate-500">•</span>
           <button
             onClick={() => {
               const modal = document.getElementById('impressum-modal');
               if (modal) modal.classList.remove('hidden');
             }}
-            className="hover:text-slate-600 transition"
+            className={ui.header.backLink}
           >
             Impressum
           </button>
-          <span className="text-slate-300">•</span>
-          <span>Letzte Aktualisierung: {VERSION.date}, {VERSION.time} Uhr</span>
+          <span className="text-slate-500">•</span>
+          <span className="text-slate-400">Letzte Aktualisierung: {VERSION.date}, {VERSION.time} Uhr</span>
         </div>
 
         {/* Impressum Modal */}
@@ -122,34 +106,34 @@ export default function Home() {
             }
           }}
         >
-          <div className="relative max-w-lg mx-4 bg-white rounded-2xl shadow-2xl p-8 ring-1 ring-slate-200">
+          <div className={`relative max-w-lg mx-4 ${ui.card.padded} ring-1 ring-white/10`}>
             <button
               onClick={() => {
                 const modal = document.getElementById('impressum-modal');
                 if (modal) modal.classList.add('hidden');
               }}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition"
+              className="absolute top-4 right-4 text-slate-300 hover:text-white transition"
             >
               ✕
             </button>
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">Impressum</h2>
-            <div className="space-y-4 text-sm text-slate-700">
+            <h2 className="text-2xl font-bold text-white mb-6">Impressum</h2>
+            <div className="space-y-4 text-sm text-slate-200">
               <div>
-                <p className="font-semibold text-slate-900 mb-1">Angaben gemäß § 5 TMG</p>
+                <p className="font-semibold text-white mb-1">Angaben gemäß § 5 TMG</p>
                 <p>Jonathan Mangold</p>
                 <p>c/o Schenkenstraße 10</p>
                 <p>74544 Michelbach, Deutschland</p>
               </div>
               <div>
-                <p className="font-semibold text-slate-900 mb-1">Vertreten durch</p>
+                <p className="font-semibold text-white mb-1">Vertreten durch</p>
                 <p>Jonathan Mangold</p>
               </div>
               <div>
-                <p className="font-semibold text-slate-900 mb-1">Kontakt</p>
-                <p>E-Mail: <a href="mailto:info@nachhilfe-wirtschaftsschule.de" className="text-sky-600 hover:underline">info@nachhilfe-wirtschaftsschule.de</a></p>
+                <p className="font-semibold text-white mb-1">Kontakt</p>
+                <p>E-Mail: <a href="mailto:info@nachhilfe-wirtschaftsschule.de" className="text-sky-300 hover:text-sky-200 underline">info@nachhilfe-wirtschaftsschule.de</a></p>
               </div>
               <div>
-                <p className="font-semibold text-slate-900 mb-1">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</p>
+                <p className="font-semibold text-white mb-1">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</p>
                 <p>Jonathan Mangold (Anschrift wie oben)</p>
               </div>
             </div>
