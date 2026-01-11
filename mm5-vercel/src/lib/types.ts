@@ -102,6 +102,7 @@ export interface GameDocument {
   status: "lobby" | "in_progress" | "finished";
   phase?: "machine_selection" | "decisions" | "results";
   phaseEndsAt?: number;
+  periodDeadline?: number; // Timestamp when current period decision phase ends
   allowMachinePurchase?: boolean;
   activePeriodActions?: PeriodActions;
   createdAt?: Timestamp; // Firestore Timestamp

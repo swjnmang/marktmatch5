@@ -11,6 +11,7 @@ import { checkPinFromLocalStorage } from "@/lib/auth";
 import { PREDEFINED_TASKS } from "@/lib/special-tasks";
 import type { GameDocument, GroupState, PeriodDecision, SpecialTask } from "@/lib/types";
 import { calculateMarket, type MarketCalculationInput } from "@/lib/gameLogic";
+import { PeriodTimer } from "@/components/PeriodTimer";
 
 export default function GameDashboardPage() {
   const params = useParams();
@@ -420,11 +421,6 @@ export default function GameDashboardPage() {
                   <span className="rounded-lg bg-indigo-50 px-2 py-1 text-indigo-700 border border-indigo-200">
                     {game.phase === "machine_selection" ? "Maschinen" : game.phase === "decisions" ? "Entscheidungen" : "Ergebnisse"}
                   </span>
-                  {timeLeft != null && (
-                    <span className="rounded-lg bg-amber-50 px-2 py-1 text-amber-700 border border-amber-200">
-                      {formattedTimeLeft()}
-                    </span>
-                  )}
                   {game.phase === "decisions" && (
                     <span className="rounded-lg bg-emerald-50 px-2 py-1 text-emerald-700 border border-emerald-200">
                       {groups.filter((g) => g.status === "submitted").length}/{groups.length}
@@ -434,6 +430,65 @@ export default function GameDashboardPage() {
               )}
             </div>
           </div>
+
+          {/* Timer-Anzeige für Entscheidungsphase */}
+          {game.status === "in_progress" && game.phase === "decisions" && game.periodDeadline && (
+            <div className="mb-4">
+              <PeriodTimer 
+                deadline={game.periodDeadline} 
+                onExpire={async () => {
+                  // Auto-end period when timer expires
+                  if (!game || calculateLoading) return;
+                  console.log("[Auto-End] Timer abgelaufen, beende Periode automatisch");
+                  setCalculateLoading(true);
+                  setStartError("");
+                  try {
+                    const decisionsSnapshot = await getDocs(collection(db, "games", gameId, "decisions"));
+                    const decisions: { [groupId: string]: PeriodDecision } = {};
+                    decisionsSnapshot.forEach((doc) => {
+                      decisions[doc.id] = doc.data() as PeriodDecision;
+                    });
+
+                    const inputs: MarketCalculationInput[] = groups.map((group) => ({
+                      groupId: group.id,
+                      decision: decisions[group.id],
+                      groupState: group,
+                    }));
+
+                    const results = calculateMarket(game.parameters, game.period, inputs, game.activePeriodActions);
+
+                    const batch = writeBatch(db);
+                    results.forEach((result) => {
+                      batch.update(doc(db, "games", gameId, "groups", result.groupId), {
+                        capital: result.newCapital,
+                        inventory: result.newInventory,
+                        cumulativeProfit: result.newCumulativeProfit,
+                        cumulativeRndInvestment: result.newCumulativeRndInvestment,
+                        rndBenefitApplied: result.newRndBenefitApplied,
+                        machines: result.newMachines,
+                        status: "calculated",
+                        lastResult: result.result,
+                      });
+                    });
+
+                    batch.update(doc(db, "games", gameId), {
+                      phase: "results",
+                      phaseEndsAt: null,
+                      periodDeadline: null,
+                      allowMachinePurchase: false,
+                    });
+
+                    await batch.commit();
+                  } catch (err: any) {
+                    console.error("Error auto-calculating results:", err);
+                    setStartError(`Auto-Berechnung Fehler: ${err.message}`);
+                  } finally {
+                    setCalculateLoading(false);
+                  }
+                }}
+              />
+            </div>
+          )}
 
           <div className="space-y-2">
             {groups.length > 0 ? (
@@ -762,7 +817,7 @@ export default function GameDashboardPage() {
                   ⏳ Warte auf Gruppen: Alle müssen die Spielanleitung bestätigen, bevor es weitergeht.
                 </p>
               )}
-              <button
+<button
                 disabled={!canAdvanceAfterSelection || startLoading}
                 onClick={async () => {
                   if (!game) return;
@@ -774,6 +829,7 @@ export default function GameDashboardPage() {
                     batch.update(doc(db, "games", gameId), {
                       phase: "decisions",
                       phaseEndsAt: endsAt,
+                      periodDeadline: endsAt,
                     });
                     groups.forEach((g) => {
                       batch.update(doc(db, "games", gameId, "groups", g.id), { status: "waiting" });
@@ -838,6 +894,7 @@ export default function GameDashboardPage() {
                   batch.update(doc(db, "games", gameId), {
                     phase: "results",
                     phaseEndsAt: null,
+                    periodDeadline: null,
                     allowMachinePurchase: false,
                   });
 

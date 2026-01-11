@@ -8,6 +8,7 @@ import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, addDoc, serverTimestamp, updateDoc, onSnapshot, setDoc, getDocs } from "firebase/firestore";
 import { checkPinFromLocalStorage } from "@/lib/auth";
 import type { GameDocument, GroupState, Machine, PeriodDecision, SpecialTask } from "@/lib/types";
+import { PeriodTimer } from "@/components/PeriodTimer";
 
 const MACHINE_OPTIONS: Machine[] = [
   { name: "SmartMini-Fertiger", cost: 5000, capacity: 100, variableCostPerUnit: 6 },
@@ -43,6 +44,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   const [calculating, setCalculating] = useState(false);
   const [currentDecision, setCurrentDecision] = useState<PeriodDecision | null>(null);
   const [otherGroups, setOtherGroups] = useState<GroupState[]>([]);
+  const [showDataMenu, setShowDataMenu] = useState(false);
 
   const activeActions = game?.activePeriodActions;
   const showActiveActions =
@@ -973,15 +975,111 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
               {game.phase === "decisions" &&
                 groupData &&
                 groupData.status !== "submitted" && (
-                  <form onSubmit={handleDecisionSubmit} className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-6">
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                        Entscheidungen Periode {game.period}
-                      </h3>
-                      <p className="text-sm text-slate-600 leading-relaxed">
-                        Trefft eure strategischen Entscheidungen für diese Periode. Bestimmt die <strong>Produktionsmenge</strong>, die <strong>Verkaufsmengen aus dem Lager</strong> und den <strong>Verkaufspreis</strong>. Optional könnt ihr auch eine <strong>Marktanalyse</strong> kaufen, um mehr über die Konkurrenz zu erfahren.
-                      </p>
+                  <>
+                    {/* Timer-Anzeige */}
+                    {game.periodDeadline && (
+                      <div className="mb-4">
+                        <PeriodTimer deadline={game.periodDeadline} />
+                      </div>
+                    )}
+
+                    {/* Eingeklapptes Datenmenü */}
+                    <div className="mb-4 rounded-lg border border-slate-200 bg-white p-4">
+                      <button
+                        onClick={() => setShowDataMenu(!showDataMenu)}
+                        className="flex w-full items-center justify-between text-left"
+                      >
+                        <h3 className="text-base font-semibold text-slate-900">
+                          {showDataMenu ? "▼" : "▶"} 📊 Meine Daten einsehen
+                        </h3>
+                      </button>
+                      
+                      {showDataMenu && groupData && (
+                        <div className="mt-4 space-y-4">
+                          {/* Aktueller Status */}
+                          <div className="rounded-lg bg-sky-50 p-4 border border-sky-200">
+                            <h4 className="text-sm font-semibold text-sky-900 mb-2">💰 Finanzen</h4>
+                            <div className="space-y-1 text-sm">
+                              <p className="flex justify-between">
+                                <span className="text-slate-700">Kapital:</span>
+                                <span className="font-semibold text-slate-900">€{groupData.capital.toLocaleString("de-DE")}</span>
+                              </p>
+                              <p className="flex justify-between">
+                                <span className="text-slate-700">Kumulierter Gewinn:</span>
+                                <span className={`font-semibold ${groupData.cumulativeProfit >= 0 ? "text-emerald-700" : "text-red-700"}`}>
+                                  €{groupData.cumulativeProfit.toLocaleString("de-DE")}
+                                </span>
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Lager & Produktion */}
+                          <div className="rounded-lg bg-amber-50 p-4 border border-amber-200">
+                            <h4 className="text-sm font-semibold text-amber-900 mb-2">📦 Lager & Produktion</h4>
+                            <div className="space-y-1 text-sm">
+                              <p className="flex justify-between">
+                                <span className="text-slate-700">Lagerbestand:</span>
+                                <span className="font-semibold text-slate-900">{groupData.inventory} Einheiten</span>
+                              </p>
+                              <p className="flex justify-between">
+                                <span className="text-slate-700">Produktionskapazität:</span>
+                                <span className="font-semibold text-slate-900">
+                                  {groupData.machines.reduce((sum, m) => sum + m.capacity, 0)} Einheiten
+                                </span>
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Letzte Periode */}
+                          {groupData.lastResult && (
+                            <div className="rounded-lg bg-purple-50 p-4 border border-purple-200">
+                              <h4 className="text-sm font-semibold text-purple-900 mb-2">📈 Letzte Periode</h4>
+                              <div className="space-y-1 text-sm">
+                                <p className="flex justify-between">
+                                  <span className="text-slate-700">Verkaufte Menge:</span>
+                                  <span className="font-semibold text-slate-900">{groupData.lastResult.soldUnits} Einheiten</span>
+                                </p>
+                                <p className="flex justify-between">
+                                  <span className="text-slate-700">Umsatz:</span>
+                                  <span className="font-semibold text-slate-900">€{groupData.lastResult.revenue.toLocaleString("de-DE")}</span>
+                                </p>
+                                <p className="flex justify-between">
+                                  <span className="text-slate-700">Gewinn:</span>
+                                  <span className={`font-semibold ${groupData.lastResult.profit >= 0 ? "text-emerald-700" : "text-red-700"}`}>
+                                    €{groupData.lastResult.profit.toLocaleString("de-DE")}
+                                  </span>
+                                </p>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Maschinen */}
+                          <div className="rounded-lg bg-slate-50 p-4 border border-slate-200">
+                            <h4 className="text-sm font-semibold text-slate-900 mb-2">⚙️ Maschinen</h4>
+                            <div className="space-y-2">
+                              {groupData.machines.map((m, idx) => (
+                                <div key={idx} className="text-xs bg-white p-2 rounded border border-slate-200">
+                                  <p className="font-semibold text-slate-900">{m.name}</p>
+                                  <p className="text-slate-600">
+                                    Kapazität: {m.capacity} | Variable Kosten: €{m.variableCostPerUnit}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
+
+                    <form onSubmit={handleDecisionSubmit} className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-6">
+                      <div>
+                        <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                          Entscheidungen Periode {game.period}
+                        </h3>
+                        <p className="text-sm text-slate-600 leading-relaxed">
+                          Trefft eure strategischen Entscheidungen für diese Periode. Bestimmt die <strong>Produktionsmenge</strong>, die <strong>Verkaufsmengen aus dem Lager</strong> und den <strong>Verkaufspreis</strong>. Optional könnt ihr auch eine <strong>Marktanalyse</strong> kaufen, um mehr über die Konkurrenz zu erfahren.
+                        </p>
+                      </div>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <label className="flex flex-col gap-1 text-sm text-slate-700">
                         Produktionsmenge
@@ -1056,11 +1154,17 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                       {decisionLoading ? "Wird eingereicht..." : "Entscheidungen einreichen"}
                     </button>
                   </form>
+                  </>
                 )}
 
               {/* Waiting for Other Groups After Decision Submitted */}
               {game.phase === "decisions" && groupData?.status === "submitted" && (
                 <div className="flex flex-col gap-4">
+                  {/* Timer-Anzeige auch nach Submission */}
+                  {game.periodDeadline && (
+                    <PeriodTimer deadline={game.periodDeadline} />
+                  )}
+
                   <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-slate-50 p-6 text-center">
                     <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-purple-200 border-t-purple-600"></div>
                     <h3 className="text-lg font-semibold text-slate-900">
