@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, type Timestamp } from "firebase/firestore";
 import type { GameDocument, GroupState } from "@/lib/types";
 
 const DEFAULT_PARAMETERS = {
@@ -57,7 +57,7 @@ export default function SoloModePage() {
         status: "in_progress",
         phase: "machine_selection",
         phaseEndsAt: Date.now() + 300000, // 5 minutes
-        createdAt: serverTimestamp(),
+        createdAt: serverTimestamp() as unknown as Timestamp,
         isSoloMode: true,
       };
 

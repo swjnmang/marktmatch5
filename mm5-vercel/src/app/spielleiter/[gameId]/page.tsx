@@ -6,7 +6,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { db } from "@/lib/firebase";
-import { doc, collection, onSnapshot, updateDoc, writeBatch, getDocs, setDoc, deleteDoc } from "firebase/firestore";
+import { doc, collection, onSnapshot, updateDoc, writeBatch, getDocs, setDoc, deleteDoc, type Timestamp } from "firebase/firestore";
 import { checkPinFromLocalStorage } from "@/lib/auth";
 import { PREDEFINED_TASKS } from "@/lib/special-tasks";
 import type { GameDocument, GroupState, PeriodDecision, SpecialTask } from "@/lib/types";
@@ -213,7 +213,7 @@ export default function GameDashboardPage() {
         period: game.period,
         title,
         description,
-        createdAt: new Date()
+        createdAt: new Date() as unknown as Timestamp
       };
       
       batch.set(
@@ -946,11 +946,11 @@ export default function GameDashboardPage() {
 
               <div className="p-6 space-y-4">
                 {/* Predefined Tasks */}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+                <div>
+                  <label className="block text-sm font-semibold text-slate-900 mb-3">Vorgefertigte Aufträge:</label>
+                  <div className="space-y-2">
+                    {PREDEFINED_TASKS.map((task) => (
+                      <label
                         key={task.id}
                         className="flex items-start gap-3 rounded-lg border border-slate-200 p-3 cursor-pointer hover:bg-sky-50"
                       >
