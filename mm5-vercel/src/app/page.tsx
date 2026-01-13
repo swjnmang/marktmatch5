@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { VERSION } from "@/lib/version";
+import ScreenshotSlider from "@/components/ScreenshotSlider";
 
 export default function Home() {
   return (
@@ -101,6 +102,12 @@ export default function Home() {
               <strong>Konkurrieren:</strong> Übertrumpfe andere Teams mit cleverer Strategie
             </li>
           </ul>
+        </div>
+
+        {/* Screenshot Slider */}
+        <div className="mb-20">
+          <h3 className="mb-8 text-2xl font-bold text-neutral-800 text-center">📸 Schau dir das Spiel in Aktion an</h3>
+          <ScreenshotSlider />
         </div>
 
         {/* Footer */}

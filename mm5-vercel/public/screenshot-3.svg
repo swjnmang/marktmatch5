@@ -1,0 +1,82 @@
+<svg viewBox="0 0 1280 800" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <defs>
+    <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f3f4f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d1d5db;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="800" fill="url(#grad3)"/>
+  
+  <!-- Header Bar -->
+  <rect width="1280" height="80" fill="white" opacity="0.9"/>
+  <rect width="1280" height="80" fill="none" stroke="#e5e7eb" stroke-width="2"/>
+  <text x="40" y="50" font-size="28" font-weight="bold" fill="#1f2937">Markt-Match 5</text>
+  <text x="1200" y="50" text-anchor="end" font-size="14" fill="#6b7280">👥 Rangfolge</text>
+  
+  <!-- Main Container -->
+  <rect x="40" y="100" width="1200" height="680" fill="white" rx="12" stroke="#e5e7eb" stroke-width="2"/>
+  
+  <!-- Title -->
+  <text x="60" y="140" font-size="24" font-weight="bold" fill="#1f2937">Aktuelle Rangliste (Periode 5)</text>
+  
+  <!-- Leaderboard Table -->
+  <!-- Header Row -->
+  <rect x="60" y="170" width="1160" height="50" fill="#f3f4f6" rx="6"/>
+  <text x="80" y="205" font-size="12" font-weight="bold" fill="#6b7280">PLATZ</text>
+  <text x="140" y="205" font-size="12" font-weight="bold" fill="#6b7280">TEAM</text>
+  <text x="500" y="205" font-size="12" font-weight="bold" fill="#6b7280">KAPITAL</text>
+  <text x="750" y="205" font-size="12" font-weight="bold" fill="#6b7280">GEWINN</text>
+  <text x="1000" y="205" font-size="12" font-weight="bold" fill="#6b7280">MARKTANTEIL</text>
+  
+  <!-- Row 1 (Gold) -->
+  <rect x="60" y="240" width="1160" height="60" fill="#fef3c7" stroke="#fcd34d" stroke-width="2" rx="6"/>
+  <text x="80" y="278" font-size="18" font-weight="bold" fill="#d97706">🥇 1.</text>
+  <text x="140" y="278" font-size="14" font-weight="bold" fill="#1f2937">Team Blitz</text>
+  <circle cx="150" cy="260" r="8" fill="#3b82f6"/>
+  <text x="500" y="278" font-size="16" font-weight="bold" fill="#059669">€145,800</text>
+  <text x="750" y="278" font-size="14" fill="#10b981">+€28,500</text>
+  <text x="1000" y="278" font-size="14" fill="#1f2937">28%</text>
+  
+  <!-- Row 2 (Silver) - Dein Team -->
+  <rect x="60" y="320" width="1160" height="60" fill="#dbeafe" stroke="#93c5fd" stroke-width="2" rx="6"/>
+  <text x="80" y="358" font-size="18" font-weight="bold" fill="#3b82f6">🥈 2.</text>
+  <text x="140" y="358" font-size="14" font-weight="bold" fill="#1f2937">Dein Team ⭐</text>
+  <circle cx="150" cy="340" r="8" fill="#8b5cf6"/>
+  <text x="500" y="358" font-size="16" font-weight="bold" fill="#059669">€135,200</text>
+  <text x="750" y="358" font-size="14" fill="#10b981">+€15,200</text>
+  <text x="1000" y="358" font-size="14" fill="#1f2937">25%</text>
+  
+  <!-- Row 3 (Bronze) -->
+  <rect x="60" y="400" width="1160" height="60" fill="#d1d5db" stroke="#9ca3af" stroke-width="1" rx="6"/>
+  <text x="80" y="438" font-size="18" font-weight="bold" fill="#6b7280">🥉 3.</text>
+  <text x="140" y="438" font-size="14" font-weight="bold" fill="#1f2937">Team Grün</text>
+  <circle cx="150" cy="420" r="8" fill="#10b981"/>
+  <text x="500" y="438" font-size="16" font-weight="bold" fill="#059669">€127,800</text>
+  <text x="750" y="438" font-size="14" fill="#10b981">+€8,500</text>
+  <text x="1000" y="438" font-size="14" fill="#1f2937">22%</text>
+  
+  <!-- Row 4 -->
+  <rect x="60" y="480" width="1160" height="60" fill="white" stroke="#e5e7eb" stroke-width="1" rx="6"/>
+  <text x="80" y="518" font-size="18" font-weight="bold" fill="#9ca3af">4.</text>
+  <text x="140" y="518" font-size="14" font-weight="bold" fill="#1f2937">Team Rot</text>
+  <circle cx="150" cy="500" r="8" fill="#ef4444"/>
+  <text x="500" y="518" font-size="16" font-weight="bold" fill="#059669">€98,500</text>
+  <text x="750" y="518" font-size="14" fill="#ef4444">-€12,000</text>
+  <text x="1000" y="518" font-size="14" fill="#1f2937">18%</text>
+  
+  <!-- Row 5 -->
+  <rect x="60" y="560" width="1160" height="60" fill="white" stroke="#e5e7eb" stroke-width="1" rx="6"/>
+  <text x="80" y="598" font-size="18" font-weight="bold" fill="#9ca3af">5.</text>
+  <text x="140" y="598" font-size="14" font-weight="bold" fill="#1f2937">Team Alpha</text>
+  <circle cx="150" cy="580" r="8" fill="#f59e0b"/>
+  <text x="500" y="598" font-size="16" font-weight="bold" fill="#059669">€89,200</text>
+  <text x="750" y="598" font-size="14" fill="#ef4444">-€5,800</text>
+  <text x="1000" y="598" font-size="14" fill="#1f2937">7%</text>
+  
+  <!-- Stats Bottom -->
+  <rect x="60" y="650" width="1160" height="100" fill="#f0f9ff" rx="8" border="1px solid #c7d2e0"/>
+  <text x="80" y="680" font-size="14" font-weight="bold" fill="#1f2937">💡 Tipps zur Verbesserung</text>
+  <text x="80" y="710" font-size="12" fill="#6b7280">• Dein Marktanteil ist leicht gestiegen. Halte diese Strategie bei!</text>
+  <text x="80" y="735" font-size="12" fill="#6b7280">• Achte auf die Produktion von Team Blitz - sie erhöhen ihre Kapazität</text>
+</svg>
