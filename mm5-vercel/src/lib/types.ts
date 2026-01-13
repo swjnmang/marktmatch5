@@ -25,6 +25,9 @@ export interface GameParameters {
   // Inverse Preisverteilung Steuerung
   priceExponent?: number; // α: Preissensitivität (z. B. 2)
   maxMarketShareCap?: number; // s_max: Anteilscap pro Anbieter (z. B. 0.5)
+  // Machine Depreciation
+  machineDepreciationEnabled?: boolean; // Enable/disable machine capacity depreciation
+  machineDepreciationRate?: number; // Percentage per period (e.g., 0.10 for 10%)
 }
 
 export interface PeriodActions {
@@ -93,6 +96,8 @@ export interface PeriodResult {
   marketShare?: number;
   averageMarketPrice: number;
   totalMarketDemand: number;
+  // Machine depreciation info
+  machineDepreciationCapacityLost?: number; // Units of capacity lost due to depreciation
 }
 
 export interface GameDocument {

@@ -131,6 +131,27 @@ export function calculateMarket(
       }
     }
 
+    // Machine Depreciation: Reduce capacity if enabled
+    // Calculate capacity lost due to depreciation
+    let capacityLostToDepreciation = 0;
+    const depreciationRate = parameters.machineDepreciationEnabled && parameters.machineDepreciationRate 
+      ? parameters.machineDepreciationRate 
+      : 0;
+
+    if (depreciationRate > 0 && newMachines.length > 0) {
+      // Calculate capacity before depreciation
+      const capacityBefore = newMachines.reduce((sum, m) => sum + m.capacity, 0);
+      
+      // Reduce machine capacity by depreciation rate
+      for (const machine of newMachines) {
+        machine.capacity = Math.max(0, Math.floor(machine.capacity * (1 - depreciationRate)));
+      }
+      
+      // Calculate capacity lost
+      const capacityAfter = newMachines.reduce((sum, m) => sum + m.capacity, 0);
+      capacityLostToDepreciation = capacityBefore - capacityAfter;
+    }
+
     // Marktanalyse
     const hasMarketAnalysis = actions?.freeMarketAnalysis || decision.buyMarketAnalysis;
     const marketAnalysisCost = hasMarketAnalysis ? (actions?.freeMarketAnalysis ? 0 : Math.round(parameters.marketAnalysisCost * 100) / 100) : 0;
@@ -180,6 +201,7 @@ export function calculateMarket(
       marketShare: adjustedDemand > 0 ? Math.round((soldUnits / adjustedDemand) * 100 * 100) / 100 : 0,
       averageMarketPrice: hasMarketAnalysis ? Math.round(avgPrice * 100) / 100 : 0,
       totalMarketDemand: hasMarketAnalysis ? Math.floor(adjustedDemand) : 0,
+      machineDepreciationCapacityLost: capacityLostToDepreciation || undefined,
     };
 
     return {

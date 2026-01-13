@@ -412,6 +412,45 @@ export default function SpielleiterPage() {
                       F&E-Investitionen aktivieren
                     </label>
                   </div>
+                  
+                  {/* Machine Depreciation Section */}
+                  <div className="sm:col-span-2 border-t border-neutral-200 pt-4 mt-4">
+                    <p className="text-xs font-semibold text-neutral-700 mb-3 uppercase tracking-wide">
+                      🏭 Abschreibungen von Maschinen
+                    </p>
+                    <label className="flex items-center gap-2 text-sm text-neutral-700 mb-3">
+                      <input
+                        type="checkbox"
+                        checked={parameters.machineDepreciationEnabled ?? false}
+                        onChange={(e) => handleParameterChange("machineDepreciationEnabled", e.target.checked)}
+                        className="accent-neutral-600"
+                      />
+                      Maschinenabschreibungen aktivieren
+                    </label>
+                    
+                    {(parameters.machineDepreciationEnabled ?? false) && (
+                      <div>
+                        <label className="text-xs font-semibold text-neutral-600">
+                          Abschreibungsrate pro Periode (%)
+                        </label>
+                        <div className="flex gap-2 items-center mt-1">
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="1"
+                            value={(parameters.machineDepreciationRate ?? 0.1) * 100}
+                            onChange={(e) => handleParameterChange("machineDepreciationRate", parseFloat(e.target.value) / 100)}
+                            className="w-full rounded border border-neutral-200 px-2 py-1 text-sm"
+                          />
+                          <span className="text-xs text-neutral-500 min-w-fit">%</span>
+                        </div>
+                        <p className="text-xs text-neutral-500 mt-2">
+                          Standard: 10% pro Periode. Die Produktionskapazität reduziert sich entsprechend.
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 

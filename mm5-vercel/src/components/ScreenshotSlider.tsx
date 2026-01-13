@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
 interface Screenshot {
@@ -35,6 +35,24 @@ const screenshots: Screenshot[] = [
     description: "Der Moderator steuert Perioden, Auswertungen und kann Spezialaufträge vergeben",
     image: "/screenshot-4.svg",
   },
+  {
+    id: 5,
+    title: "Solo-Modus gegen KI-Gegner",
+    description: "Spielen Sie allein gegen intelligente KI-Konkurrenten in verschiedenen Schwierigkeitsstufen",
+    image: "/screenshot-6.svg",
+  },
+  {
+    id: 6,
+    title: "Überwache den Markt in Echtzeit",
+    description: "Analysiere aktuelle Markttrends, Konkurrenzpositionen und FuE-Investitionen während der Periode",
+    image: "/screenshot-7.svg",
+  },
+  {
+    id: 7,
+    title: "Detaillierte Periode-Auswertung",
+    description: "Sehe Umsatz, Gewinne, Marktanteile und Kapazitätsplanung nach jeder Spielrunde",
+    image: "/screenshot-8.svg",
+  },
 ];
 
 export default function ScreenshotSlider() {
@@ -42,12 +60,13 @@ export default function ScreenshotSlider() {
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const isScrollingRef = useRef(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    const scrollDistance = 400; // Breite des Slides + gap
+    const scrollDistance = container.clientWidth; // Vollebreite für einen Slide
     let direction = 1;
 
     const autoScroll = () => {
@@ -61,31 +80,29 @@ export default function ScreenshotSlider() {
         }
 
         container.scrollLeft += scrollDistance * direction;
+        updateCurrentIndex(container);
       }
     };
 
-    // Auto-scroll alle 6 Sekunden
-    scrollIntervalRef.current = setInterval(autoScroll, 6000);
-
-    // Manuelles Scrollen stoppen Auto-Scroll kurzzeitig
-    container.addEventListener("scroll", () => {
-      if (scrollIntervalRef.current) {
-        clearInterval(scrollIntervalRef.current);
-        scrollIntervalRef.current = null;
-      }
-    });
+    // Auto-scroll alle 8 Sekunden
+    scrollIntervalRef.current = setInterval(autoScroll, 8000);
 
     return () => {
       if (scrollIntervalRef.current) clearInterval(scrollIntervalRef.current);
     };
   }, []);
 
+  const updateCurrentIndex = (container: HTMLDivElement) => {
+    const index = Math.round(container.scrollLeft / container.clientWidth);
+    setCurrentIndex(Math.min(index, screenshots.length - 1));
+  };
+
   const scroll = (direction: "left" | "right") => {
     const container = containerRef.current;
     if (!container) return;
 
     isScrollingRef.current = true;
-    const scrollAmount = 400;
+    const scrollAmount = container.clientWidth;
     const targetScroll =
       container.scrollLeft + (direction === "right" ? scrollAmount : -scrollAmount);
 
@@ -96,6 +113,7 @@ export default function ScreenshotSlider() {
 
     setTimeout(() => {
       isScrollingRef.current = false;
+      updateCurrentIndex(container);
     }, 500);
   };
 
@@ -105,32 +123,38 @@ export default function ScreenshotSlider() {
         {/* Slider Container */}
         <div
           ref={containerRef}
-          className="flex gap-6 overflow-x-hidden scroll-smooth"
+          className="w-full overflow-x-hidden scroll-smooth snap-x snap-mandatory flex"
+          onScroll={() => {
+            if (containerRef.current) {
+              updateCurrentIndex(containerRef.current);
+            }
+          }}
         >
           {screenshots.map((screenshot) => (
             <div
               key={screenshot.id}
-              className="relative flex-shrink-0 w-96 transition-transform duration-300 hover:scale-105"
+              className="w-full flex-shrink-0 snap-center"
             >
-              {/* Screenshot Card */}
-              <div className="rounded-xl overflow-hidden shadow-lg border-2 border-neutral-300 hover:border-neutral-500 transition bg-white h-full flex flex-col">
+              {/* Screenshot Card - Full Width */}
+              <div className="rounded-2xl overflow-hidden shadow-xl border-2 border-neutral-300 bg-white h-full flex flex-col mx-auto max-w-5xl">
                 {/* Image Container */}
-                <div className="relative h-48 bg-gradient-to-br from-neutral-100 to-neutral-200 overflow-hidden">
+                <div className="relative h-96 bg-gradient-to-br from-neutral-100 to-neutral-200 overflow-hidden">
                   <Image
                     src={screenshot.image}
                     alt={screenshot.title}
                     fill
                     className="object-cover"
-                    sizes="400px"
+                    sizes="100vw"
+                    priority={screenshot.id === 1}
                   />
                 </div>
 
                 {/* Content */}
-                <div className="p-4 flex flex-col flex-grow">
-                  <h4 className="font-bold text-neutral-900 text-sm mb-2">
+                <div className="p-8 flex flex-col flex-grow">
+                  <h4 className="font-bold text-neutral-900 text-xl mb-3">
                     {screenshot.title}
                   </h4>
-                  <p className="text-xs text-neutral-600 flex-grow">
+                  <p className="text-neutral-600 text-base flex-grow">
                     {screenshot.description}
                   </p>
                 </div>
@@ -142,35 +166,48 @@ export default function ScreenshotSlider() {
         {/* Left Arrow Button */}
         <button
           onClick={() => scroll("left")}
-          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 sm:-translate-x-6 z-10 flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-lg border-2 border-neutral-300 hover:bg-neutral-100 transition group"
+          disabled={currentIndex === 0}
+          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-8 sm:-translate-x-12 z-10 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow-lg border-2 border-neutral-300 hover:bg-neutral-100 transition disabled:opacity-30 disabled:cursor-not-allowed group"
         >
-          <span className="text-neutral-700 font-bold text-lg">←</span>
+          <span className="text-neutral-700 font-bold text-2xl">←</span>
         </button>
 
         {/* Right Arrow Button */}
         <button
           onClick={() => scroll("right")}
-          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 sm:translate-x-6 z-10 flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-lg border-2 border-neutral-300 hover:bg-neutral-100 transition group"
+          disabled={currentIndex === screenshots.length - 1}
+          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-8 sm:translate-x-12 z-10 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow-lg border-2 border-neutral-300 hover:bg-neutral-100 transition disabled:opacity-30 disabled:cursor-not-allowed group"
         >
-          <span className="text-neutral-700 font-bold text-lg">→</span>
+          <span className="text-neutral-700 font-bold text-2xl">→</span>
         </button>
       </div>
 
-      {/* Dots Indicator */}
-      <div className="flex justify-center gap-2 mt-6">
+      {/* Progress Indicator */}
+      <div className="flex justify-center gap-3 mt-8">
         {screenshots.map((_, index) => (
           <div
             key={index}
-            className={`h-2 rounded-full transition-all duration-300 ${
-              index === 0 ? "w-8 bg-neutral-600" : "w-2 bg-neutral-300"
+            className={`transition-all duration-300 ${
+              index === currentIndex
+                ? "w-10 h-3 bg-neutral-700 rounded-full"
+                : "w-3 h-3 bg-neutral-300 rounded-full cursor-pointer hover:bg-neutral-400"
             }`}
+            onClick={() => {
+              const container = containerRef.current;
+              if (container) {
+                container.scrollTo({
+                  left: index * container.clientWidth,
+                  behavior: "smooth",
+                });
+              }
+            }}
           />
         ))}
       </div>
 
       {/* Info Text */}
-      <p className="text-center text-xs text-neutral-500 mt-4">
-        💡 Swipe oder klick auf die Pfeile zum durchschauen
+      <p className="text-center text-sm text-neutral-600 mt-6 font-medium">
+        {currentIndex + 1} / {screenshots.length} • Nutze die Pfeile oder klicke auf die Punkte
       </p>
     </div>
   );

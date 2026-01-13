@@ -1,0 +1,99 @@
+<svg viewBox="0 0 1280 800" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <defs>
+    <linearGradient id="grad8" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f3f4f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d1d5db;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="800" fill="url(#grad8)"/>
+  
+  <!-- Header -->
+  <rect width="1280" height="80" fill="white" opacity="0.9"/>
+  <rect width="1280" height="80" fill="none" stroke="#e5e7eb" stroke-width="2"/>
+  <text x="40" y="50" font-size="28" font-weight="bold" fill="#1f2937">Periode 5 Auswertung</text>
+  <text x="1200" y="50" text-anchor="end" font-size="14" fill="#6b7280">✓ Abgeschlossen</text>
+  
+  <!-- Main Container -->
+  <rect x="40" y="100" width="1200" height="680" fill="white" rx="12" stroke="#e5e7eb" stroke-width="2"/>
+  
+  <!-- Title -->
+  <text x="60" y="140" font-size="18" font-weight="bold" fill="#1f2937">Kennzahlen Übersicht</text>
+  
+  <!-- Stats Grid -->
+  <rect x="60" y="160" width="280" height="120" fill="#f0fdf4" rx="8" stroke="#86efac" stroke-width="2"/>
+  <text x="80" y="185" font-size="12" fill="#6b7280">Umsatz diese Periode</text>
+  <text x="80" y="215" font-size="28" font-weight="bold" fill="#059669">€128,750</text>
+  <text x="80" y="240" font-size="11" fill="#6b7280">+8,2% vs Vorperiode</text>
+  
+  <rect x="360" y="160" width="280" height="120" fill="#fef3c7" rx="8" stroke="#fcd34d" stroke-width="2"/>
+  <text x="380" y="185" font-size="12" fill="#6b7280">Gewinn</text>
+  <text x="380" y="215" font-size="28" font-weight="bold" fill="#d97706">€45,200</text>
+  <text x="380" y="240" font-size="11" fill="#6b7280">+15,5% vs Vorperiode</text>
+  
+  <rect x="660" y="160" width="280" height="120" fill="#dbeafe" rx="8" stroke="#93c5fd" stroke-width="2"/>
+  <text x="680" y="185" font-size="12" fill="#6b7280">Eigenkapital</text>
+  <text x="680" y="215" font-size="28" font-weight="bold" fill="#0369a1">€287,450</text>
+  <text x="680" y="240" font-size="11" fill="#6b7280">Kumuliert ab Start</text>
+  
+  <rect x="960" y="160" width="280" height="120" fill="#f3e8ff" rx="8" stroke="#d8b4fe" stroke-width="2"/>
+  <text x="980" y="185" font-size="12" fill="#6b7280">Marktanteil</text>
+  <text x="980" y="215" font-size="28" font-weight="bold" fill="#7c3aed">32.1%</text>
+  <text x="980" y="240" font-size="11" fill="#6b7280">+3,6pp vs Vorperiode</text>
+  
+  <!-- Performance Section -->
+  <text x="60" y="320" font-size="14" font-weight="bold" fill="#1f2937">Verkaufs-Performance</text>
+  
+  <rect x="60" y="340" width="1200" height="160" fill="#f9fafb" rx="6" stroke="#e5e7eb" stroke-width="1" />
+  
+  <!-- Mini Chart -->
+  <line x1="100" y1="460" x2="1180" y2="460" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="100" y="480" font-size="11" fill="#6b7280">Periode: 1</text>
+  <text x="350" y="480" font-size="11" fill="#6b7280">2</text>
+  <text x="600" y="480" font-size="11" fill="#6b7280">3</text>
+  <text x="850" y="480" font-size="11" fill="#6b7280">4</text>
+  <text x="1100" y="480" font-size="11" fill="#6b7280">5</text>
+  
+  <!-- Bars -->
+  <rect x="110" y="420" width="40" height="40" fill="#3b82f6" rx="2" opacity="0.6"/>
+  <text x="132" y="475" font-size="10" fill="#6b7280" text-anchor="middle">1.850</text>
+  
+  <rect x="360" y="410" width="40" height="50" fill="#3b82f6" rx="2" opacity="0.8"/>
+  <text x="382" y="475" font-size="10" fill="#6b7280" text-anchor="middle">2.100</text>
+  
+  <rect x="610" y="395" width="40" height="65" fill="#3b82f6" rx="2"/>
+  <text x="632" y="475" font-size="10" fill="#6b7280" text-anchor="middle">2.650</text>
+  
+  <rect x="860" y="405" width="40" height="55" fill="#3b82f6" rx="2" opacity="0.9"/>
+  <text x="882" y="475" font-size="10" fill="#6b7280" text-anchor="middle">2.450</text>
+  
+  <rect x="1110" y="390" width="40" height="70" fill="#3b82f6" rx="2"/>
+  <text x="1132" y="475" font-size="10" fill="#6b7280" text-anchor="middle">2.800</text>
+  
+  <text x="100" y="365" font-size="11" fill="#6b7280">Verkaufte Stückzahl</text>
+  
+  <!-- Capacity Section -->
+  <text x="60" y="540" font-size="14" font-weight="bold" fill="#1f2937">Produktionskapazität</text>
+  
+  <rect x="60" y="560" width="1200" height="100" fill="#f9fafb" rx="6" stroke="#e5e7eb" stroke-width="1"/>
+  
+  <rect x="80" y="575" width="340" height="25" fill="white" rx="4" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="95" y="593" font-size="12" fill="#6b7280">Basis-Kapazität</text>
+  <text x="395" y="593" font-size="12" font-weight="bold" fill="#1f2937" text-anchor="end">5.000 Stück</text>
+  
+  <rect x="80" y="605" width="340" height="25" fill="white" rx="4" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="95" y="623" font-size="12" fill="#6b7280">Abschreibungen (10%)</text>
+  <text x="395" y="623" font-size="12" font-weight="bold" fill="#d97706" text-anchor="end">-500 Stück</text>
+  
+  <rect x="460" y="575" width="340" height="25" fill="white" rx="4" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="475" y="593" font-size="12" fill="#6b7280">FuE-Erweiterungen</text>
+  <text x="775" y="593" font-size="12" font-weight="bold" fill="#059669" text-anchor="end">+1.200 Stück</text>
+  
+  <rect x="460" y="605" width="340" height="25" fill="white" rx="4" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="475" y="623" font-size="12" fill="#6b7280">Verbrauchte Kapazität</text>
+  <text x="775" y="623" font-size="12" font-weight="bold" fill="#0369a1" text-anchor="end">2.800 Stück</text>
+  
+  <rect x="840" y="575" width="320" height="25" fill="#dcfce7" rx="4" stroke="#86efac" stroke-width="1"/>
+  <text x="855" y="593" font-size="12" fill="#6b7280">Verfügbare Kapazität</text>
+  <text x="1140" y="593" font-size="12" font-weight="bold" fill="#059669" text-anchor="end">3.700 Stück</text>
+</svg>

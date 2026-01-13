@@ -1,0 +1,68 @@
+<svg viewBox="0 0 1280 800" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <defs>
+    <linearGradient id="grad6" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f3f4f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d1d5db;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="800" fill="url(#grad6)"/>
+  
+  <!-- Header Bar -->
+  <rect width="1280" height="80" fill="white" opacity="0.9"/>
+  <rect width="1280" height="80" fill="none" stroke="#e5e7eb" stroke-width="2"/>
+  <text x="40" y="50" font-size="28" font-weight="bold" fill="#1f2937">Markt-Match 5</text>
+  <text x="1200" y="50" text-anchor="end" font-size="14" fill="#6b7280">💰 Solo-Modus</text>
+  
+  <!-- Main Container -->
+  <rect x="40" y="100" width="1200" height="680" fill="white" rx="12" stroke="#e5e7eb" stroke-width="2"/>
+  
+  <!-- Title -->
+  <text x="60" y="140" font-size="24" font-weight="bold" fill="#1f2937">Spiel gegen KI-Gegner</text>
+  <text x="60" y="170" font-size="14" fill="#6b7280">Solo-Modus: Spielst du gegen 3 intelligente KI-Konkurrenten</text>
+  
+  <!-- Game Setup Grid -->
+  <rect x="60" y="200" width="270" height="140" fill="#f0f9ff" rx="8" stroke="#93c5fd" stroke-width="2"/>
+  <text x="80" y="230" font-size="14" font-weight="bold" fill="#1f2937">Schwierigkeit</text>
+  <circle cx="90" cy="260" r="5" fill="#3b82f6"/>
+  <text x="110" y="265" font-size="12" fill="#6b7280">Einfach - KI trifft durchschnittliche Entscheidungen</text>
+  <circle cx="90" cy="290" r="5" fill="white" stroke="#9ca3af" stroke-width="2"/>
+  <text x="110" y="295" font-size="12" fill="#6b7280">Normal - KI versucht zu konkurrieren</text>
+  
+  <rect x="350" y="200" width="270" height="140" fill="#f0fdf4" rx="8" stroke="#86efac" stroke-width="2"/>
+  <text x="370" y="230" font-size="14" font-weight="bold" fill="#1f2937">Perioden</text>
+  <text x="370" y="260" font-size="28" font-weight="bold" fill="#059669">10</text>
+  <text x="370" y="290" font-size="12" fill="#6b7280">Anzahl der Spielrunden</text>
+  
+  <rect x="640" y="200" width="270" height="140" fill="#fef3c7" rx="8" stroke="#fcd34d" stroke-width="2"/>
+  <text x="660" y="230" font-size="14" font-weight="bold" fill="#1f2937">Startkapital</text>
+  <text x="660" y="260" font-size="28" font-weight="bold" fill="#d97706">€100,000</text>
+  <text x="660" y="290" font-size="12" fill="#6b7280">Gemeinsames Budget mit KI</text>
+  
+  <rect x="930" y="200" width="270" height="140" fill="#f3e8ff" rx="8" stroke="#d8b4fe" stroke-width="2"/>
+  <text x="950" y="230" font-size="14" font-weight="bold" fill="#1f2937">Spielmodus</text>
+  <text x="950" y="260" font-size="16" font-weight="bold" fill="#7c3aed">🤖 Mit KI spielen</text>
+  <text x="950" y="290" font-size="12" fill="#6b7280">Allein gegen Computergegner</text>
+  
+  <!-- AI Opponents -->
+  <text x="60" y="385" font-size="14" font-weight="bold" fill="#1f2937">Deine KI-Konkurrenten:</text>
+  
+  <rect x="60" y="410" width="280" height="90" fill="white" rx="6" stroke="#e5e7eb" stroke-width="1"/>
+  <circle cx="90" cy="445" r="12" fill="#3b82f6"/>
+  <text x="120" y="430" font-size="12" font-weight="bold" fill="#1f2937">🤖 ALPHA</text>
+  <text x="120" y="455" font-size="11" fill="#6b7280">Aggressiver Konkurrenz-Fokus</text>
+  
+  <rect x="360" y="410" width="280" height="90" fill="white" rx="6" stroke="#e5e7eb" stroke-width="1"/>
+  <circle cx="390" cy="445" r="12" fill="#10b981"/>
+  <text x="420" y="430" font-size="12" font-weight="bold" fill="#1f2937">🤖 BALANCE</text>
+  <text x="420" y="455" font-size="11" fill="#6b7280">Gleichgewichtete Strategie</text>
+  
+  <rect x="660" y="410" width="280" height="90" fill="white" rx="6" stroke="#e5e7eb" stroke-width="1"/>
+  <circle cx="690" cy="445" r="12" fill="#f59e0b"/>
+  <text x="720" y="430" font-size="12" font-weight="bold" fill="#1f2937">🤖 MARKETER</text>
+  <text x="720" y="455" font-size="11" fill="#6b7280">Marketing & Preisaggression</text>
+  
+  <!-- Start Button -->
+  <rect x="250" y="540" width="780" height="70" fill="#404040" rx="8"/>
+  <text x="640" y="585" font-size="18" font-weight="bold" fill="white" text-anchor="middle">🚀 Solo-Spiel starten</text>
+</svg>
