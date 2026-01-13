@@ -24,6 +24,9 @@ export const metadata: Metadata = {
     "Unternehmensplanspiel",
     "Planspiel Schule",
   ],
+  icons: {
+    icon: "/favicon.svg",
+  },
   openGraph: {
     title: "Markt-Match 5 – Wirtschaftsplanspiel kostenlos",
     description:
