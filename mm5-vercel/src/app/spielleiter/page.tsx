@@ -416,7 +416,7 @@ export default function SpielleiterPage() {
               )}
 
               {/* Hinweis */}
-              <div className="rounded-lg bg-blue-50 p-4 border border-blue-200">
+              <div className="rounded-lg bg-neutral-50 p-4 border border-neutral-200">
                 <p className="text-sm text-neutral-700">
                   <strong>ℹ️ Hinweis:</strong> Nach dem Erstellen erhältst du zwei PINs: Eine Admin-PIN für dich und eine Gruppen-PIN für alle Teilnehmer. Die Gruppen treten mit der Gruppen-PIN bei und geben ihren Gruppennamen selbst ein.
                 </p>

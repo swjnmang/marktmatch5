@@ -127,7 +127,7 @@ export default function GameAnalytics({
               key={team.id}
               className={`flex items-center justify-between rounded-lg p-4 ${
                 team.id === currentGroupId
-                  ? "border-2 border-sky-400 bg-sky-50"
+                  ? "border-2 border-neutral-400 bg-neutral-50"
                   : idx === 0
                   ? "border-2 border-amber-400 bg-amber-100"
                   : idx === 1
@@ -142,17 +142,17 @@ export default function GameAnalytics({
                   {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `${idx + 1}.`}
                 </span>
                 <div>
-                  <p className="font-semibold text-slate-900">{team.name}</p>
-                  <p className="text-sm text-slate-600">
+                  <p className="font-semibold text-neutral-900">{team.name}</p>
+                  <p className="text-sm text-neutral-600">
                     Gewinn: €{team.profit.toLocaleString("de-DE")}
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold text-slate-900">
+                <p className="text-2xl font-bold text-neutral-900">
                   €{team.capital.toLocaleString("de-DE")}
                 </p>
-                <p className="text-xs text-slate-500">Kapital</p>
+                <p className="text-xs text-neutral-500">Kapital</p>
               </div>
             </div>
           ))}
@@ -160,7 +160,7 @@ export default function GameAnalytics({
       </div>
 
       {/* Charts */}
-      <div className="rounded-lg border border-slate-200 bg-white p-6 space-y-6">
+      <div className="rounded-lg border border-neutral-200 bg-white p-6 space-y-6">
         {/* Competitor Toggle */}
         <div className="flex items-center gap-2">
           <input
@@ -170,7 +170,7 @@ export default function GameAnalytics({
             onChange={(e) => setShowCompetitors(e.target.checked)}
             className="h-4 w-4 cursor-pointer"
           />
-          <label htmlFor="show-competitors" className="text-sm font-medium text-slate-700 cursor-pointer">
+          <label htmlFor="show-competitors" className="text-sm font-medium text-neutral-700 cursor-pointer">
             Konkurrenz anzeigen
           </label>
         </div>
@@ -178,8 +178,8 @@ export default function GameAnalytics({
         {periodData.length > 0 ? (
           <>
             {/* Kapital über Perioden */}
-            <div className="rounded-lg bg-slate-50 p-4 border border-slate-200">
-              <h4 className="text-sm font-semibold text-slate-900 mb-4">📈 Kapitalentwicklung</h4>
+            <div className="rounded-lg bg-neutral-50 p-4 border border-neutral-200">
+              <h4 className="text-sm font-semibold text-neutral-900 mb-4">📈 Kapitalentwicklung</h4>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={periodData}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -215,8 +215,8 @@ export default function GameAnalytics({
             </div>
 
             {/* Gewinn & Umsatz pro Periode */}
-            <div className="rounded-lg bg-slate-50 p-4 border border-slate-200">
-              <h4 className="text-sm font-semibold text-slate-900 mb-4">💰 Gewinn & Umsatz</h4>
+            <div className="rounded-lg bg-neutral-50 p-4 border border-neutral-200">
+              <h4 className="text-sm font-semibold text-neutral-900 mb-4">💰 Gewinn & Umsatz</h4>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={periodData}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -260,8 +260,8 @@ export default function GameAnalytics({
             </div>
 
             {/* Marktanteil pro Periode */}
-            <div className="rounded-lg bg-slate-50 p-4 border border-slate-200">
-              <h4 className="text-sm font-semibold text-slate-900 mb-4">📊 Marktanteil (%)</h4>
+            <div className="rounded-lg bg-neutral-50 p-4 border border-neutral-200">
+              <h4 className="text-sm font-semibold text-neutral-900 mb-4">📊 Marktanteil (%)</h4>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={periodData}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -297,8 +297,8 @@ export default function GameAnalytics({
             </div>
 
             {/* Produktion vs. Verkauf */}
-            <div className="rounded-lg bg-slate-50 p-4 border border-slate-200">
-              <h4 className="text-sm font-semibold text-slate-900 mb-4">🏭 Produktion vs. Verkauf</h4>
+            <div className="rounded-lg bg-neutral-50 p-4 border border-neutral-200">
+              <h4 className="text-sm font-semibold text-neutral-900 mb-4">🏭 Produktion vs. Verkauf</h4>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={periodData}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -342,7 +342,7 @@ export default function GameAnalytics({
             </div>
           </>
         ) : (
-          <p className="text-sm text-slate-600">Keine Periodendaten verfügbar.</p>
+          <p className="text-sm text-neutral-600">Keine Periodendaten verfügbar.</p>
         )}
       </div>
     </div>

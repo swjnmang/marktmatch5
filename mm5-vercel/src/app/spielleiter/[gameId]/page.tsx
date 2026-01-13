@@ -973,7 +973,7 @@ export default function GameDashboardPage() {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowRankingModal(true)}
-                className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                className="flex-1 rounded-lg bg-neutral-400 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-neutral-600"
               >
                 🏆 Ranking anzeigen
               </button>
@@ -1254,8 +1254,8 @@ export default function GameDashboardPage() {
                   </div>
                 </div>
 
-                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-                  <p className="text-sm text-blue-800">
+                <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+                  <p className="text-sm text-neutral-800">
                     <strong>ℹ️ Hinweis:</strong> Das Spiel wird nach Bestätigung beendet. Die Gruppen können sich danach nicht mehr anmelden.
                   </p>
                 </div>
@@ -1309,8 +1309,8 @@ export default function GameDashboardPage() {
               </div>
 
               <div className="p-6 space-y-6">
-                <div className="rounded-lg bg-blue-50 p-4 border border-blue-200">
-                  <p className="text-sm text-blue-800">
+                <div className="rounded-lg bg-neutral-50 p-4 border border-neutral-200">
+                  <p className="text-sm text-neutral-800">
                     💡 <strong>Hinweis:</strong> Änderungen werden sofort übernommen. Einige Einstellungen (Startkapital, Basis-Nachfrage) können nur vor Spielstart geändert werden.
                   </p>
                 </div>

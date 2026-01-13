@@ -190,8 +190,8 @@ export default function SoloModePage() {
                     <strong>SmartSolutions:</strong> Konservativ – Moderate Strategie
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-white/50 border border-blue-200">
-                  <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-500/20 text-blue-600 font-bold text-xs ring-1 ring-blue-300">BAL</span>
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-white/50 border border-neutral-200">
+                  <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-neutral-400/20 text-neutral-700 font-bold text-xs ring-1 ring-neutral-300">BAL</span>
                   <div className="text-neutral-700">
                     <strong>MarketMasters:</strong> Ausgewogen – Mix aller Strategien
                   </div>
