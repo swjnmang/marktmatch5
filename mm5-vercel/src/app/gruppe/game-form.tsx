@@ -39,6 +39,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   const [sellFromInventory, setSellFromInventory] = useState(0);
   const [price, setPrice] = useState(0);
   const [buyMarketAnalysis, setBuyMarketAnalysis] = useState(false);
+  const [rndInvestment, setRndInvestment] = useState(0);
   const [decisionLoading, setDecisionLoading] = useState(false);
   const [machineChoice, setMachineChoice] = useState("");
   const [machineLoading, setMachineLoading] = useState(false);
@@ -389,7 +390,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
         price,
         marketingEffort: 0,
         buyMarketAnalysis,
-        rndInvestment: 0,
+        rndInvestment,
         newMachine: "",
         submittedAt: serverTimestamp() as any,
       };
@@ -1152,6 +1153,48 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                       />
                       Marktanalyse kaufen (€{game.parameters.marketAnalysisCost})
                     </label>
+
+                    {/* F&E-Investitionen (ab Periode 3, falls aktiviert) */}
+                    {game.parameters.isRndEnabled && game.period >= 3 && (
+                      <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                        <label className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-blue-900">
+                              🔬 Forschungs- & Entwicklungs-Investition
+                            </span>
+                            {groupData?.rndBenefitApplied && (
+                              <span className="text-xs font-bold bg-emerald-500 text-white px-2 py-1 rounded">
+                                ✓ Vorteil aktiv (-{Math.round(game.parameters.rndVariableCostReduction * 100)}% Kosten)
+                              </span>
+                            )}
+                          </div>
+                          <input
+                            type="number"
+                            value={rndInvestment === 0 ? "" : rndInvestment}
+                            onChange={(e) =>
+                              setRndInvestment(
+                                e.target.value === "" ? 0 : Number(e.target.value)
+                              )
+                            }
+                            min={0}
+                            step={100}
+                            placeholder="€0 (optional)"
+                            className="rounded-lg border border-blue-300 px-3 py-2 text-base shadow-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                          />
+                          <p className="text-xs text-blue-800">
+                            <strong>Schwelle:</strong> €{game.parameters.rndBenefitThreshold.toLocaleString("de-DE")} 
+                            {groupData && (
+                              <>
+                                {" - "}<strong>Bisher investiert:</strong> €{groupData.cumulativeRndInvestment.toLocaleString("de-DE")} ({Math.round((groupData.cumulativeRndInvestment / game.parameters.rndBenefitThreshold) * 100)}%)
+                              </>
+                            )}
+                          </p>
+                          <p className="text-xs text-blue-800 leading-relaxed">
+                            💡 Wenn ihr die Schwelle erreicht, sinken eure Produktionskosten dauerhaft um {Math.round(game.parameters.rndVariableCostReduction * 100)}%. Ein Investment in Innovation lohnt sich!
+                          </p>
+                        </label>
+                      </div>
+                    )}
                     <button
                       type="submit"
                       disabled={decisionLoading}

@@ -402,15 +402,18 @@ export default function SpielleiterPage() {
                     />
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="flex items-center gap-2 text-sm text-neutral-700">
+                    <label className="flex items-center gap-2 text-sm text-neutral-700 mb-2">
                       <input
                         type="checkbox"
                         checked={parameters.isRndEnabled}
                         onChange={(e) => handleParameterChange("isRndEnabled", e.target.checked)}
                         className="accent-neutral-600"
                       />
-                      F&E-Investitionen aktivieren
+                      <span className="font-semibold">🔬 F&E-Investitionen aktivieren</span>
                     </label>
+                    <p className="text-xs text-neutral-600 pl-6">
+                      Gruppen können ab Periode 3 in Forschung & Entwicklung investieren. Nach Erreichen der Schwelle (z.B. €10.000) sinken ihre Produktionskosten dauerhaft um {Math.round(parameters.rndVariableCostReduction * 100)}% - ein strategischer Vorteil für innovatives Denken.
+                    </p>
                   </div>
                   
                   {/* Machine Depreciation Section */}
