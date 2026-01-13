@@ -78,7 +78,7 @@ export default function MaterialienPage() {
             ))}
           </div>
 
-          <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-4 text-slate-700">
+          <div className="mt-6 rounded-lg border border-neutral-200 bg-neutral-50 p-4 text-neutral-700">
             <p className="text-sm">
               <strong>ℹ️ Hinweis:</strong> Die Materialien basieren auf dem originalen Markt-Match 5 Planspiel.
               Sie können zur Vorbereitung, Durchführung und Nachbereitung des Spiels verwendet werden.
@@ -89,3 +89,4 @@ export default function MaterialienPage() {
     </main>
   );
 }
+

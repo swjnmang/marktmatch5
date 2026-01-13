@@ -175,8 +175,8 @@ function GruppeContent() {
             }}
             className={`px-4 py-2 font-semibold border-b-2 transition ${
               activeTab === "qr"
-                ? "border-sky-400 text-sky-300"
-                : "border-transparent text-slate-300 hover:text-white"
+                ? "border-neutral-400 text-neutral-300"
+                : "border-transparent text-neutral-300 hover:text-white"
             }`}
           >
             📱 QR-Code scannen
@@ -188,8 +188,8 @@ function GruppeContent() {
             }}
             className={`px-4 py-2 font-semibold border-b-2 transition ${
               activeTab === "manual"
-                ? "border-sky-400 text-sky-300"
-                : "border-transparent text-slate-300 hover:text-white"
+                ? "border-neutral-400 text-neutral-300"
+                : "border-transparent text-neutral-300 hover:text-white"
             }`}
           >
             🔐 PIN eingeben
@@ -199,14 +199,14 @@ function GruppeContent() {
         {/* QR Code Tab */}
         {activeTab === "qr" && (
           <div className="space-y-4">
-            <p className="text-sm text-slate-200">
+            <p className="text-sm text-neutral-200">
               Starte den QR-Scanner oder lade einen QR-Code mit der Kamera hoch
             </p>
 
             {!scanning ? (
               <button
                 onClick={startQRScanning}
-                className="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 px-4 rounded-lg transition"
+                className="w-full bg-neutral-600 hover:bg-neutral-700 text-white font-semibold py-3 px-4 rounded-lg transition"
               >
                 📸 Kamera starten
               </button>
@@ -225,7 +225,7 @@ function GruppeContent() {
                 >
                   ✕ Scannen beenden
                 </button>
-                <p className="text-xs text-slate-300 text-center">
+                <p className="text-xs text-neutral-300 text-center">
                   Für beste Ergebnisse: QR-Code vor die Kamera halten
                 </p>
               </>
@@ -238,7 +238,7 @@ function GruppeContent() {
             )}
 
             <div className="rounded-lg bg-white/10 p-4 ring-1 ring-white/10">
-              <p className="text-sm text-slate-200">
+              <p className="text-sm text-neutral-200">
                 💡 <strong>Tipp:</strong> Wenn der QR-Scanner nicht funktioniert, verwende stattdessen die "PIN eingeben" Option.
               </p>
             </div>
@@ -249,7 +249,7 @@ function GruppeContent() {
         {activeTab === "manual" && (
           <form onSubmit={handleManualJoin} className="space-y-6">
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
+              <label className="block text-sm font-semibold text-neutral-700 mb-2">
                 PIN-Code
               </label>
               <input
@@ -259,9 +259,9 @@ function GruppeContent() {
                 placeholder="ABCDE"
                 maxLength={5}
                 disabled={loading}
-                className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-600 focus:border-sky-600 tracking-widest text-center text-3xl font-bold text-slate-900 uppercase disabled:bg-slate-100"
+                className="w-full px-4 py-3 border-2 border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-600 focus:border-neutral-600 tracking-widest text-center text-3xl font-bold text-neutral-900 uppercase disabled:bg-neutral-100"
               />
-              <p className="text-xs text-slate-500 mt-2 text-center">
+              <p className="text-xs text-neutral-500 mt-2 text-center">
                 5-stelliger Code vom Spielleiter (z.B. aus QR-Code)
               </p>
             </div>
@@ -275,7 +275,7 @@ function GruppeContent() {
             <button
               type="submit"
               disabled={loading || pin.length !== 5}
-              className="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 px-4 rounded-lg transition disabled:bg-slate-300 disabled:cursor-not-allowed"
+              className="w-full bg-neutral-600 hover:bg-neutral-700 text-white font-semibold py-3 px-4 rounded-lg transition disabled:bg-neutral-300 disabled:cursor-not-allowed"
             >
               {loading ? "🔍 Suche Spiel..." : "🚀 Spiel beitreten"}
             </button>
@@ -306,3 +306,4 @@ export default function GruppePage() {
     </Suspense>
   );
 }
+

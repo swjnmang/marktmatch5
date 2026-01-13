@@ -51,10 +51,11 @@ export default function RootLayout({
   return (
     <html lang="de">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-transparent text-slate-900`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-transparent text-neutral-900`}
       >
         {children}
       </body>
     </html>
   );
 }
+

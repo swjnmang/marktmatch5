@@ -254,9 +254,9 @@ export default function GameDashboardPage() {
 
   if (!isPinValid) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-sky-100 px-4 py-10">
+      <main className="min-h-screen bg-gradient-to-br from-neutral-100 via-neutral-100 to-neutral-200 px-4 py-10">
         <section className="mx-auto max-w-2xl text-center">
-          <p className="text-slate-600">Authentifizierung erforderlich...</p>
+          <p className="text-neutral-600">Authentifizierung erforderlich...</p>
         </section>
       </main>
     );
@@ -264,9 +264,9 @@ export default function GameDashboardPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-sky-100 px-4 py-10">
+      <main className="min-h-screen bg-gradient-to-br from-neutral-100 via-neutral-100 to-neutral-200 px-4 py-10">
         <section className="mx-auto max-w-4xl">
-          <div className="text-center text-slate-600">Spiel wird geladen...</div>
+          <div className="text-center text-neutral-600">Spiel wird geladen...</div>
         </section>
       </main>
     );
@@ -274,10 +274,10 @@ export default function GameDashboardPage() {
 
   if (error || !game) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-sky-100 px-4 py-10">
+      <main className="min-h-screen bg-gradient-to-br from-neutral-100 via-neutral-100 to-neutral-200 px-4 py-10">
         <section className="mx-auto max-w-4xl">
           <div className="rounded-lg bg-red-50 p-4 text-red-700">{error || "Spiel nicht gefunden"}</div>
-          <Link href="/spielleiter" className="mt-4 text-sky-700 hover:underline">
+          <Link href="/spielleiter" className="mt-4 text-neutral-700 hover:underline">
             ← Zurück zur Startseite
           </Link>
         </section>
@@ -286,24 +286,24 @@ export default function GameDashboardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-sky-100 px-4 py-6">
+    <main className="min-h-screen bg-gradient-to-br from-neutral-100 via-neutral-100 to-neutral-200 px-4 py-6">
       <section className="mx-auto max-w-4xl space-y-4">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">
+          <h1 className="text-3xl font-bold text-neutral-800">
             {game.status === "lobby" ? "🎮 Lobby" : "Spiel-Dashboard"}
           </h1>
         </div>
 
         {/* PIN Display Card */}
         {game.status === "lobby" && (
-          <div className="rounded-xl bg-gradient-to-br from-sky-50 to-blue-50 p-4 shadow-lg ring-2 ring-sky-300">
-            <h2 className="text-lg font-bold text-slate-900 mb-3">Lobby-Verbindung</h2>
+          <div className="rounded-xl bg-white p-4 shadow-md ring-2 border-2 border-neutral-300">
+            <h2 className="text-lg font-bold text-neutral-900 mb-3">Lobby-Verbindung</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4 items-center">
               {/* Gruppen-PIN mit QR */}
               <div className="flex justify-center">
-                <div className="bg-white p-2 rounded-lg border-2 border-sky-300">
+                <div className="bg-white p-2 rounded-lg border-2 border-neutral-300">
                   <QRCodeSVG 
                     value={`${typeof window !== 'undefined' ? window.location.origin : 'https://marktmatch5.vercel.app'}/gruppe/${gameId}?pin=${game.joinPin}`} 
                     size={140}
@@ -316,9 +316,9 @@ export default function GameDashboardPage() {
               {/* PIN zum Eingeben */}
               <div className="flex flex-col gap-3">
                 <div>
-                  <p className="text-xs font-semibold text-slate-600 mb-2">👥 Beitrittscode für Gruppen:</p>
+                  <p className="text-xs font-semibold text-neutral-600 mb-2">👥 Beitrittscode für Gruppen:</p>
                   <div className="flex gap-2 items-center">
-                    <div className="font-mono text-3xl font-bold text-sky-700 bg-white px-4 py-2 rounded-lg border-2 border-sky-300">
+                    <div className="font-mono text-3xl font-bold text-neutral-800 bg-white px-4 py-2 rounded-lg border-2 border-neutral-300">
                       {game.joinPin}
                     </div>
                     <button
@@ -326,25 +326,25 @@ export default function GameDashboardPage() {
                         navigator.clipboard.writeText(game.joinPin);
                         alert("✅ PIN kopiert!");
                       }}
-                      className="rounded-lg bg-sky-600 px-3 py-2 text-sm text-white font-semibold hover:bg-sky-700 transition whitespace-nowrap"
+                      className="rounded-lg bg-neutral-400 px-3 py-2 text-sm text-white font-semibold hover:bg-neutral-600 transition whitespace-nowrap"
                     >
                       📋
                     </button>
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-xs text-neutral-500 mt-1">
                     QR-Code scannen oder PIN eingeben
                   </p>
                 </div>
 
                 {/* Share Link */}
                 <div>
-                  <p className="text-xs font-semibold text-slate-600 mb-2">🔗 Direkt-Link zum Beitreten:</p>
+                  <p className="text-xs font-semibold text-neutral-600 mb-2">🔗 Direkt-Link zum Beitreten:</p>
                   <div className="flex gap-2 items-center">
                     <input
                       type="text"
                       readOnly
                       value={`${typeof window !== 'undefined' ? window.location.origin : 'https://marktmatch5.vercel.app'}/gruppe/${gameId}?pin=${game.joinPin}`}
-                      className="flex-1 text-xs bg-white px-3 py-2 rounded-lg border border-sky-300 text-slate-700 font-mono"
+                      className="flex-1 text-xs bg-white px-3 py-2 rounded-lg border border-neutral-300 text-neutral-700 font-mono"
                     />
                     <button
                       onClick={() => {
@@ -357,7 +357,7 @@ export default function GameDashboardPage() {
                       📋
                     </button>
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-xs text-neutral-500 mt-1">
                     Link direkt teilen - PIN ist automatisch eingefügt
                   </p>
                 </div>
@@ -366,7 +366,7 @@ export default function GameDashboardPage() {
                 <div className="border-t pt-3">
                   <button
                     onClick={() => setShowAdminPin(!showAdminPin)}
-                    className="text-xs font-semibold text-slate-700 hover:text-slate-900 flex items-center gap-2"
+                    className="text-xs font-semibold text-neutral-700 hover:text-neutral-900 flex items-center gap-2"
                   >
                     {showAdminPin ? "▼" : "▶"} 🔑 Admin-PIN
                   </button>
@@ -397,9 +397,9 @@ export default function GameDashboardPage() {
         )}
 
         {/* Game Info + Groups Combined */}
-        <div className="rounded-xl bg-white p-4 shadow-lg ring-1 ring-slate-200">
+        <div className="rounded-xl bg-white p-4 shadow-lg ring-1 ring-neutral-200">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-slate-900">
+            <h2 className="text-lg font-semibold text-neutral-900">
               {game.status === "lobby" ? "Wartende Gruppen" : "Spielstand"}
             </h2>
             <div className="flex gap-2 text-xs">
@@ -415,7 +415,7 @@ export default function GameDashboardPage() {
               )}
               {game.status === "in_progress" && (
                 <>
-                  <span className="rounded-lg bg-sky-50 px-2 py-1 text-sky-700 border border-sky-200">
+                  <span className="rounded-lg bg-neutral-50 px-2 py-1 text-neutral-700 border border-neutral-200">
                     P{game.period}
                   </span>
                   <span className="rounded-lg bg-indigo-50 px-2 py-1 text-indigo-700 border border-indigo-200">
@@ -499,12 +499,12 @@ export default function GameDashboardPage() {
                     group.status === "submitted"
                       ? "border-emerald-300 bg-emerald-50"
                       : group.status === "ready"
-                      ? "border-sky-300 bg-sky-50"
+                      ? "border-neutral-300 bg-neutral-50"
                       : "border-red-300 bg-red-50"
                   }`}
                 >
                   <div>
-                    <p className="font-semibold text-sm text-slate-900">
+                    <p className="font-semibold text-sm text-neutral-900">
                       {group.name || `Gruppe ${index + 1}`}
                     </p>
                     <div className="flex gap-3 text-xs">
@@ -512,7 +512,7 @@ export default function GameDashboardPage() {
                         group.status === "submitted"
                           ? "text-emerald-700 font-semibold"
                           : group.status === "ready"
-                          ? "text-sky-700"
+                          ? "text-neutral-700"
                           : "text-red-700"
                       }>
                         {group.status === "ready" ? "✓ Bereit" : group.status === "submitted" ? "✅ Eingereicht" : "⏳ Wartend"}
@@ -523,20 +523,20 @@ export default function GameDashboardPage() {
                         </span>
                       )}
                       {group.selectedMachine && (
-                        <span className="text-slate-600">• {group.selectedMachine}</span>
+                        <span className="text-neutral-600">• {group.selectedMachine}</span>
                       )}
                     </div>
                   </div>
                   {game.status !== "lobby" && (
-                    <div className="text-right text-xs text-slate-600">
+                    <div className="text-right text-xs text-neutral-600">
                       <p>€{group.capital.toLocaleString("de-DE")}</p>
-                      <p className="text-slate-500">Lager: {group.inventory}</p>
+                      <p className="text-neutral-500">Lager: {group.inventory}</p>
                     </div>
                   )}
                 </div>
               ))
             ) : (
-              <p className="text-center text-slate-600 py-4 text-sm">
+              <p className="text-center text-neutral-600 py-4 text-sm">
                 {game.status === "lobby" 
                   ? "Noch keine Gruppen beigetreten. Teile den Gruppen-PIN!" 
                   : "Keine Gruppen vorhanden"}
@@ -546,18 +546,18 @@ export default function GameDashboardPage() {
         </div>
 
         {/* Settings & Actions - Vertical Layout */}
-        <div className="rounded-xl bg-white p-4 shadow-lg ring-1 ring-slate-200">
+        <div className="rounded-xl bg-white p-4 shadow-lg ring-1 ring-neutral-200">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-slate-900">Einstellungen & Aktionen</h2>
+            <h2 className="text-lg font-semibold text-neutral-900">Einstellungen & Aktionen</h2>
             <button
               onClick={() => setShowSettingsModal(true)}
-              className="rounded-lg bg-slate-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-700 transition"
+              className="rounded-lg bg-neutral-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-neutral-700 transition"
             >
               ⚙️ Spieleinstellungen
             </button>
           </div>
           
-          <p className="text-xs text-slate-600 mb-4">
+          <p className="text-xs text-neutral-600 mb-4">
             {game.status === "lobby"
               ? "Starte das Spiel, wenn alle Gruppen bereit sind."
               : game.phase === "machine_selection"
@@ -574,19 +574,19 @@ export default function GameDashboardPage() {
           )}
 
           {/* Special Tasks Section (collapsible) */}
-          <div className="pt-4 border-t border-slate-200">
+          <div className="pt-4 border-t border-neutral-200">
             <button
               type="button"
               onClick={() => setShowSpecialSection((v) => !v)}
               aria-expanded={showSpecialSection}
-              className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-left hover:bg-slate-50"
+              className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-left hover:bg-neutral-50"
             >
-              <h3 className="text-sm font-semibold text-slate-900">📋 Spezialaufträge an Gruppen schicken</h3>
-              <span className="text-xs text-slate-500">{showSpecialSection ? "Ausklappen schließen" : "Ausklappen"}</span>
+              <h3 className="text-sm font-semibold text-neutral-900">📋 Spezialaufträge an Gruppen schicken</h3>
+              <span className="text-xs text-neutral-500">{showSpecialSection ? "Ausklappen schließen" : "Ausklappen"}</span>
             </button>
             {showSpecialSection && (
               <div className="mt-2">
-                <p className="text-xs text-slate-600 mb-3">
+                <p className="text-xs text-neutral-600 mb-3">
                   Spezialaufträge werden allen Gruppen als <strong>große Vollbild-Meldung</strong> angezeigt und müssen bestätigt werden. 
                   Sie können jederzeit gesendet werden (auch vor Periode 1). 
                   Empfehlung: <span className="font-semibold text-amber-800">"Unternehmensplakat gestalten"</span> vor Spielstart.
@@ -614,7 +614,7 @@ export default function GameDashboardPage() {
                       setSelectedTaskId((prev) => prev || "presentation-poster");
                       setShowTaskModal(true);
                     }}
-                    className="w-full rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-100"
+                    className="w-full rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-50 px-4 py-3 text-sm font-semibold text-neutral-700 transition hover:border-neutral-400 hover:bg-neutral-100"
                   >
                     + Spezialauftrag auswählen
                   </button>
@@ -625,24 +625,24 @@ export default function GameDashboardPage() {
 
           {/* Actions for Next Period (collapsible) */}
           {game.status === "in_progress" && (
-            <div className="mt-6 pt-6 border-t border-slate-200">
+            <div className="mt-6 pt-6 border-t border-neutral-200">
               <button
                 type="button"
                 onClick={() => setShowActionsSection((v) => !v)}
                 aria-expanded={showActionsSection}
-                className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-left hover:bg-slate-50"
+                className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-left hover:bg-neutral-50"
               >
-                <h3 className="text-sm font-semibold text-slate-900">⚡ Aktionen für die nächste Periode</h3>
-                <span className="text-xs text-slate-500">{showActionsSection ? "Ausklappen schließen" : "Ausklappen"}</span>
+                <h3 className="text-sm font-semibold text-neutral-900">⚡ Aktionen für die nächste Periode</h3>
+                <span className="text-xs text-neutral-500">{showActionsSection ? "Ausklappen schließen" : "Ausklappen"}</span>
               </button>
               {showActionsSection && (
                 <div className="mt-2">
-                  <p className="text-xs text-slate-600 mb-4">
+                  <p className="text-xs text-neutral-600 mb-4">
                     Diese Einstellungen gelten nur für die kommende Periode {game.period + 1} und werden danach automatisch zurückgesetzt.
                   </p>
                   <div className="space-y-3">
                 {/* Machine Purchase */}
-                <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 cursor-pointer hover:bg-slate-100 transition">
+                <label className="flex items-start gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 cursor-pointer hover:bg-neutral-100 transition">
                   <input
                     type="checkbox"
                     checked={allowMachinePurchaseNext}
@@ -657,16 +657,16 @@ export default function GameDashboardPage() {
                         alert(`Fehler: ${err.message}`);
                       }
                     }}
-                    className="mt-1 accent-sky-600 cursor-pointer"
+                    className="mt-1 accent-neutral-600 cursor-pointer"
                   />
-                  <div className="text-sm text-slate-700 flex-1">
-                    <p className="font-semibold text-slate-900">🏭 Maschinenkauf erlauben</p>
-                    <p className="text-xs text-slate-600">Gruppen können zusätzliche Produktionsmaschinen kaufen (4 Optionen wie zu Beginn)</p>
+                  <div className="text-sm text-neutral-700 flex-1">
+                    <p className="font-semibold text-neutral-900">🏭 Maschinenkauf erlauben</p>
+                    <p className="text-xs text-neutral-600">Gruppen können zusätzliche Produktionsmaschinen kaufen (4 Optionen wie zu Beginn)</p>
                   </div>
                 </label>
 
                 {/* Demand Boost */}
-                <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 cursor-pointer hover:bg-slate-100 transition">
+                <label className="flex items-start gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 cursor-pointer hover:bg-neutral-100 transition">
                   <input
                     type="checkbox"
                     checked={demandBoostNext}
@@ -683,14 +683,14 @@ export default function GameDashboardPage() {
                     }}
                     className="mt-1 accent-emerald-600 cursor-pointer"
                   />
-                  <div className="text-sm text-slate-700 flex-1">
-                    <p className="font-semibold text-slate-900">📈 Nachfrage-Boost (+30%)</p>
-                    <p className="text-xs text-slate-600">Die Marktnachfrage steigt um 30% (z.B. durch Werbekampagne, Feiertag)</p>
+                  <div className="text-sm text-neutral-700 flex-1">
+                    <p className="font-semibold text-neutral-900">📈 Nachfrage-Boost (+30%)</p>
+                    <p className="text-xs text-neutral-600">Die Marktnachfrage steigt um 30% (z.B. durch Werbekampagne, Feiertag)</p>
                   </div>
                 </label>
 
                 {/* Free Market Analysis */}
-                <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 cursor-pointer hover:bg-slate-100 transition">
+                <label className="flex items-start gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 cursor-pointer hover:bg-neutral-100 transition">
                   <input
                     type="checkbox"
                     checked={freeMarketAnalysisNext}
@@ -705,16 +705,16 @@ export default function GameDashboardPage() {
                         alert(`Fehler: ${err.message}`);
                       }
                     }}
-                    className="mt-1 accent-blue-600 cursor-pointer"
+                    className="mt-1 accent-neutral-600 cursor-pointer"
                   />
-                  <div className="text-sm text-slate-700 flex-1">
-                    <p className="font-semibold text-slate-900">📊 Kostenlose Marktanalyse</p>
-                    <p className="text-xs text-slate-600">Alle Gruppen erhalten automatisch Wettbewerbsinformationen (normalerweise kostenpflichtig)</p>
+                  <div className="text-sm text-neutral-700 flex-1">
+                    <p className="font-semibold text-neutral-900">📊 Kostenlose Marktanalyse</p>
+                    <p className="text-xs text-neutral-600">Alle Gruppen erhalten automatisch Wettbewerbsinformationen (normalerweise kostenpflichtig)</p>
                   </div>
                 </label>
 
                 {/* No Inventory Costs */}
-                <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 cursor-pointer hover:bg-slate-100 transition">
+                <label className="flex items-start gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 cursor-pointer hover:bg-neutral-100 transition">
                   <input
                     type="checkbox"
                     checked={noInventoryCostsNext}
@@ -731,15 +731,15 @@ export default function GameDashboardPage() {
                     }}
                     className="mt-1 accent-purple-600 cursor-pointer"
                   />
-                  <div className="text-sm text-slate-700 flex-1">
-                    <p className="font-semibold text-slate-900">📦 Keine Lagerkosten</p>
-                    <p className="text-xs text-slate-600">Lagerkosten fallen weg (z.B. durch Sonderangebot oder bessere Lagerverwaltung)</p>
+                  <div className="text-sm text-neutral-700 flex-1">
+                    <p className="font-semibold text-neutral-900">📦 Keine Lagerkosten</p>
+                    <p className="text-xs text-neutral-600">Lagerkosten fallen weg (z.B. durch Sonderangebot oder bessere Lagerverwaltung)</p>
                   </div>
                 </label>
 
                 {/* Custom Event Text */}
-                <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-                  <label className="block text-sm font-semibold text-slate-900 mb-2">
+                <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+                  <label className="block text-sm font-semibold text-neutral-900 mb-2">
                     💬 Freies Ereignis beschreiben
                   </label>
                   <textarea
@@ -757,9 +757,9 @@ export default function GameDashboardPage() {
                         alert(`Fehler: ${err.message}`);
                       }
                     }}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-600"
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-600"
                   />
-                  <p className="text-xs text-slate-600 mt-1">
+                  <p className="text-xs text-neutral-600 mt-1">
                     Wird den Gruppen als Hinweis angezeigt (hat keine automatische Auswirkung auf Berechnungen)
                   </p>
                 </div>
@@ -803,7 +803,7 @@ export default function GameDashboardPage() {
                   setStartLoading(false);
                 }
               }}
-              className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
+              className="rounded-lg bg-neutral-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-neutral-700 disabled:bg-neutral-300 disabled:cursor-not-allowed"
             >
               {startLoading ? "Startet..." : `🚀 Spiel starten`}
             </button>
@@ -842,7 +842,7 @@ export default function GameDashboardPage() {
                     setStartLoading(false);
                   }
                 }}
-                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
+                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:bg-neutral-300 disabled:cursor-not-allowed"
               >
                 {startLoading ? "Startet..." : `▶️ Start Periode ${game.period}`}
               </button>
@@ -906,7 +906,7 @@ export default function GameDashboardPage() {
                   setCalculateLoading(false);
                 }
               }}
-              className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
+              className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-700 disabled:bg-neutral-300 disabled:cursor-not-allowed"
             >
               {calculateLoading ? "Berechne..." : `🔢 Auswertung Periode ${game.period}`}
             </button>
@@ -959,7 +959,7 @@ export default function GameDashboardPage() {
                   setStartLoading(false);
                 }
               }}
-              className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
+              className="rounded-lg bg-neutral-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-neutral-700 disabled:bg-neutral-300 disabled:cursor-not-allowed"
             >
               {startLoading ? "Startet..." : `⏭️ Starte Periode ${game.period + 1}`}
             </button>
@@ -968,8 +968,8 @@ export default function GameDashboardPage() {
 
         {/* Ranking & End Game Buttons - Only show after period 1 */}
         {game.status === "in_progress" && game.period >= 1 && (
-          <div className="rounded-xl bg-white p-4 shadow-lg ring-1 ring-slate-200">
-            <h3 className="text-sm font-semibold text-slate-900 mb-3">Spielabschluss</h3>
+          <div className="rounded-xl bg-white p-4 shadow-lg ring-1 ring-neutral-200">
+            <h3 className="text-sm font-semibold text-neutral-900 mb-3">Spielabschluss</h3>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowRankingModal(true)}
@@ -991,11 +991,11 @@ export default function GameDashboardPage() {
         {showTaskModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white shadow-xl">
-              <div className="sticky top-0 border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-slate-900">Spezialauftrag auswählen</h2>
+              <div className="sticky top-0 border-b border-neutral-200 bg-white px-6 py-4 flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-neutral-900">Spezialauftrag auswählen</h2>
                 <button
                   onClick={() => setShowTaskModal(false)}
-                  className="text-slate-500 hover:text-slate-700"
+                  className="text-neutral-500 hover:text-neutral-700"
                 >
                   ✕
                 </button>
@@ -1004,12 +1004,12 @@ export default function GameDashboardPage() {
               <div className="p-6 space-y-4">
                 {/* Predefined Tasks */}
                 <div>
-                  <label className="block text-sm font-semibold text-slate-900 mb-3">Vorgefertigte Aufträge:</label>
+                  <label className="block text-sm font-semibold text-neutral-900 mb-3">Vorgefertigte Aufträge:</label>
                   <div className="space-y-2">
                     {PREDEFINED_TASKS.map((task) => (
                       <label
                         key={task.id}
-                        className="flex items-start gap-3 rounded-lg border border-slate-200 p-3 cursor-pointer hover:bg-sky-50"
+                        className="flex items-start gap-3 rounded-lg border border-neutral-200 p-3 cursor-pointer hover:bg-neutral-50"
                       >
                         <input
                           type="radio"
@@ -1024,8 +1024,8 @@ export default function GameDashboardPage() {
                           className="mt-1"
                         />
                         <div className="flex-1">
-                          <p className="font-semibold text-slate-900">{task.title}</p>
-                          <p className="text-xs text-slate-600 line-clamp-2">{task.description}</p>
+                          <p className="font-semibold text-neutral-900">{task.title}</p>
+                          <p className="text-xs text-neutral-600 line-clamp-2">{task.description}</p>
                         </div>
                       </label>
                     ))}
@@ -1034,15 +1034,15 @@ export default function GameDashboardPage() {
 
                 {/* Divider */}
                 <div className="flex items-center gap-3">
-                  <div className="flex-1 h-px bg-slate-200"></div>
-                  <span className="text-xs text-slate-600">oder</span>
-                  <div className="flex-1 h-px bg-slate-200"></div>
+                  <div className="flex-1 h-px bg-neutral-200"></div>
+                  <span className="text-xs text-neutral-600">oder</span>
+                  <div className="flex-1 h-px bg-neutral-200"></div>
                 </div>
 
                 {/* Custom Task */}
                 <div>
-                  <label className="block text-sm font-semibold text-slate-900 mb-2">Eigener Auftrag:</label>
-                  <label className="flex items-center gap-3 rounded-lg border border-slate-200 p-3 cursor-pointer hover:bg-sky-50 mb-3">
+                  <label className="block text-sm font-semibold text-neutral-900 mb-2">Eigener Auftrag:</label>
+                  <label className="flex items-center gap-3 rounded-lg border border-neutral-200 p-3 cursor-pointer hover:bg-neutral-50 mb-3">
                     <input
                       type="radio"
                       name="task"
@@ -1050,7 +1050,7 @@ export default function GameDashboardPage() {
                       checked={selectedTaskId === "custom"}
                       onChange={() => setSelectedTaskId("custom")}
                     />
-                    <span className="text-sm text-slate-700">Benutzerdefinierten Auftrag eingeben</span>
+                    <span className="text-sm text-neutral-700">Benutzerdefinierten Auftrag eingeben</span>
                   </label>
 
                   {selectedTaskId === "custom" && (
@@ -1060,14 +1060,14 @@ export default function GameDashboardPage() {
                         placeholder="Auftrags-Titel"
                         value={customTaskTitle}
                         onChange={(e) => setCustomTaskTitle(e.target.value)}
-                        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                        className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm"
                       />
                       <textarea
                         placeholder="Auftrags-Beschreibung..."
                         value={customTaskDesc}
                         onChange={(e) => setCustomTaskDesc(e.target.value)}
                         rows={6}
-                        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                        className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm"
                       />
                     </div>
                   )}
@@ -1077,14 +1077,14 @@ export default function GameDashboardPage() {
                 <div className="flex gap-3 pt-4">
                   <button
                     onClick={() => setShowTaskModal(false)}
-                    className="flex-1 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                    className="flex-1 rounded-lg border border-neutral-300 px-4 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50"
                   >
                     Abbrechen
                   </button>
                   <button
                     onClick={handleSendTask}
                     disabled={taskLoading || !selectedTaskId || (selectedTaskId === "custom" && (!customTaskTitle || !customTaskDesc))}
-                    className="flex-1 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
+                    className="flex-1 rounded-lg bg-neutral-600 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700 disabled:bg-neutral-300 disabled:cursor-not-allowed"
                   >
                     {taskLoading ? "Wird gesendet..." : "Auftrag senden"}
                   </button>
@@ -1098,11 +1098,11 @@ export default function GameDashboardPage() {
         {showRankingModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white shadow-xl">
-              <div className="sticky top-0 border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-slate-900">Ranking - Periode {game?.period}</h2>
+              <div className="sticky top-0 border-b border-neutral-200 bg-white px-6 py-4 flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-neutral-900">Ranking - Periode {game?.period}</h2>
                 <button
                   onClick={() => setShowRankingModal(false)}
-                  className="text-slate-500 hover:text-slate-700"
+                  className="text-neutral-500 hover:text-neutral-700"
                 >
                   ✕
                 </button>
@@ -1120,7 +1120,7 @@ export default function GameDashboardPage() {
                           ? "border-2 border-gray-300 bg-gray-50"
                           : idx === 2
                           ? "border-2 border-amber-700 bg-amber-50"
-                          : "border border-slate-200 bg-white"
+                          : "border border-neutral-200 bg-white"
                       }`}
                     >
                       <div className="flex items-center gap-4">
@@ -1128,13 +1128,13 @@ export default function GameDashboardPage() {
                           {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `${idx + 1}.`}
                         </span>
                         <div>
-                          <p className="font-semibold text-slate-900">{team.name}</p>
-                          <p className="text-sm text-slate-600">Kumulativer Gewinn: €{team.profit.toLocaleString("de-DE")}</p>
+                          <p className="font-semibold text-neutral-900">{team.name}</p>
+                          <p className="text-sm text-neutral-600">Kumulativer Gewinn: €{team.profit.toLocaleString("de-DE")}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-2xl font-bold text-slate-900">€{team.capital.toLocaleString("de-DE")}</p>
-                        <p className="text-xs text-slate-500">Kapital</p>
+                        <p className="text-2xl font-bold text-neutral-900">€{team.capital.toLocaleString("de-DE")}</p>
+                        <p className="text-xs text-neutral-500">Kapital</p>
                       </div>
                     </div>
                   ))}
@@ -1143,7 +1143,7 @@ export default function GameDashboardPage() {
                 <div className="mt-6 flex gap-3">
                   <button
                     onClick={() => setShowRankingModal(false)}
-                    className="flex-1 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                    className="flex-1 rounded-lg border border-neutral-300 px-4 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50"
                   >
                     Schließen
                   </button>
@@ -1157,15 +1157,15 @@ export default function GameDashboardPage() {
         {showConfirmEndModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="w-full max-w-md rounded-xl bg-white shadow-xl">
-              <div className="border-b border-slate-200 px-6 py-4">
-                <h2 className="text-lg font-semibold text-slate-900">Spiel wirklich beenden?</h2>
+              <div className="border-b border-neutral-200 px-6 py-4">
+                <h2 className="text-lg font-semibold text-neutral-900">Spiel wirklich beenden?</h2>
               </div>
 
               <div className="p-6 space-y-4">
-                <p className="text-sm text-slate-700">
+                <p className="text-sm text-neutral-700">
                   Sind Sie sicher, dass Sie das Spiel jetzt beenden möchten? 
                 </p>
-                <ul className="text-sm text-slate-600 space-y-2 list-disc list-inside">
+                <ul className="text-sm text-neutral-600 space-y-2 list-disc list-inside">
                   <li>Gruppen können sich danach nicht mehr anmelden</li>
                   <li>Das Ranking wird als Abschlussstand gespeichert</li>
                   <li>Das Spiel kann nicht wiederhergestellt werden</li>
@@ -1174,7 +1174,7 @@ export default function GameDashboardPage() {
                 <div className="flex gap-3 pt-4">
                   <button
                     onClick={() => setShowConfirmEndModal(false)}
-                    className="flex-1 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                    className="flex-1 rounded-lg border border-neutral-300 px-4 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50"
                   >
                     Abbrechen
                   </button>
@@ -1195,7 +1195,7 @@ export default function GameDashboardPage() {
                       }
                     }}
                     disabled={endGameLoading}
-                    className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
+                    className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:bg-neutral-300 disabled:cursor-not-allowed"
                   >
                     {endGameLoading ? "Wird beendet..." : "Ja, beenden"}
                   </button>
@@ -1209,11 +1209,11 @@ export default function GameDashboardPage() {
         {showEndGameModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white shadow-xl">
-              <div className="sticky top-0 border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-slate-900">Spiel beenden - Abschlussbilanz</h2>
+              <div className="sticky top-0 border-b border-neutral-200 bg-white px-6 py-4 flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-neutral-900">Spiel beenden - Abschlussbilanz</h2>
                 <button
                   onClick={() => setShowEndGameModal(false)}
-                  className="text-slate-500 hover:text-slate-700"
+                  className="text-neutral-500 hover:text-neutral-700"
                 >
                   ✕
                 </button>
@@ -1221,7 +1221,7 @@ export default function GameDashboardPage() {
 
               <div className="p-6 space-y-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-4">🏆 Abschlussranking - Periode {game?.period}</h3>
+                  <h3 className="text-lg font-semibold text-neutral-900 mb-4">🏆 Abschlussranking - Periode {game?.period}</h3>
                   <div className="space-y-3">
                     {getRanking().map((team, idx) => (
                       <div
@@ -1233,7 +1233,7 @@ export default function GameDashboardPage() {
                             ? "border-2 border-gray-300 bg-gray-50"
                             : idx === 2
                             ? "border-2 border-amber-700 bg-amber-50"
-                            : "border border-slate-200 bg-white"
+                            : "border border-neutral-200 bg-white"
                         }`}
                       >
                         <div className="flex items-center gap-4">
@@ -1241,13 +1241,13 @@ export default function GameDashboardPage() {
                             {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `${idx + 1}.`}
                           </span>
                           <div>
-                            <p className="font-semibold text-slate-900">{team.name}</p>
-                            <p className="text-sm text-slate-600">Kumulativer Gewinn: €{team.profit.toLocaleString("de-DE")}</p>
+                            <p className="font-semibold text-neutral-900">{team.name}</p>
+                            <p className="text-sm text-neutral-600">Kumulativer Gewinn: €{team.profit.toLocaleString("de-DE")}</p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-2xl font-bold text-slate-900">€{team.capital.toLocaleString("de-DE")}</p>
-                          <p className="text-xs text-slate-500">Kapital</p>
+                          <p className="text-2xl font-bold text-neutral-900">€{team.capital.toLocaleString("de-DE")}</p>
+                          <p className="text-xs text-neutral-500">Kapital</p>
                         </div>
                       </div>
                     ))}
@@ -1263,7 +1263,7 @@ export default function GameDashboardPage() {
                 <div className="flex gap-3">
                   <button
                     onClick={() => setShowEndGameModal(false)}
-                    className="flex-1 rounded-lg border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                    className="flex-1 rounded-lg border border-neutral-300 px-4 py-3 text-sm font-semibold text-neutral-700 hover:bg-neutral-50"
                   >
                     Zurück
                   </button>
@@ -1284,7 +1284,7 @@ export default function GameDashboardPage() {
                       }
                     }}
                     disabled={endGameLoading}
-                    className="flex-1 rounded-lg bg-red-600 px-4 py-3 text-sm font-semibold text-white hover:bg-red-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
+                    className="flex-1 rounded-lg bg-red-600 px-4 py-3 text-sm font-semibold text-white hover:bg-red-700 disabled:bg-neutral-300 disabled:cursor-not-allowed"
                   >
                     {endGameLoading ? "Wird beendet..." : "✓ Spiel jetzt beenden"}
                   </button>
@@ -1298,11 +1298,11 @@ export default function GameDashboardPage() {
         {showSettingsModal && game && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white shadow-xl">
-              <div className="sticky top-0 border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-slate-900">⚙️ Spieleinstellungen</h2>
+              <div className="sticky top-0 border-b border-neutral-200 bg-white px-6 py-4 flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-neutral-900">⚙️ Spieleinstellungen</h2>
                 <button
                   onClick={() => setShowSettingsModal(false)}
-                  className="text-slate-500 hover:text-slate-700"
+                  className="text-neutral-500 hover:text-neutral-700"
                 >
                   ✕
                 </button>
@@ -1317,7 +1317,7 @@ export default function GameDashboardPage() {
 
                 {/* Periodendauer */}
                 <div>
-                  <label className="block text-sm font-semibold text-slate-900 mb-2">
+                  <label className="block text-sm font-semibold text-neutral-900 mb-2">
                     ⏱️ Periodendauer (Minuten)
                   </label>
                   <input
@@ -1340,14 +1340,14 @@ export default function GameDashboardPage() {
                         }
                       }
                     }}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-600"
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-600"
                   />
-                  <p className="text-xs text-slate-600 mt-1">Zeit, die Gruppen für Entscheidungen haben</p>
+                  <p className="text-xs text-neutral-600 mt-1">Zeit, die Gruppen für Entscheidungen haben</p>
                 </div>
 
                 {/* Marktanalyse-Kosten */}
                 <div>
-                  <label className="block text-sm font-semibold text-slate-900 mb-2">
+                  <label className="block text-sm font-semibold text-neutral-900 mb-2">
                     📊 Marktanalyse-Kosten (€)
                   </label>
                   <input
@@ -1371,14 +1371,14 @@ export default function GameDashboardPage() {
                         }
                       }
                     }}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-600"
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-600"
                   />
-                  <p className="text-xs text-slate-600 mt-1">Preis für Wettbewerbsinformationen</p>
+                  <p className="text-xs text-neutral-600 mt-1">Preis für Wettbewerbsinformationen</p>
                 </div>
 
                 {/* Lagerkosten */}
                 <div>
-                  <label className="block text-sm font-semibold text-slate-900 mb-2">
+                  <label className="block text-sm font-semibold text-neutral-900 mb-2">
                     📦 Lagerkosten pro Einheit (€)
                   </label>
                   <input
@@ -1402,14 +1402,14 @@ export default function GameDashboardPage() {
                         }
                       }
                     }}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-600"
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-600"
                   />
-                  <p className="text-xs text-slate-600 mt-1">Kosten für unverkaufte Produkte im Lager</p>
+                  <p className="text-xs text-neutral-600 mt-1">Kosten für unverkaufte Produkte im Lager</p>
                 </div>
 
                 {/* Negativzins */}
                 <div>
-                  <label className="block text-sm font-semibold text-slate-900 mb-2">
+                  <label className="block text-sm font-semibold text-neutral-900 mb-2">
                     💸 Negativzins-Satz (%)
                   </label>
                   <input
@@ -1433,23 +1433,23 @@ export default function GameDashboardPage() {
                         }
                       }
                     }}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-600"
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-600"
                   />
-                  <p className="text-xs text-slate-600 mt-1">Zinsen bei negativem Kapital (z.B. 10 = 10%)</p>
+                  <p className="text-xs text-neutral-600 mt-1">Zinsen bei negativem Kapital (z.B. 10 = 10%)</p>
                 </div>
 
                 {/* Nur vor Spielstart änderbar */}
                 {game.status === "lobby" && (
                   <>
-                    <div className="border-t border-slate-200 pt-6">
-                      <h3 className="text-sm font-semibold text-slate-900 mb-4">
+                    <div className="border-t border-neutral-200 pt-6">
+                      <h3 className="text-sm font-semibold text-neutral-900 mb-4">
                         🔒 Nur vor Spielstart änderbar
                       </h3>
                     </div>
 
                     {/* Startkapital */}
                     <div>
-                      <label className="block text-sm font-semibold text-slate-900 mb-2">
+                      <label className="block text-sm font-semibold text-neutral-900 mb-2">
                         💰 Startkapital (€)
                       </label>
                       <input
@@ -1473,9 +1473,9 @@ export default function GameDashboardPage() {
                             }
                           }
                         }}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-600"
+                        className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-600"
                       />
-                      <p className="text-xs text-slate-600 mt-1">Anfangskapital für alle Gruppen</p>
+                      <p className="text-xs text-neutral-600 mt-1">Anfangskapital für alle Gruppen</p>
                     </div>
 
                     {/* F&E aktiviert */}
@@ -1496,11 +1496,11 @@ export default function GameDashboardPage() {
                               setSettingsLoading(false);
                             }
                           }}
-                          className="mt-1 rounded border-slate-300"
+                          className="mt-1 rounded border-neutral-300"
                         />
                         <div>
-                          <span className="text-sm font-semibold text-slate-900">🔬 Forschung & Entwicklung aktivieren</span>
-                          <p className="text-xs text-slate-600 mt-1">
+                          <span className="text-sm font-semibold text-neutral-900">🔬 Forschung & Entwicklung aktivieren</span>
+                          <p className="text-xs text-neutral-600 mt-1">
                             Ermöglicht F&E-Investitionen ab Periode 3 (reduziert variable Kosten)
                           </p>
                         </div>
@@ -1513,7 +1513,7 @@ export default function GameDashboardPage() {
                   <button
                     onClick={() => setShowSettingsModal(false)}
                     disabled={settingsLoading}
-                    className="flex-1 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
+                    className="flex-1 rounded-lg bg-neutral-600 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700 disabled:bg-neutral-300 disabled:cursor-not-allowed"
                   >
                     {settingsLoading ? "Speichert..." : "✓ Schließen"}
                   </button>

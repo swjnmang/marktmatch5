@@ -209,12 +209,12 @@ export default function MasterAdminPage() {
           <div className="rounded-2xl bg-white p-10 shadow-2xl mt-8">
             <form onSubmit={handleLogin} className="flex flex-col gap-4">
               <label className="flex flex-col gap-2">
-                <span className="text-sm font-semibold text-slate-900">Master-Admin-PIN</span>
+                <span className="text-sm font-semibold text-neutral-900">Master-Admin-PIN</span>
                 <input
                   type="password"
                   value={pin}
                   onChange={(e) => setPin(e.target.value)}
-                  className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-300/40"
+                  className="rounded-lg border border-neutral-200 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400 shadow-sm focus:border-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-300/40"
                   placeholder="PIN eingeben..."
                   autoFocus
                 />
@@ -234,7 +234,7 @@ export default function MasterAdminPage() {
               </button>
             </form>
 
-            <Link href="/" className="block mt-4 text-center text-sm text-slate-500 hover:text-slate-700 transition">
+            <Link href="/" className="block mt-4 text-center text-sm text-neutral-500 hover:text-neutral-700 transition">
               ← Zurück zur Startseite
             </Link>
           </div>
@@ -264,12 +264,12 @@ export default function MasterAdminPage() {
 
         <div className="rounded-2xl bg-white p-10 shadow-2xl">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-slate-900">
+            <h2 className="text-xl font-semibold text-neutral-900">
               Alle Spiele ({games.length})
             </h2>
             {selectedGames.size > 0 && (
               <div className="flex gap-2 items-center">
-                <span className="text-sm font-semibold text-slate-700">
+                <span className="text-sm font-semibold text-neutral-700">
                   {selectedGames.size} ausgewählt
                 </span>
                 <button
@@ -291,22 +291,22 @@ export default function MasterAdminPage() {
           </div>
 
           {games.length > 0 && (
-            <div className="mb-4 flex items-center gap-2 border-t border-slate-200 pt-4">
+            <div className="mb-4 flex items-center gap-2 border-t border-neutral-200 pt-4">
               <input
                 type="checkbox"
                 id="select-all"
                 checked={selectedGames.size === games.length && games.length > 0}
                 onChange={selectAllGames}
-                className="rounded border-slate-300 cursor-pointer"
+                className="rounded border-neutral-300 cursor-pointer"
               />
-              <label htmlFor="select-all" className="text-sm font-semibold text-slate-700 cursor-pointer">
+              <label htmlFor="select-all" className="text-sm font-semibold text-neutral-700 cursor-pointer">
                 Alle auswählen
               </label>
             </div>
           )}
 
           {games.length === 0 ? (
-            <p className="text-center text-slate-600 py-8">Keine Spiele gefunden</p>
+            <p className="text-center text-neutral-600 py-8">Keine Spiele gefunden</p>
           ) : (
             <div className="space-y-3">
               {games.map((game) => (
@@ -314,21 +314,21 @@ export default function MasterAdminPage() {
                   key={game.id}
                   className={`rounded-lg border p-4 transition flex items-start gap-3 ${
                     selectedGames.has(game.id)
-                      ? "border-sky-400 bg-sky-50"
+                      ? "border-neutral-400 bg-neutral-50"
                       : game.data.status === "finished" 
-                      ? "border-slate-300 bg-slate-50" 
-                      : "border-slate-200 hover:border-sky-400 hover:bg-sky-50"
+                      ? "border-neutral-300 bg-neutral-50" 
+                      : "border-neutral-200 hover:border-neutral-400 hover:bg-neutral-50"
                   }`}
                 >
                   <input
                     type="checkbox"
                     checked={selectedGames.has(game.id)}
                     onChange={() => toggleGameSelection(game.id)}
-                    className="mt-1 rounded border-slate-300 cursor-pointer"
+                    className="mt-1 rounded border-neutral-300 cursor-pointer"
                   />
 
                   <div className="flex-1">
-                    <h3 className="font-semibold text-slate-900">
+                    <h3 className="font-semibold text-neutral-900">
                       {game.data.gameName || "Unbenanntes Spiel"}
                     </h3>
                     <div className="mt-2 flex flex-wrap gap-2 text-xs">
@@ -337,11 +337,11 @@ export default function MasterAdminPage() {
                           ? "bg-yellow-100 text-yellow-800"
                           : game.data.status === "in_progress"
                           ? "bg-green-100 text-green-800"
-                          : "bg-slate-200 text-slate-700"
+                          : "bg-neutral-200 text-neutral-700"
                       }`}>
                         {game.data.status === "lobby" ? "Lobby" : game.data.status === "in_progress" ? "Läuft" : "Beendet"}
                       </span>
-                      <span className="rounded bg-sky-100 px-2 py-1 text-sky-800">
+                      <span className="rounded bg-neutral-100 px-2 py-1 text-neutral-800">
                         Periode {game.data.period || 0}
                       </span>
                       <span className="rounded bg-purple-100 px-2 py-1 text-purple-800">
@@ -353,7 +353,7 @@ export default function MasterAdminPage() {
                         </span>
                       )}
                     </div>
-                    <div className="mt-3 text-xs text-slate-600 space-y-1">
+                    <div className="mt-3 text-xs text-neutral-600 space-y-1">
                       <p><strong>Eröffnet:</strong> {formatDate(game.data.createdAt)}</p>
                       <p>Spiel-ID: {game.id.substring(0, 12)}...</p>
                       <p>Join-PIN: <span className="font-mono font-semibold">{game.data.joinPin}</span></p>
@@ -368,7 +368,7 @@ export default function MasterAdminPage() {
                         // Speichere Admin-PIN im localStorage für direkten Zugriff
                         localStorage.setItem(`admin_pin_${game.id}`, game.data.adminPin);
                       }}
-                      className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 transition text-center whitespace-nowrap"
+                      className="rounded-lg bg-neutral-600 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700 transition text-center whitespace-nowrap"
                     >
                       📊 Öffnen
                     </Link>
@@ -397,10 +397,11 @@ export default function MasterAdminPage() {
           )}
         </div>
 
-        <Link href="/" className="block text-center text-sm font-semibold text-slate-700 hover:underline">
+        <Link href="/" className="block text-center text-sm font-semibold text-neutral-700 hover:underline">
           ← Zurück zur Startseite
         </Link>
       </div>
     </main>
   );
 }
+

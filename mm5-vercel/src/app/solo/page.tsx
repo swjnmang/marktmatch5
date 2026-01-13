@@ -163,42 +163,42 @@ export default function SoloModePage() {
 
             {/* Team Name Input */}
             <label className="flex flex-col gap-2">
-              <span className="text-sm font-semibold text-slate-900">Dein Team-Name</span>
+              <span className="text-sm font-semibold text-neutral-900">Dein Team-Name</span>
               <input
                 type="text"
                 value={teamName}
                 onChange={(e) => setTeamName(e.target.value)}
                 placeholder="z.B. Mein Unternehmen"
                 required
-                className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-300/40"
+                className="rounded-lg border border-neutral-200 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400 shadow-sm focus:border-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-300/40"
               />
             </label>
 
             {/* AI Opponents */}
-            <div className="rounded-xl border border-slate-200 bg-white/50 p-6">
-              <p className="text-sm font-semibold text-slate-900 mb-4">Deine KI-Gegner:</p>
+            <div className="rounded-xl border border-neutral-200 bg-white/50 p-6">
+              <p className="text-sm font-semibold text-neutral-900 mb-4">Deine KI-Gegner:</p>
               <div className="grid gap-3 text-sm">
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-white/50 border border-red-200">
                   <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-red-500/20 text-red-600 font-bold text-xs ring-1 ring-red-300">AGG</span>
-                  <div className="text-slate-700">
+                  <div className="text-neutral-700">
                     <strong>TechTitans:</strong> Aggressiv – Hohe Produktion, niedrige Preise
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-white/50 border border-green-200">
                   <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-green-500/20 text-green-600 font-bold text-xs ring-1 ring-green-300">CON</span>
-                  <div className="text-slate-700">
+                  <div className="text-neutral-700">
                     <strong>SmartSolutions:</strong> Konservativ – Moderate Strategie
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-white/50 border border-blue-200">
                   <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-500/20 text-blue-600 font-bold text-xs ring-1 ring-blue-300">BAL</span>
-                  <div className="text-slate-700">
+                  <div className="text-neutral-700">
                     <strong>MarketMasters:</strong> Ausgewogen – Mix aller Strategien
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-white/50 border border-purple-200">
                   <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-purple-500/20 text-purple-600 font-bold text-xs ring-1 ring-purple-300">INN</span>
-                  <div className="text-slate-700">
+                  <div className="text-neutral-700">
                     <strong>InnoVentures:</strong> Innovativ – F&E und Premium-Preise
                   </div>
                 </div>
@@ -219,3 +219,4 @@ export default function SoloModePage() {
     </main>
   );
 }
+

@@ -10,7 +10,7 @@ export default function GruppeGamePage() {
     <Suspense
       fallback={
         <main className="mx-auto flex max-w-3xl flex-col gap-10 px-6 py-14 sm:px-10">
-          <div className="text-center text-slate-600">Wird geladen...</div>
+          <div className="text-center text-neutral-600">Wird geladen...</div>
         </main>
       }
     >

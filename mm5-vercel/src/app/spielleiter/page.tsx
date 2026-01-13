@@ -143,15 +143,15 @@ export default function SpielleiterPage() {
 
         {/* PIN Display View */}
         {view === "pins" && (
-          <div className="rounded-2xl bg-gradient-to-br from-sky-50 to-blue-50 p-8 shadow-lg ring-2 ring-sky-300">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">✅ Lobby erstellt!</h2>
+          <div className="rounded-2xl bg-gradient-to-br from-neutral-50 to-neutral-50 p-8 shadow-lg ring-2 ring-neutral-300">
+            <h2 className="text-2xl font-bold text-neutral-900 mb-6">✅ Lobby erstellt!</h2>
             
             {/* Gruppen-PIN */}
             <div className="space-y-4 mb-8">
               <div>
-                <p className="text-sm font-semibold text-slate-600 mb-2">👥 Gruppen-PIN (zum Beitreten)</p>
+                <p className="text-sm font-semibold text-neutral-600 mb-2">👥 Gruppen-PIN (zum Beitreten)</p>
                 <div className="flex gap-3 items-center">
-                  <div className="font-mono text-4xl font-bold text-sky-700 bg-white px-6 py-4 rounded-lg border-2 border-sky-300">
+                  <div className="font-mono text-4xl font-bold text-neutral-700 bg-white px-6 py-4 rounded-lg border-2 border-neutral-300">
                     {joinPin}
                   </div>
                   <button
@@ -159,12 +159,12 @@ export default function SpielleiterPage() {
                       navigator.clipboard.writeText(joinPin);
                       alert("✅ PIN kopiert!");
                     }}
-                    className="rounded-lg bg-sky-600 px-4 py-3 text-white font-semibold hover:bg-sky-700 transition"
+                    className="rounded-lg bg-neutral-600 px-4 py-3 text-white font-semibold hover:bg-neutral-700 transition"
                   >
                     📋 Kopieren
                   </button>
                 </div>
-                <p className="text-xs text-slate-600 mt-2">Teile diese PIN mit allen Teilnehmern</p>
+                <p className="text-xs text-neutral-600 mt-2">Teile diese PIN mit allen Teilnehmern</p>
               </div>
             </div>
 
@@ -172,14 +172,14 @@ export default function SpielleiterPage() {
             <div className="border-t pt-6">
               <button
                 onClick={() => setShowAdminPin(!showAdminPin)}
-                className="text-sm font-semibold text-slate-700 hover:text-slate-900 flex items-center gap-2"
+                className="text-sm font-semibold text-neutral-700 hover:text-neutral-900 flex items-center gap-2"
               >
                 {showAdminPin ? "▼" : "▶"} 🔑 Admin-PIN (versteckt)
               </button>
               
               {showAdminPin && (
                 <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-xs text-slate-600 mb-2">Dein Admin-PIN für dieses Spiel:</p>
+                  <p className="text-xs text-neutral-600 mb-2">Dein Admin-PIN für dieses Spiel:</p>
                   <div className="flex gap-3 items-center">
                     <div className="font-mono text-2xl font-bold text-red-700 bg-white px-4 py-2 rounded border-2 border-red-300">
                       {adminPin}
@@ -203,7 +203,7 @@ export default function SpielleiterPage() {
             <div className="mt-8">
               <button
                 onClick={() => router.push(`/spielleiter/${gameId}`)}
-                className="w-full rounded-lg bg-sky-600 px-6 py-3 text-white font-bold text-lg hover:bg-sky-700 transition"
+                className="w-full rounded-lg bg-neutral-600 px-6 py-3 text-white font-bold text-lg hover:bg-neutral-700 transition"
               >
                 🎮 Zur Lobby
               </button>
@@ -213,13 +213,13 @@ export default function SpielleiterPage() {
 
         {/* View Toggle */}
         {view !== "pins" && (
-          <div className="flex gap-2 rounded-lg bg-slate-100 p-1">
+          <div className="flex gap-2 rounded-lg bg-neutral-100 p-1">
             <button
               onClick={() => setView("list")}
               className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition ${
                 view === "list"
-                  ? "bg-white text-sky-700 shadow-sm"
-                  : "text-slate-600 hover:text-slate-900"
+                  ? "bg-white text-neutral-700 shadow-sm"
+                  : "text-neutral-600 hover:text-neutral-900"
               }`}
             >
               Aktive Spiele
@@ -228,8 +228,8 @@ export default function SpielleiterPage() {
               onClick={() => setView("create")}
               className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition ${
                 view === "create"
-                  ? "bg-white text-sky-700 shadow-sm"
-                  : "text-slate-600 hover:text-slate-900"
+                  ? "bg-white text-neutral-700 shadow-sm"
+                  : "text-neutral-600 hover:text-neutral-900"
               }`}
             >
               Neues Spiel
@@ -238,8 +238,8 @@ export default function SpielleiterPage() {
               onClick={() => setView("login")}
               className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition ${
                 view === "login"
-                  ? "bg-white text-sky-700 shadow-sm"
-                  : "text-slate-600 hover:text-slate-900"
+                  ? "bg-white text-neutral-700 shadow-sm"
+                  : "text-neutral-600 hover:text-neutral-900"
               }`}
             >
               Mit PIN beitreten
@@ -249,18 +249,18 @@ export default function SpielleiterPage() {
 
         {/* Active Games List */}
         {view === "list" && (
-          <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200">
-            <h2 className="text-xl font-semibold text-slate-900 mb-4">Aktive Spiele</h2>
+          <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-neutral-200">
+            <h2 className="text-xl font-semibold text-neutral-900 mb-4">Aktive Spiele</h2>
             {activeGames.length > 0 ? (
               <div className="space-y-3">
                 {activeGames.map((game) => (
                   <div
                     key={game.id}
-                    className="flex items-center justify-between rounded-lg border border-slate-200 p-4 hover:border-sky-400 hover:bg-sky-50 transition"
+                    className="flex items-center justify-between rounded-lg border border-neutral-200 p-4 hover:border-neutral-400 hover:bg-neutral-50 transition"
                   >
                     <div>
-                      <p className="font-semibold text-slate-900">{game.gameName}</p>
-                      <p className="text-sm text-slate-600">
+                      <p className="font-semibold text-neutral-900">{game.gameName}</p>
+                      <p className="text-sm text-neutral-600">
                         Status: {game.status === "lobby" ? "Lobby" : "Läuft"} • Periode: {game.period}
                       </p>
                     </div>
@@ -275,7 +275,7 @@ export default function SpielleiterPage() {
                           setView("login");
                         }
                       }}
-                      className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 transition"
+                      className="rounded-lg bg-neutral-600 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700 transition"
                     >
                       Öffnen
                     </button>
@@ -283,7 +283,7 @@ export default function SpielleiterPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-center text-slate-600 py-8">
+              <p className="text-center text-neutral-600 py-8">
                 Keine aktiven Spiele gefunden. Erstelle ein neues Spiel!
               </p>
             )}
@@ -292,11 +292,11 @@ export default function SpielleiterPage() {
 
         {/* Create View */}
         {view === "create" && (
-          <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200">
+          <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-neutral-200">
             <form onSubmit={handleCreateGame} className="flex flex-col gap-6">
               {/* Game Name */}
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-slate-700">
+                <label className="text-sm font-semibold text-neutral-700">
                   Name des Spiels / der Lobby
                 </label>
                 <input
@@ -304,14 +304,14 @@ export default function SpielleiterPage() {
                   value={gameName}
                   onChange={(e) => setGameName(e.target.value)}
                   placeholder="z.B. Klasse 10a - Wirtschaft 2026"
-                  className="rounded-lg border border-slate-200 px-3 py-2 text-base text-slate-900 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
+                  className="rounded-lg border border-neutral-200 px-3 py-2 text-base text-neutral-900 shadow-sm focus:border-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-200"
                 />
-                <p className="text-xs text-slate-500">Dieser Name hilft dir, deine Spiele zu organisieren.</p>
+                <p className="text-xs text-neutral-500">Dieser Name hilft dir, deine Spiele zu organisieren.</p>
               </div>
 
               {/* Preset */}
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-slate-700">
+                <label className="text-sm font-semibold text-neutral-700">
                   Schwierigkeitsstufe (Preset)
                 </label>
                 <div className="grid gap-2 sm:grid-cols-3">
@@ -323,9 +323,9 @@ export default function SpielleiterPage() {
                         value={p}
                         checked={preset === p}
                         onChange={(e) => handlePresetChange(e.target.value as typeof preset)}
-                        className="accent-sky-600"
+                        className="accent-neutral-600"
                       />
-                      <span className="text-sm text-slate-700">
+                      <span className="text-sm text-neutral-700">
                         {p === "easy" ? "Einfach" : p === "medium" ? "Mittel" : "Schwer"}
                       </span>
                     </label>
@@ -337,77 +337,77 @@ export default function SpielleiterPage() {
               <button
                 type="button"
                 onClick={() => setShowAdvanced(!showAdvanced)}
-                className="text-left text-sm font-semibold text-sky-700 hover:underline"
+                className="text-left text-sm font-semibold text-neutral-700 hover:underline"
               >
                 {showAdvanced ? "▼" : "▶"} Erweiterte Einstellungen anpassen
               </button>
 
               {/* Erweiterte Einstellungen */}
               {showAdvanced && (
-                <div className="grid gap-4 sm:grid-cols-2 rounded-lg bg-slate-50 p-4">
+                <div className="grid gap-4 sm:grid-cols-2 rounded-lg bg-neutral-50 p-4">
                   <div>
-                    <label className="text-xs font-semibold text-slate-600">Startkapital (€)</label>
+                    <label className="text-xs font-semibold text-neutral-600">Startkapital (€)</label>
                     <input
                       type="number"
                       value={parameters.startingCapital}
                       onChange={(e) => handleParameterChange("startingCapital", parseInt(e.target.value))}
-                      className="w-full rounded border border-slate-200 px-2 py-1 text-sm mt-1"
+                      className="w-full rounded border border-neutral-200 px-2 py-1 text-sm mt-1"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-slate-600">Periode-Dauer (Min)</label>
+                    <label className="text-xs font-semibold text-neutral-600">Periode-Dauer (Min)</label>
                     <input
                       type="number"
                       value={parameters.periodDurationMinutes}
                       onChange={(e) => handleParameterChange("periodDurationMinutes", parseInt(e.target.value))}
-                      className="w-full rounded border border-slate-200 px-2 py-1 text-sm mt-1"
+                      className="w-full rounded border border-neutral-200 px-2 py-1 text-sm mt-1"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-slate-600">Marktanalyse-Kosten (€)</label>
+                    <label className="text-xs font-semibold text-neutral-600">Marktanalyse-Kosten (€)</label>
                     <input
                       type="number"
                       value={parameters.marketAnalysisCost}
                       onChange={(e) => handleParameterChange("marketAnalysisCost", parseInt(e.target.value))}
-                      className="w-full rounded border border-slate-200 px-2 py-1 text-sm mt-1"
+                      className="w-full rounded border border-neutral-200 px-2 py-1 text-sm mt-1"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-slate-600">Negativzins (%)</label>
+                    <label className="text-xs font-semibold text-neutral-600">Negativzins (%)</label>
                     <input
                       type="number"
                       step="0.01"
                       value={parameters.negativeCashInterestRate}
                       onChange={(e) => handleParameterChange("negativeCashInterestRate", parseFloat(e.target.value))}
-                      className="w-full rounded border border-slate-200 px-2 py-1 text-sm mt-1"
+                      className="w-full rounded border border-neutral-200 px-2 py-1 text-sm mt-1"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-slate-600">Lagerkosten pro Einheit (€)</label>
+                    <label className="text-xs font-semibold text-neutral-600">Lagerkosten pro Einheit (€)</label>
                     <input
                       type="number"
                       value={parameters.inventoryCostPerUnit}
                       onChange={(e) => handleParameterChange("inventoryCostPerUnit", parseInt(e.target.value))}
-                      className="w-full rounded border border-slate-200 px-2 py-1 text-sm mt-1"
+                      className="w-full rounded border border-neutral-200 px-2 py-1 text-sm mt-1"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-slate-600">Preiselastizität</label>
+                    <label className="text-xs font-semibold text-neutral-600">Preiselastizität</label>
                     <input
                       type="number"
                       step="0.1"
                       value={parameters.priceElasticityFactor}
                       onChange={(e) => handleParameterChange("priceElasticityFactor", parseFloat(e.target.value))}
-                      className="w-full rounded border border-slate-200 px-2 py-1 text-sm mt-1"
+                      className="w-full rounded border border-neutral-200 px-2 py-1 text-sm mt-1"
                     />
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="flex items-center gap-2 text-sm text-slate-700">
+                    <label className="flex items-center gap-2 text-sm text-neutral-700">
                       <input
                         type="checkbox"
                         checked={parameters.isRndEnabled}
                         onChange={(e) => handleParameterChange("isRndEnabled", e.target.checked)}
-                        className="accent-sky-600"
+                        className="accent-neutral-600"
                       />
                       F&E-Investitionen aktivieren
                     </label>
@@ -417,7 +417,7 @@ export default function SpielleiterPage() {
 
               {/* Hinweis */}
               <div className="rounded-lg bg-blue-50 p-4 border border-blue-200">
-                <p className="text-sm text-slate-700">
+                <p className="text-sm text-neutral-700">
                   <strong>ℹ️ Hinweis:</strong> Nach dem Erstellen erhältst du zwei PINs: Eine Admin-PIN für dich und eine Gruppen-PIN für alle Teilnehmer. Die Gruppen treten mit der Gruppen-PIN bei und geben ihren Gruppennamen selbst ein.
                 </p>
               </div>
@@ -429,7 +429,7 @@ export default function SpielleiterPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="rounded-lg bg-sky-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:bg-sky-400"
+                className="rounded-lg bg-neutral-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-neutral-700 disabled:bg-neutral-400"
               >
                 {loading ? "Wird erstellt..." : "🚀 Lobby öffnen & PINs erhalten"}
               </button>
@@ -439,16 +439,16 @@ export default function SpielleiterPage() {
 
         {/* Login View */}
         {view === "login" && (
-          <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200">
+          <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-neutral-200">
             <form onSubmit={handleJoinGame} className="flex flex-col gap-4">
-              <label className="flex flex-col gap-2 text-sm text-slate-700">
+              <label className="flex flex-col gap-2 text-sm text-neutral-700">
                 Admin-PIN
                 <input
                   type="password"
                   placeholder="z.B. K7m2P9qL"
                   value={existingPin}
                   onChange={(e) => setExistingPin(e.target.value)}
-                  className="rounded-lg border border-slate-200 px-3 py-2 text-base text-slate-900 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
+                  className="rounded-lg border border-neutral-200 px-3 py-2 text-base text-neutral-900 shadow-sm focus:border-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-200"
                 />
               </label>
 
@@ -457,7 +457,7 @@ export default function SpielleiterPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:bg-sky-400"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-neutral-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-neutral-700 disabled:bg-neutral-400"
               >
                 {loading ? "Wird überprüft..." : "Zu Spiel beitreten"}
               </button>
@@ -475,3 +475,4 @@ export default function SpielleiterPage() {
     </main>
   );
 }
+

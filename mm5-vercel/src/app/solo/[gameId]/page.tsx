@@ -47,7 +47,7 @@ export default function SoloGamePage({ params }: { params: Promise<{ gameId: str
       <main className="mx-auto flex max-w-3xl flex-col gap-10 px-6 py-14 sm:px-10">
         <div className="flex flex-col items-center gap-4">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-purple-200 border-t-purple-600"></div>
-          <p className="text-slate-600">Lade Solo-Spiel...</p>
+          <p className="text-neutral-600">Lade Solo-Spiel...</p>
         </div>
       </main>
     );
