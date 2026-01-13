@@ -19,9 +19,9 @@ export default function Home() {
         <div className="mb-20 grid gap-8 sm:grid-cols-2">
           <Link
             href="/spiel-erstellen"
-            className="group rounded-2xl bg-white p-10 shadow-2xl transition hover:-translate-y-2 hover:shadow-3xl"
+            className="group rounded-2xl bg-white p-10 shadow-2xl transition hover:-translate-y-2 hover:shadow-3xl border-4 border-slate-700 text-center flex flex-col items-center"
           >
-            <div className="mb-6 text-5xl">▶️</div>
+            <div className="mb-6 text-5xl">🚀</div>
             <h3 className="mb-3 text-2xl font-bold text-slate-900">Spiel erstellen</h3>
             <p className="mb-6 text-slate-600">
               Gründe dein Unternehmen und führe es zum Erfolg. Allein oder mit deinem Team.
@@ -33,9 +33,9 @@ export default function Home() {
 
           <Link
             href="/gruppe"
-            className="group rounded-2xl bg-white p-10 shadow-2xl transition hover:-translate-y-2 hover:shadow-3xl"
+            className="group rounded-2xl bg-white p-10 shadow-2xl transition hover:-translate-y-2 hover:shadow-3xl border-4 border-purple-600 text-center flex flex-col items-center"
           >
-            <div className="mb-6 text-5xl">👥</div>
+            <div className="mb-6 text-5xl">🎮</div>
             <h3 className="mb-3 text-2xl font-bold text-slate-900">Spiel beitreten</h3>
             <p className="mb-6 text-slate-600">
               Tritt einem laufenden Spiel bei und treffe strategische Entscheidungen.
@@ -67,7 +67,7 @@ export default function Home() {
         </div>
 
         {/* Game Description */}
-        <div className="mb-20 rounded-2xl bg-white p-10 shadow-xl">
+        <div className="mb-20 rounded-2xl bg-white p-10 shadow-xl border-4 border-slate-700">
           <h3 className="mb-6 text-2xl font-bold text-slate-900">🎮 Was ist Markt-Match 5?</h3>
           
           <p className="mb-4 text-base leading-relaxed text-slate-700">
