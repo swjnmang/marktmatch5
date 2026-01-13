@@ -135,7 +135,7 @@ export default function SpielleiterPage() {
       <section className={ui.page.container}>
         <div className="text-center space-y-2">
           <p className={ui.header.kicker}>Spielleitung</p>
-          <h1 className="text-4xl font-bold text-white">Spiel erstellen & verwalten</h1>
+          <h1 className="text-4xl font-bold text-neutral-900">Spiel erstellen & verwalten</h1>
           <p className={ui.header.subtitle}>
             Konfiguriere ein neues Planspiel oder tritt einem bestehenden bei.
           </p>

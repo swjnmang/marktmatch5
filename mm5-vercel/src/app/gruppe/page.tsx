@@ -175,8 +175,8 @@ function GruppeContent() {
             }}
             className={`px-4 py-2 font-semibold border-b-2 transition ${
               activeTab === "qr"
-                ? "border-neutral-400 text-neutral-300"
-                : "border-transparent text-neutral-300 hover:text-white"
+                ? "border-neutral-400 text-neutral-900"
+                : "border-transparent text-neutral-700 hover:text-neutral-900"
             }`}
           >
             📱 QR-Code scannen
@@ -188,8 +188,8 @@ function GruppeContent() {
             }}
             className={`px-4 py-2 font-semibold border-b-2 transition ${
               activeTab === "manual"
-                ? "border-neutral-400 text-neutral-300"
-                : "border-transparent text-neutral-300 hover:text-white"
+                ? "border-neutral-400 text-neutral-900"
+                : "border-transparent text-neutral-700 hover:text-neutral-900"
             }`}
           >
             🔐 PIN eingeben
@@ -199,7 +199,7 @@ function GruppeContent() {
         {/* QR Code Tab */}
         {activeTab === "qr" && (
           <div className="space-y-4">
-            <p className="text-sm text-neutral-200">
+            <p className="text-sm text-neutral-700">
               Starte den QR-Scanner oder lade einen QR-Code mit der Kamera hoch
             </p>
 
@@ -238,7 +238,7 @@ function GruppeContent() {
             )}
 
             <div className="rounded-lg bg-white/10 p-4 ring-1 ring-white/10">
-              <p className="text-sm text-neutral-200">
+              <p className="text-sm text-neutral-700">
                 💡 <strong>Tipp:</strong> Wenn der QR-Scanner nicht funktioniert, verwende stattdessen die "PIN eingeben" Option.
               </p>
             </div>

@@ -200,8 +200,8 @@ export default function MasterAdminPage() {
       <main className="relative min-h-screen overflow-hidden" style={{background: "linear-gradient(135deg, #4a5568 0%, #0f172a 100%)"}}>
         <div className="mx-auto max-w-md px-6 py-16 sm:px-10">
           <div className="text-center space-y-2">
-            <h1 className="text-4xl font-bold text-white">🔐 Master Admin</h1>
-            <p className="text-lg text-white/70">
+            <h1 className="text-4xl font-bold text-neutral-900">🔐 Master Admin</h1>
+            <p className="text-lg text-neutral-700">
               Zugriff auf alle Spiele und Verwaltungsfunktionen.
             </p>
           </div>
@@ -248,9 +248,9 @@ export default function MasterAdminPage() {
       <div className="mx-auto max-w-6xl px-6 py-16 sm:px-10">
         <div className="flex items-center justify-between mb-12">
           <div>
-            <p className="mb-2 text-sm font-semibold text-white/60 uppercase tracking-widest">Admin</p>
-            <h1 className="text-4xl font-bold text-white">🔐 Master Admin Dashboard</h1>
-            <p className="text-lg text-white/70">
+            <p className="mb-2 text-sm font-semibold text-neutral-500 uppercase tracking-widest">Admin</p>
+            <h1 className="text-4xl font-bold text-neutral-900">🔐 Master Admin Dashboard</h1>
+            <p className="text-lg text-neutral-700">
               Alle Spiele verwalten und überwachen.
             </p>
           </div>
