@@ -113,24 +113,24 @@ export default function SoloModePage() {
   };
 
   return (
-    <main className="relative min-h-screen overflow-hidden" style={{background: "linear-gradient(135deg, #4a5568 0%, #0f172a 100%)"}}>
+    <main className="relative min-h-screen overflow-hidden" style={{background: "linear-gradient(135deg, #f3f4f6 0%, #d1d5db 100%)"}}>
       <div className="mx-auto max-w-4xl px-6 py-16 sm:px-10">
         {/* Back Link */}
-        <Link href="/" className="mb-8 inline-flex items-center text-sm text-white/70 hover:text-white transition">
+        <Link href="/" className="mb-8 inline-flex items-center text-sm text-neutral-600 hover:text-neutral-800 transition">
           ← Zurück zur Startseite
         </Link>
 
         {/* Header */}
-        <header className="mb-12 text-center text-white">
-          <p className="mb-2 text-sm font-semibold text-white/60 uppercase tracking-widest">Solo-Modus</p>
+        <header className="mb-12 text-center text-neutral-800">
+          <p className="mb-2 text-sm font-semibold text-neutral-500 uppercase tracking-widest">Solo-Modus</p>
           <h1 className="mb-4 text-4xl font-bold">Gegen KI-Gegner spielen</h1>
-          <p className="mx-auto max-w-2xl text-lg opacity-90">
+          <p className="mx-auto max-w-2xl text-lg text-neutral-700">
             Im Solo-Modus trittst du gegen 4 KI-gesteuerte Unternehmen an. Perfekt zum Üben oder einfach zum Spaß – ohne Warten.
           </p>
         </header>
 
         {/* Form Card */}
-        <div className="rounded-2xl bg-white p-10 shadow-2xl">
+        <div className="rounded-2xl bg-white p-10 shadow-md border-2 border-neutral-400">
           {error && (
             <div className="mb-6 rounded-lg bg-red-500/20 p-4 text-red-100 text-sm ring-1 ring-red-400/40">
               {error}
@@ -139,9 +139,9 @@ export default function SoloModePage() {
 
           <form onSubmit={handleStartSolo} className="flex flex-col gap-6">
             {/* Features Info */}
-            <div className="rounded-xl bg-white/10 p-6 text-white ring-1 ring-white/10">
+            <div className="rounded-xl bg-neutral-100 p-6 text-neutral-800 ring-1 ring-neutral-200">
               <p className="font-semibold mb-3 text-base">🤖 Solo-Modus Features:</p>
-              <ul className="space-y-2 text-sm text-slate-600">
+              <ul className="space-y-2 text-sm text-neutral-600">
                 <li className="flex gap-2">
                   <span>✓</span>
                   <span><strong>4 KI-Gegner</strong> mit unterschiedlichen Strategien</span>
@@ -209,7 +209,7 @@ export default function SoloModePage() {
             <button
               type="submit"
               disabled={loading || !teamName.trim()}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-slate-700 to-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-slate-400"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-neutral-400 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-neutral-200"
             >
               {loading ? "Spiel wird erstellt..." : "Solo-Spiel starten 🚀"}
             </button>

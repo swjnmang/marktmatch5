@@ -1,15 +1,16 @@
 @import "tailwindcss";
 
+
 :root {
-  --background: #f3f6fb;
-  --foreground: #0f172a;
-  --surface: #ffffff;
-  --muted: #1f2937;
-  --accent: #0ea5e9;
-  --accent-strong: #0284c7;
-  --border: #e2e8f0;
-  --gradient-from: #0ea5e9;
-  --gradient-to: #2563eb;
+  --background: #f3f4f6; /* neutrales hellgrau */
+  --foreground: #222;    /* dunkles neutral */
+  --surface: #fff;
+  --muted: #64748b;      /* neutral, für Subtext */
+  --accent: #64748b;     /* neutral, für Buttons/Features */
+  --accent-strong: #475569; /* etwas dunkler für Hover */
+  --border: #d1d5db;     /* neutrale Border */
+  --gradient-from: #f3f4f6;
+  --gradient-to: #d1d5db;
 }
 
 @theme inline {
@@ -25,9 +26,7 @@
 }
 
 body {
-  background: radial-gradient(circle at 20% 20%, #e0f2fe 0, transparent 25%),
-    radial-gradient(circle at 80% 0%, #dbeafe 0, transparent 30%),
-    var(--background);
+  background: linear-gradient(135deg, var(--gradient-from) 0%, var(--gradient-to) 100%);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
 }

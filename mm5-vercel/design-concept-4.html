@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markt-Match 5 Design-Konzepte</title>
+  <style>
+    body { font-family: 'Inter', Arial, sans-serif; margin: 0; padding: 0; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 32px; }
+    .concepts { display: flex; gap: 32px; flex-wrap: wrap; }
+    .concept { flex: 1 1 350px; border-radius: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.10); padding: 32px 24px; margin-bottom: 32px; }
+    .header { text-align: center; margin-bottom: 24px; }
+    .cta-row { display: flex; gap: 24px; justify-content: center; margin-bottom: 32px; }
+    .cta { flex: 1 1 250px; border-radius: 18px; padding: 24px 16px; text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+    .cta-icon { font-size: 48px; margin-bottom: 12px; }
+    .cta-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 8px; }
+    .cta-desc { font-size: 1rem; margin-bottom: 16px; color: #444; }
+    .cta-btn { padding: 10px 28px; border-radius: 8px; font-weight: 600; font-size: 1rem; border: none; cursor: pointer; }
+    .features { display: flex; gap: 18px; justify-content: center; margin-bottom: 24px; }
+    .feature { background: rgba(255,255,255,0.15); border-radius: 12px; padding: 12px 18px; color: inherit; font-size: 1rem; }
+    .desc-box { background: #fff; border-radius: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); padding: 24px; margin-top: 16px; }
+    .desc-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 12px; }
+    .desc-list { margin: 0; padding-left: 18px; }
+    .desc-list li { margin-bottom: 8px; }
+    .footer { text-align: center; font-size: 0.9rem; margin-top: 24px; color: #888; }
+    /* Farbkonzepte */
+    .concept1 { background: linear-gradient(135deg, #e3eafc 0%, #cfd8e3 100%); color: #1a2540; border: 3px solid #3b82f6; }
+    .concept1 .cta { background: #fff; border: 2px solid #3b82f6; }
+    .concept1 .cta-btn { background: #3b82f6; color: #fff; }
+    .concept1 .feature { background: #3b82f6; color: #fff; }
+    .concept2 { background: linear-gradient(135deg, #f3f4f6 0%, #d1d5db 100%); color: #222; border: 3px solid #64748b; }
+    .concept2 .cta { background: #fff; border: 2px solid #64748b; }
+    .concept2 .cta-btn { background: #64748b; color: #fff; }
+    .concept2 .feature { background: #64748b; color: #fff; }
+    .concept3 { background: linear-gradient(135deg, #e0e7ef 0%, #f8fafc 100%); color: #223; border: 3px solid #0ea5e9; }
+    .concept3 .cta { background: #fff; border: 2px solid #0ea5e9; }
+    .concept3 .cta-btn { background: #0ea5e9; color: #fff; }
+    .concept3 .feature { background: #0ea5e9; color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 style="text-align:center; font-size:2.5rem; font-weight:800; margin-bottom:32px;">Markt-Match 5 – Design-Konzepte</h1>
+    <div class="concepts">
+      <!-- Konzept 1: Seriöses Blau -->
+      <div class="concept concept1">
+        <div class="header">
+          <h2>Konzept 1: Seriöses Blau</h2>
+          <p>Modernes, kühles Blau mit klaren Akzenten</p>
+        </div>
+        <div class="cta-row">
+          <div class="cta">
+            <div class="cta-icon">🚀</div>
+            <div class="cta-title">Spiel erstellen</div>
+            <div class="cta-desc">Gründe dein Unternehmen und führe es zum Erfolg. Allein oder mit deinem Team.</div>
+            <button class="cta-btn">Spiel erstellen</button>
+          </div>
+          <div class="cta">
+            <div class="cta-icon">🎮</div>
+            <div class="cta-title">Spiel beitreten</div>
+            <div class="cta-desc">Tritt einem laufenden Spiel bei und treffe strategische Entscheidungen.</div>
+            <button class="cta-btn">Code eingeben</button>
+          </div>
+        </div>
+        <div class="features">
+          <div class="feature">⚡ Schnell starten</div>
+          <div class="feature">📊 Live-Auswertung</div>
+          <div class="feature">🎓 Lehrreich</div>
+          <div class="feature">👥 Multiplayer</div>
+        </div>
+        <div class="desc-box">
+          <div class="desc-title">🎮 Was ist Markt-Match 5?</div>
+          <ul class="desc-list">
+            <li><b>Maschinen kaufen:</b> Wähle Produktionsmaschinen mit verschiedenen Kapazitäten</li>
+            <li><b>Produktion planen:</b> Entscheide, wie viele Einheiten du produzierst</li>
+            <li><b>Preise setzen:</b> Berechne den optimalen Verkaufspreis</li>
+            <li><b>Marketing investieren:</b> Steigere deine Marktpräsenz strategisch</li>
+            <li><b>F&E nutzen:</b> Verbessere deine Produktion durch Forschung</li>
+            <li><b>Konkurrieren:</b> Übertrumpfe andere Teams mit cleverer Strategie</li>
+          </ul>
+        </div>
+        <div class="footer">Letzte Aktualisierung: <span id="date1"></span></div>
+      </div>
+      <!-- Konzept 2: Neutrales Grau -->
+      <div class="concept concept2">
+        <div class="header">
+          <h2>Konzept 2: Neutrales Grau</h2>
+          <p>Sehr zurückhaltend, neutral und seriös</p>
+        </div>
+        <div class="cta-row">
+          <div class="cta">
+            <div class="cta-icon">🚀</div>
+            <div class="cta-title">Spiel erstellen</div>
+            <div class="cta-desc">Gründe dein Unternehmen und führe es zum Erfolg. Allein oder mit deinem Team.</div>
+            <button class="cta-btn">Spiel erstellen</button>
+          </div>
+          <div class="cta">
+            <div class="cta-icon">🎮</div>
+            <div class="cta-title">Spiel beitreten</div>
+            <div class="cta-desc">Tritt einem laufenden Spiel bei und treffe strategische Entscheidungen.</div>
+            <button class="cta-btn">Code eingeben</button>
+          </div>
+        </div>
+        <div class="features">
+          <div class="feature">⚡ Schnell starten</div>
+          <div class="feature">📊 Live-Auswertung</div>
+          <div class="feature">🎓 Lehrreich</div>
+          <div class="feature">👥 Multiplayer</div>
+        </div>
+        <div class="desc-box">
+          <div class="desc-title">🎮 Was ist Markt-Match 5?</div>
+          <ul class="desc-list">
+            <li><b>Maschinen kaufen:</b> Wähle Produktionsmaschinen mit verschiedenen Kapazitäten</li>
+            <li><b>Produktion planen:</b> Entscheide, wie viele Einheiten du produzierst</li>
+            <li><b>Preise setzen:</b> Berechne den optimalen Verkaufspreis</li>
+            <li><b>Marketing investieren:</b> Steigere deine Marktpräsenz strategisch</li>
+            <li><b>F&E nutzen:</b> Verbessere deine Produktion durch Forschung</li>
+            <li><b>Konkurrieren:</b> Übertrumpfe andere Teams mit cleverer Strategie</li>
+          </ul>
+        </div>
+        <div class="footer">Letzte Aktualisierung: <span id="date2"></span></div>
+      </div>
+      <!-- Konzept 3: Frisches Hellblau -->
+      <div class="concept concept3">
+        <div class="header">
+          <h2>Konzept 3: Frisches Hellblau</h2>
+          <p>Leicht, freundlich, aber nicht zu bunt</p>
+        </div>
+        <div class="cta-row">
+          <div class="cta">
+            <div class="cta-icon">🚀</div>
+            <div class="cta-title">Spiel erstellen</div>
+            <div class="cta-desc">Gründe dein Unternehmen und führe es zum Erfolg. Allein oder mit deinem Team.</div>
+            <button class="cta-btn">Spiel erstellen</button>
+          </div>
+          <div class="cta">
+            <div class="cta-icon">🎮</div>
+            <div class="cta-title">Spiel beitreten</div>
+            <div class="cta-desc">Tritt einem laufenden Spiel bei und treffe strategische Entscheidungen.</div>
+            <button class="cta-btn">Code eingeben</button>
+          </div>
+        </div>
+        <div class="features">
+          <div class="feature">⚡ Schnell starten</div>
+          <div class="feature">📊 Live-Auswertung</div>
+          <div class="feature">🎓 Lehrreich</div>
+          <div class="feature">👥 Multiplayer</div>
+        </div>
+        <div class="desc-box">
+          <div class="desc-title">🎮 Was ist Markt-Match 5?</div>
+          <ul class="desc-list">
+            <li><b>Maschinen kaufen:</b> Wähle Produktionsmaschinen mit verschiedenen Kapazitäten</li>
+            <li><b>Produktion planen:</b> Entscheide, wie viele Einheiten du produzierst</li>
+            <li><b>Preise setzen:</b> Berechne den optimalen Verkaufspreis</li>
+            <li><b>Marketing investieren:</b> Steigere deine Marktpräsenz strategisch</li>
+            <li><b>F&E nutzen:</b> Verbessere deine Produktion durch Forschung</li>
+            <li><b>Konkurrieren:</b> Übertrumpfe andere Teams mit cleverer Strategie</li>
+          </ul>
+        </div>
+        <div class="footer">Letzte Aktualisierung: <span id="date3"></span></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('de-DE') + ', ' + now.toLocaleTimeString('de-DE').slice(0,5) + ' Uhr';
+    document.getElementById('date1').textContent = dateStr;
+    document.getElementById('date2').textContent = dateStr;
+    document.getElementById('date3').textContent = dateStr;
+  </script>
+</body>
+</html>
