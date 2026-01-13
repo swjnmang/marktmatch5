@@ -13,7 +13,7 @@ const DEFAULT_PARAMETERS = {
   periodDurationMinutes: 5,
   marketAnalysisCost: 2000,
   negativeCashInterestRate: 0.15,
-  initialMarketSaturationFactor: 0.8,
+  initialMarketSaturationFactor: 0.7,
   priceElasticityFactor: 0.5,
   demandReferencePrice: 50,
   minPriceElasticityDemandMultiplier: 0.5,
