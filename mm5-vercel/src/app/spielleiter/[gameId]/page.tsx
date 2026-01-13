@@ -1478,6 +1478,41 @@ export default function GameDashboardPage() {
                       <p className="text-xs text-neutral-600 mt-1">Anfangskapital für alle Gruppen</p>
                     </div>
 
+                    {/* Marktkapazität */}
+                    <div>
+                      <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                        📊 Marktkapazität (% der Gesamtproduktion)
+                      </label>
+                      <input
+                        type="number"
+                        min="0.1"
+                        max="1"
+                        step="0.1"
+                        defaultValue={game.parameters.initialMarketSaturationFactor}
+                        onBlur={async (e) => {
+                          const value = parseFloat(e.target.value);
+                          if (value >= 0.1 && value <= 1) {
+                            setSettingsLoading(true);
+                            try {
+                              await updateDoc(doc(db, "games", gameId), {
+                                "parameters.initialMarketSaturationFactor": value
+                              });
+                            } catch (err: any) {
+                              alert(`Fehler: ${err.message}`);
+                            } finally {
+                              setSettingsLoading(false);
+                            }
+                          }
+                        }}
+                        className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-600"
+                      />
+                      <p className="text-xs text-neutral-600 mt-1">
+                        <strong>Auswirkung:</strong> Der Markt kann maximal diesen Prozentsatz der Gesamtproduktionskapazität aufnehmen. 
+                        Beispiel: Bei 4 Gruppen mit je 100 Einheiten Kapazität = 400 Einheiten gesamt. Bei 70% können nur 280 Einheiten verkauft werden 
+                        → <strong>zwingender Wettbewerb</strong>. Niedrigere Werte (z.B. 60%) verstärken den Kampf um Marktanteile.
+                      </p>
+                    </div>
+
                     {/* F&E aktiviert */}
                     <div>
                       <label className="flex items-start gap-3">

@@ -402,6 +402,26 @@ export default function SpielleiterPage() {
                     />
                   </div>
                   <div className="sm:col-span-2">
+                    <label className="block text-xs font-semibold text-neutral-600 mb-2">
+                      📊 Marktkapazität (% der gesamten Produktionskapazität)
+                    </label>
+                    <input
+                      type="number"
+                      min="0.1"
+                      max="1"
+                      step="0.1"
+                      value={parameters.initialMarketSaturationFactor}
+                      onChange={(e) => handleParameterChange("initialMarketSaturationFactor", parseFloat(e.target.value))}
+                      className="w-full rounded border border-neutral-200 px-2 py-1 text-sm mt-1"
+                    />
+                    <p className="text-xs text-neutral-600 mt-2">
+                      <strong>Auswirkung:</strong> Bestimmt, wie viel % der Gesamtproduktion aller Gruppen der Markt aufnehmen kann. 
+                      Bei 80% können 4 Gruppen zusammen maximal 80% ihrer Gesamtkapazität verkaufen → <strong>erzeugt Wettbewerb</strong>. 
+                      Niedrigere Werte = intensiverer Kampf um Marktanteile und höhere Preisdynamik.
+                    </p>
+                  </div>
+
+                  <div className="sm:col-span-2">
                     <label className="flex items-center gap-2 text-sm text-neutral-700 mb-2">
                       <input
                         type="checkbox"
