@@ -26,6 +26,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [joined, setJoined] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
   const [groupId, setGroupId] = useState<string | null>(null);
   const [groupData, setGroupData] = useState<GroupState | null>(null);
   const [game, setGame] = useState<GameDocument | null>(null);
@@ -343,6 +344,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       localStorage.setItem(`gameId_${docRef.id}`, gameId);
       setGroupId(docRef.id);
       setGroupData({ id: docRef.id, ...newGroup });
+      setShowWelcome(true);
       setJoined(true);
     } catch (err: any) {
       setError(`Fehler: ${err.message}`);
@@ -367,6 +369,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
 
       setGroupId(storedGroupId);
       setGroupData({ id: groupDoc.id, ...groupDoc.data() } as GroupState);
+      setShowWelcome(true);
       setJoined(true);
       setIsAdmin(checkPinFromLocalStorage(gameId));
     } catch (err: any) {
@@ -816,8 +819,60 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
 
           {joined && (
             <div className="flex flex-col gap-4">
+              {/* Welcome Screen - show right after joining */}
+              {showWelcome && (
+                <div className="rounded-2xl border-3 border-blue-400 bg-gradient-to-br from-blue-50 to-sky-50 p-8 shadow-lg">
+                  <div className="space-y-6">
+                    {/* Header */}
+                    <div className="text-center space-y-3">
+                      <div className="text-5xl">🎉</div>
+                      <h2 className="text-3xl font-bold text-neutral-900">Willkommen zu Markt-Match 5!</h2>
+                      <p className="text-lg text-neutral-700">
+                        <strong>{groupName}</strong>
+                      </p>
+                    </div>
+
+                    {/* Game Description */}
+                    <div className="rounded-lg bg-white p-6 border border-blue-200 space-y-3">
+                      <h3 className="text-lg font-bold text-neutral-900">📊 Das Spiel in 30 Sekunden:</h3>
+                      <ul className="space-y-2 text-sm text-neutral-700">
+                        <li className="flex items-start gap-3">
+                          <span className="text-lg">🏭</span>
+                          <span><strong>Unternehmen gründen:</strong> Ihr kauft Maschinen und produziert.</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <span className="text-lg">💰</span>
+                          <span><strong>Strategie treffen:</strong> Preis, Menge, Marketing – Ihr entscheidet!</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <span className="text-lg">🎯</span>
+                          <span><strong>Konkurrieren:</strong> Mehrere Teams am Markt = Wettbewerb um Kunden.</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <span className="text-lg">📈</span>
+                          <span><strong>Gewinn maximieren:</strong> Beste Strategie + Taktik gewinnt!</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    {/* Action Button */}
+                    <div className="text-center">
+                      <button
+                        onClick={() => setShowWelcome(false)}
+                        className="inline-block rounded-lg bg-blue-600 px-8 py-3 text-lg font-bold text-white hover:bg-blue-700 transition shadow-md"
+                      >
+                        🚀 Spiel starten
+                      </button>
+                      <p className="text-xs text-neutral-600 mt-3">
+                        Warte ab, bis die Spielleitung das Spiel startet. Du wirst dann automatisch weitergeleitet.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Waiting for Game to Start - with Lobby Info */}
-              {!game || (game.status !== "in_progress" && game.status !== "finished") ? (
+              {!showWelcome && (game?.status === "lobby" || !game) && (
                 <div className="flex flex-col gap-4">
                   {/* Lobby Status Card */}
                   <div className="flex flex-col gap-4 rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-center">
@@ -861,10 +916,13 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                     </div>
                   )}
                 </div>
-              ) : (
+              )}
+
+              {/* Game Content - only show when game exists and welcome dismissed */}
+              {game && !showWelcome && (
                 <>
                   {/* Machine Selection / Zusatzkauf */}
-                  {(game.phase === "machine_selection" || game.allowMachinePurchase) &&
+                  {(game?.phase === "machine_selection" || game?.allowMachinePurchase) &&
                     groupData &&
                     groupData.status !== "submitted" && (
                       <div className="flex flex-col gap-4 rounded-lg border border-neutral-200 bg-white p-6">
@@ -874,7 +932,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                           </h3>
                           <p className="text-sm text-neutral-600">
                             Wähle eine Produktionsmaschine für dein Unternehmen. Diese Entscheidung beeinflusst deine Produktionskapazität und Kostenstruktur.
-                            {game.phase !== "machine_selection" ? " (Zusätzlicher Kauf in dieser Periode)" : ""}
+                            {game?.phase !== "machine_selection" ? " (Zusätzlicher Kauf in dieser Periode)" : ""}
                           </p>
                         </div>
 
@@ -945,7 +1003,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                     >
                       {machineLoading
                         ? "Maschine wird gekauft..."
-                        : game.phase === "machine_selection"
+                        : game?.phase === "machine_selection"
                         ? "Maschine kaufen & starten"
                         : "Maschine kaufen"}
                     </button>
@@ -953,7 +1011,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                 )}
 
               {/* Machine purchased and waiting */}
-              {game.phase === "machine_selection" &&
+              {game && game.phase === "machine_selection" &&
                 groupData &&
                 groupData.status === "ready" && (
                   <div className="flex flex-col gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-6">
@@ -979,12 +1037,12 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                 )}
 
               {/* Decisions Phase */}
-              {game.phase === "decisions" &&
+              {game && game.phase === "decisions" &&
                 groupData &&
                 groupData.status !== "submitted" && (
                   <>
                     {/* Timer-Anzeige */}
-                    {game.periodDeadline && (
+                    {game?.periodDeadline && (
                       <div className="mb-4">
                         <PeriodTimer deadline={game.periodDeadline} />
                       </div>
@@ -1081,7 +1139,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                     <form onSubmit={handleDecisionSubmit} className="flex flex-col gap-4 rounded-lg border border-neutral-200 bg-white p-6">
                       <div>
                         <h3 className="text-lg font-semibold text-neutral-900 mb-2">
-                          Entscheidungen Periode {game.period}
+                          Entscheidungen Periode {game?.period}
                         </h3>
                         <p className="text-sm text-neutral-600 leading-relaxed">
                           Trefft eure strategischen Entscheidungen für diese Periode. Bestimmt die <strong>Produktionsmenge</strong>, die <strong>Verkaufsmengen aus dem Lager</strong> und den <strong>Verkaufspreis</strong>. Optional könnt ihr auch eine <strong>Marktanalyse</strong> kaufen, um mehr über die Konkurrenz zu erfahren.
@@ -1207,10 +1265,10 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                 )}
 
               {/* Waiting for Other Groups After Decision Submitted */}
-              {game.phase === "decisions" && groupData?.status === "submitted" && (
+              {game && game.phase === "decisions" && groupData?.status === "submitted" && (
                 <div className="flex flex-col gap-4">
                   {/* Timer-Anzeige auch nach Submission */}
-                  {game.periodDeadline && (
+                  {game?.periodDeadline && (
                     <PeriodTimer deadline={game.periodDeadline} />
                   )}
 
@@ -1249,7 +1307,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
               )}
 
               {/* Waiting for Results (hide when results available) */}
-              {game.phase === "results" && (!groupData?.lastResult || groupData.lastResult.period !== game.period) && (
+              {game && game.phase === "results" && (!groupData?.lastResult || groupData.lastResult.period !== game.period) && (
                   <div className="flex flex-col gap-4 rounded-lg border border-neutral-200 bg-white p-6 text-center">
                     {error ? (
                       <>
