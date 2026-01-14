@@ -26,8 +26,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [joined, setJoined] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(false);
-  const [showNameInput, setShowNameInput] = useState(false);
+  const [welcomePhase, setWelcomePhase] = useState<"none" | "welcome" | "name">("none");
   const [tempGroupName, setTempGroupName] = useState("");
   const [groupId, setGroupId] = useState<string | null>(null);
   const [groupData, setGroupData] = useState<GroupState | null>(null);
@@ -346,8 +345,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       localStorage.setItem(`gameId_${docRef.id}`, gameId);
       setGroupId(docRef.id);
       setGroupData({ id: docRef.id, ...newGroup });
-      setShowWelcome(true);
-      setShowNameInput(false);
+      setWelcomePhase("welcome");
       setJoined(true);
     } catch (err: any) {
       setError(`Fehler: ${err.message}`);
@@ -372,7 +370,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
 
       setGroupId(storedGroupId);
       setGroupData({ id: groupDoc.id, ...groupDoc.data() } as GroupState);
-      setShowWelcome(true);
+      setWelcomePhase("welcome");
       setJoined(true);
       setIsAdmin(checkPinFromLocalStorage(gameId));
     } catch (err: any) {
@@ -823,7 +821,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
           {joined && (
             <div className="flex flex-col gap-4">
               {/* Welcome Screen - show right after joining */}
-              {showWelcome && !showNameInput && (
+              {welcomePhase === "welcome" && (
                 <div className="rounded-2xl border-3 border-blue-400 bg-gradient-to-br from-blue-50 to-sky-50 p-8 shadow-lg">
                   <div className="space-y-6">
                     {/* Header */}
@@ -862,7 +860,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                     {/* Action Button */}
                     <div className="text-center">
                       <button
-                        onClick={() => setShowNameInput(true)}
+                        onClick={() => setWelcomePhase("name")}
                         className="inline-block rounded-lg bg-blue-600 px-8 py-3 text-lg font-bold text-white hover:bg-blue-700 transition shadow-md"
                       >
                         🚀 Spiel starten
@@ -873,7 +871,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
               )}
 
               {/* Name Input Screen - show after "Spiel starten" click */}
-              {showWelcome && showNameInput && (
+              {welcomePhase === "name" && (
                 <div className="rounded-2xl border-3 border-blue-400 bg-gradient-to-br from-blue-50 to-sky-50 p-8 shadow-lg">
                   <div className="space-y-6">
                     {/* Header */}
@@ -900,7 +898,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                               updatedAt: serverTimestamp(),
                             });
                             setGroupName(tempGroupName.trim());
-                            setShowWelcome(false);
+                            setWelcomePhase("none");
                           }
                         } catch (err) {
                           setError("Fehler beim Speichern des Namens");
@@ -952,7 +950,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
               )}
 
               {/* Waiting for Game to Start - with Lobby Info */}
-              {!showWelcome && (game?.status === "lobby" || !game) && (
+              {welcomePhase === "none" && (game?.status === "lobby" || !game) && (
                 <div className="flex flex-col gap-4">
                   {/* Lobby Status Card */}
                   <div className="flex flex-col gap-4 rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-center">
@@ -999,7 +997,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
               )}
 
               {/* Game Content - only show when game exists and welcome dismissed */}
-              {game && !showWelcome && (
+              {game && welcomePhase === "none" && (
                 <>
                   {/* Machine Selection / Zusatzkauf */}
                   {(game?.phase === "machine_selection" || game?.allowMachinePurchase) &&
