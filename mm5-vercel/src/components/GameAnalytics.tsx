@@ -39,7 +39,7 @@ export default function GameAnalytics({
       capital: g.capital ?? 0,
       profit: (g.cumulativeProfit ?? 0),
     }))
-    .sort((a, b) => b.capital - a.capital);
+    .sort((a, b) => b.profit - a.profit);
 
   // Prepare period data for charts (only from lastResults)
   const maxPeriods = Math.max(
