@@ -27,6 +27,8 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   const [error, setError] = useState("");
   const [joined, setJoined] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [showNameInput, setShowNameInput] = useState(false);
+  const [tempGroupName, setTempGroupName] = useState("");
   const [groupId, setGroupId] = useState<string | null>(null);
   const [groupData, setGroupData] = useState<GroupState | null>(null);
   const [game, setGame] = useState<GameDocument | null>(null);
@@ -330,7 +332,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
     try {
       const groupsRef = collection(db, "games", gameId, "groups");
       const newGroup: Omit<GroupState, "id"> = {
-        name: groupName,
+        name: "", // Wird später beim Name-Input gesetzt
         capital: 50000,
         inventory: 0,
         cumulativeProfit: 0,
@@ -345,6 +347,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       setGroupId(docRef.id);
       setGroupData({ id: docRef.id, ...newGroup });
       setShowWelcome(true);
+      setShowNameInput(false);
       setJoined(true);
     } catch (err: any) {
       setError(`Fehler: ${err.message}`);
@@ -820,16 +823,13 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
           {joined && (
             <div className="flex flex-col gap-4">
               {/* Welcome Screen - show right after joining */}
-              {showWelcome && (
+              {showWelcome && !showNameInput && (
                 <div className="rounded-2xl border-3 border-blue-400 bg-gradient-to-br from-blue-50 to-sky-50 p-8 shadow-lg">
                   <div className="space-y-6">
                     {/* Header */}
                     <div className="text-center space-y-3">
                       <div className="text-5xl">🎉</div>
                       <h2 className="text-3xl font-bold text-neutral-900">Willkommen zu Markt-Match 5!</h2>
-                      <p className="text-lg text-neutral-700">
-                        <strong>{groupName}</strong>
-                      </p>
                     </div>
 
                     {/* Game Description */}
@@ -852,21 +852,101 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                           <span className="text-lg">📈</span>
                           <span><strong>Gewinn maximieren:</strong> Beste Strategie + Taktik gewinnt!</span>
                         </li>
+                        <li className="flex items-start gap-3">
+                          <span className="text-lg">🏢</span>
+                          <span><strong>Nächster Schritt:</strong> Gebt eurem Unternehmen einen Namen!</span>
+                        </li>
                       </ul>
                     </div>
 
                     {/* Action Button */}
                     <div className="text-center">
                       <button
-                        onClick={() => setShowWelcome(false)}
+                        onClick={() => setShowNameInput(true)}
                         className="inline-block rounded-lg bg-blue-600 px-8 py-3 text-lg font-bold text-white hover:bg-blue-700 transition shadow-md"
                       >
                         🚀 Spiel starten
                       </button>
-                      <p className="text-xs text-neutral-600 mt-3">
-                        Warte ab, bis die Spielleitung das Spiel startet. Du wirst dann automatisch weitergeleitet.
-                      </p>
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Name Input Screen - show after "Spiel starten" click */}
+              {showWelcome && showNameInput && (
+                <div className="rounded-2xl border-3 border-blue-400 bg-gradient-to-br from-blue-50 to-sky-50 p-8 shadow-lg">
+                  <div className="space-y-6">
+                    {/* Header */}
+                    <div className="text-center space-y-3">
+                      <div className="text-4xl">🏢</div>
+                      <h2 className="text-2xl font-bold text-neutral-900">Gründet euer Unternehmen!</h2>
+                      <p className="text-sm text-neutral-600">Wie soll euer Unternehmen heißen?</p>
+                    </div>
+
+                    {/* Name Input Form */}
+                    <form
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        if (!tempGroupName.trim()) {
+                          setError("Bitte gebt einen Namen ein!");
+                          return;
+                        }
+                        try {
+                          setLoading(true);
+                          if (groupId) {
+                            await updateDoc(doc(db, "games", gameId, "groups", groupId), {
+                              name: tempGroupName.trim(),
+                              status: "ready",
+                              updatedAt: serverTimestamp(),
+                            });
+                            setGroupName(tempGroupName.trim());
+                            setShowWelcome(false);
+                          }
+                        } catch (err) {
+                          setError("Fehler beim Speichern des Namens");
+                          console.error(err);
+                        } finally {
+                          setLoading(false);
+                        }
+                      }}
+                      className="space-y-4"
+                    >
+                      <div className="bg-white rounded-lg p-6 space-y-3">
+                        <label className="block text-sm font-semibold text-neutral-900">
+                          Unternehmensname
+                        </label>
+                        <input
+                          type="text"
+                          value={tempGroupName}
+                          onChange={(e) => setTempGroupName(e.target.value)}
+                          placeholder="z.B. TechWave AG, InnovateTech, ..."
+                          maxLength={50}
+                          className="w-full px-4 py-3 rounded-lg border border-neutral-300 bg-neutral-50 text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          autoFocus
+                        />
+                        <p className="text-xs text-neutral-500">
+                          {tempGroupName.length} / 50 Zeichen
+                        </p>
+                      </div>
+
+                      {error && (
+                        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-700 border border-red-200">
+                          {error}
+                        </div>
+                      )}
+
+                      <button
+                        type="submit"
+                        disabled={loading || !tempGroupName.trim()}
+                        className="w-full rounded-lg bg-green-600 px-6 py-3 text-lg font-bold text-white hover:bg-green-700 transition shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        {loading ? "Wird gespeichert..." : "✓ Bereit - Spiel starten"}
+                      </button>
+
+                      <p className="text-xs text-neutral-600 text-center">
+                        Nach Eingabe des Namens wirst du automatisch weitergeleitet.
+                      </p>
+                    </form>
                   </div>
                 </div>
               )}
