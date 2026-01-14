@@ -15,7 +15,6 @@ export interface GameParameters {
   rndBenefitThreshold: number;
   rndVariableCostReduction: number;
   machineDegradationRate: number;
-  isRndEnabled: boolean;
   marketingEffectivenessFactor: number;
   allowMachinePurchaseNextPeriod?: boolean;
   demandBoostNextPeriod?: boolean;
@@ -37,6 +36,8 @@ export interface PeriodActions {
   freeMarketAnalysis?: boolean;
   noInventoryCosts?: boolean;
   customEvent?: string;
+  allowRnD?: boolean;
+  rndThreshold?: number;
 }
 
 export interface Machine {

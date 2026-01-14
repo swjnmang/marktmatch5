@@ -176,10 +176,12 @@ export function calculateMarket(
     // Neues Kapital
     const endingCapital = Math.round((capitalBeforeInterest - interest) * 100) / 100;
 
-    // F&E-Vorteil prüfen
+    // F&E-Vorteil prüfen (nur wenn in aktivePeriodActions aktiviert)
+    const rndThreshold = actions?.allowRnD ? (actions.rndThreshold || 10000) : Infinity;
     const newCumulativeRndInvestment = groupState.cumulativeRndInvestment + rndCost;
-    const newRndBenefitApplied = 
-      newCumulativeRndInvestment >= parameters.rndBenefitThreshold || groupState.rndBenefitApplied;
+    const newRndBenefitApplied = !!(actions?.allowRnD && (
+      newCumulativeRndInvestment >= rndThreshold || groupState.rndBenefitApplied
+    ));
 
     // Ergebnis
     const result: PeriodResult = {
@@ -366,12 +368,8 @@ export function validateDecision(
     }
   }
 
-  // F&E (ab Periode 3, falls aktiviert)
-  if (parameters.isRndEnabled && period >= 3) {
-    if (decision.rndInvestment === undefined || decision.rndInvestment < 0) {
-      errors.push("F&E-Investition muss mindestens 0 sein.");
-    }
-  }
+  // F&E wird nicht mehr automatisch validiert - nur wenn über Aktionen aktiviert
+  // Die Validierung erfolgt in der Berechnung basierend auf activePeriodActions
 
   // Maschinenkauf (ab Periode 3, alle 3 Perioden: 3, 6, 9...)
   const canBuyMachine = period >= 3 && (period - 3) % 3 === 0;

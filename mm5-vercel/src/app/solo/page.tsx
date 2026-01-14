@@ -21,7 +21,6 @@ const DEFAULT_PARAMETERS = {
   rndBenefitThreshold: 10000,
   rndVariableCostReduction: 0.5,
   machineDegradationRate: 0.02,
-  isRndEnabled: true,
   marketingEffectivenessFactor: 0.3,
   allowMachinePurchaseNextPeriod: false,
   demandBoostNextPeriod: false,

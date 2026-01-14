@@ -40,6 +40,8 @@ export default function GameDashboardPage() {
   const [demandBoostNext, setDemandBoostNext] = useState(false);
   const [freeMarketAnalysisNext, setFreeMarketAnalysisNext] = useState(false);
   const [noInventoryCostsNext, setNoInventoryCostsNext] = useState(false);
+  const [allowRnDNext, setAllowRnDNext] = useState(false);
+  const [rndThresholdNext, setRndThresholdNext] = useState(10000);
   const [customEventNext, setCustomEventNext] = useState("");
   const [showEndGameModal, setShowEndGameModal] = useState(false);
   const [showRankingModal, setShowRankingModal] = useState(false);
@@ -93,6 +95,8 @@ export default function GameDashboardPage() {
           setDemandBoostNext(!!next.parameters?.demandBoostNextPeriod);
           setFreeMarketAnalysisNext(!!next.parameters?.freeMarketAnalysisNextPeriod);
           setNoInventoryCostsNext(!!next.parameters?.noInventoryCostsNextPeriod);
+          setAllowRnDNext(!!next.activePeriodActions?.allowRnD);
+          setRndThresholdNext(next.activePeriodActions?.rndThreshold || 10000);
           setCustomEventNext(next.parameters?.customEventNextPeriod || "");
         } else {
           setError("Spiel nicht gefunden");
@@ -737,6 +741,56 @@ export default function GameDashboardPage() {
                   </div>
                 </label>
 
+                {/* F&E (Research & Development) */}
+                <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+                  <label className="flex items-start gap-3 cursor-pointer mb-3">
+                    <input
+                      type="checkbox"
+                      checked={allowRnDNext}
+                      onChange={async (e) => {
+                        const checked = e.target.checked;
+                        setAllowRnDNext(checked);
+                        try {
+                          await updateDoc(doc(db, "games", gameId), {
+                            "activePeriodActions.allowRnD": checked,
+                            "activePeriodActions.rndThreshold": rndThresholdNext
+                          });
+                        } catch (err: any) {
+                          alert(`Fehler: ${err.message}`);
+                        }
+                      }}
+                      className="mt-1 accent-indigo-600 cursor-pointer"
+                    />
+                    <div className="text-sm text-neutral-700 flex-1">
+                      <p className="font-semibold text-neutral-900">🔬 Forschung & Entwicklung (F&E)</p>
+                      <p className="text-xs text-neutral-600">Gruppen können in F&E investieren, um ihre Produktionskosten zu senken</p>
+                    </div>
+                  </label>
+                  {allowRnDNext && (
+                    <div className="ml-6 mt-2 flex items-end gap-2">
+                      <label className="flex flex-col gap-1 flex-1">
+                        <span className="text-xs font-semibold text-neutral-700">Mindestinvestition (€)</span>
+                        <input
+                          type="number"
+                          value={rndThresholdNext}
+                          onChange={(e) => setRndThresholdNext(Math.max(0, parseInt(e.target.value) || 0))}
+                          onBlur={async () => {
+                            try {
+                              await updateDoc(doc(db, "games", gameId), {
+                                "activePeriodActions.rndThreshold": rndThresholdNext
+                              });
+                            } catch (err: any) {
+                              alert(`Fehler: ${err.message}`);
+                            }
+                          }}
+                          className="w-full px-2 py-1 border border-neutral-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                        />
+                      </label>
+                      <span className="text-xs text-neutral-600 pb-1">ab dieser Summe erhalten Gruppen Kostenreduktion</span>
+                    </div>
+                  )}
+                </div>
+
                 {/* Custom Event Text */}
                 <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-3">
                   <label className="block text-sm font-semibold text-neutral-900 mb-2">
@@ -927,6 +981,8 @@ export default function GameDashboardPage() {
                     demandBoost: demandBoostNext,
                     freeMarketAnalysis: freeMarketAnalysisNext,
                     noInventoryCosts: noInventoryCostsNext,
+                    allowRnD: allowRnDNext,
+                    rndThreshold: rndThresholdNext,
                     customEvent: customEventNext.trim(),
                   };
                   const endsAt = Date.now() + (game.parameters?.periodDurationMinutes || 10) * 60 * 1000;
@@ -951,6 +1007,8 @@ export default function GameDashboardPage() {
                   setDemandBoostNext(false);
                   setFreeMarketAnalysisNext(false);
                   setNoInventoryCostsNext(false);
+                  setAllowRnDNext(false);
+                  setRndThresholdNext(10000);
                   setCustomEventNext("");
                 } catch (err: any) {
                   console.error("Error starting next period:", err);
@@ -1513,34 +1571,6 @@ export default function GameDashboardPage() {
                       </p>
                     </div>
 
-                    {/* F&E aktiviert */}
-                    <div>
-                      <label className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          defaultChecked={game.parameters.isRndEnabled}
-                          onChange={async (e) => {
-                            setSettingsLoading(true);
-                            try {
-                              await updateDoc(doc(db, "games", gameId), {
-                                "parameters.isRndEnabled": e.target.checked
-                              });
-                            } catch (err: any) {
-                              alert(`Fehler: ${err.message}`);
-                            } finally {
-                              setSettingsLoading(false);
-                            }
-                          }}
-                          className="mt-1 rounded border-neutral-300"
-                        />
-                        <div>
-                          <span className="text-sm font-semibold text-neutral-900">🔬 Forschung & Entwicklung aktivieren</span>
-                          <p className="text-xs text-neutral-600 mt-1">
-                            Ermöglicht F&E-Investitionen ab Periode 3 (reduziert variable Kosten)
-                          </p>
-                        </div>
-                      </label>
-                    </div>
                   </>
                 )}
 

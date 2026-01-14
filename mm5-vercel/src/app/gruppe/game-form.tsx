@@ -799,6 +799,12 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                       <span>Keine Lagerkosten in dieser Periode.</span>
                     </div>
                   )}
+                  {activeActions.allowRnD && (
+                    <div className="flex items-start gap-2">
+                      <span>🔬</span>
+                      <span>Forschung & Entwicklung: Investieren ab €{(activeActions.rndThreshold || 10000).toLocaleString("de-DE")} reduziert variable Produktionskosten.</span>
+                    </div>
+                  )}
                   {activeActions.customEvent?.trim() && (
                     <div className="flex items-start gap-2">
                       <span>💬</span>
@@ -1350,8 +1356,8 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                       Marktanalyse kaufen (€{game.parameters.marketAnalysisCost})
                     </label>
 
-                    {/* F&E-Investitionen (ab Periode 3, falls aktiviert) */}
-                    {game.parameters.isRndEnabled && game.period >= 3 && (
+                    {/* F&E-Investitionen (nur wenn aktiviert über Aktionen) */}
+                    {game.activePeriodActions?.allowRnD && (
                       <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
                         <label className="flex flex-col gap-2">
                           <div className="flex items-center gap-2">
