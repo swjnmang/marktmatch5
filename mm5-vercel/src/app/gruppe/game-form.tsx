@@ -27,6 +27,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   const [error, setError] = useState("");
   const [joined, setJoined] = useState(false);
   const [welcomePhase, setWelcomePhase] = useState<"none" | "welcome" | "name">("none");
+  const [autoJoinAttempted, setAutoJoinAttempted] = useState(false);
   const [tempGroupName, setTempGroupName] = useState("");
   const [groupId, setGroupId] = useState<string | null>(null);
   const [groupData, setGroupData] = useState<GroupState | null>(null);
@@ -188,6 +189,50 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
     // Admin PIN might already be stored
     setIsAdmin(checkPinFromLocalStorage(gameId));
   }, [gameId]);
+
+  // Auto-join with prefilled PIN (from QR code or direct link)
+  useEffect(() => {
+    if (autoJoinAttempted || !prefilledPin || joined || !gameId) return;
+    
+    const autoJoin = async (e?: React.FormEvent) => {
+      if (e) e.preventDefault();
+      setAutoJoinAttempted(true);
+      setLoading(true);
+      setError("");
+      
+      try {
+        // Generate a random group name if one wasn't provided
+        const tempName = `Team ${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+        setGroupName(tempName);
+        
+        const groupsRef = collection(db, "games", gameId, "groups");
+        const newGroup: Omit<GroupState, "id"> = {
+          name: tempName,
+          capital: 50000,
+          inventory: 0,
+          cumulativeProfit: 0,
+          machines: [],
+          cumulativeRndInvestment: 0,
+          rndBenefitApplied: false,
+          status: "waiting",
+        };
+        const docRef = await addDoc(groupsRef, newGroup);
+        localStorage.setItem(`group_${gameId}`, docRef.id);
+        localStorage.setItem(`gameId_${docRef.id}`, gameId);
+        setGroupId(docRef.id);
+        setGroupData({ id: docRef.id, ...newGroup });
+        setWelcomePhase("welcome");
+        setJoined(true);
+      } catch (err: any) {
+        setError(`Fehler beim Beitritt: ${err.message}`);
+        setAutoJoinAttempted(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    autoJoin();
+  }, [prefilledPin, joined, gameId, autoJoinAttempted]);
 
   // Load competitor insights when market analysis was purchased (solo & multiplayer)
   useEffect(() => {
