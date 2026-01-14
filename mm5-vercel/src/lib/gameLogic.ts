@@ -201,7 +201,7 @@ export function calculateMarket(
       marketShare: adjustedDemand > 0 ? Math.round((soldUnits / adjustedDemand) * 100 * 100) / 100 : 0,
       averageMarketPrice: hasMarketAnalysis ? Math.round(avgPrice * 100) / 100 : 0,
       totalMarketDemand: hasMarketAnalysis ? Math.floor(adjustedDemand) : 0,
-      machineDepreciationCapacityLost: capacityLostToDepreciation || undefined,
+      machineDepreciationCapacityLost: capacityLostToDepreciation || 0,
     };
 
     return {
