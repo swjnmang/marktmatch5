@@ -23,6 +23,8 @@ export const PRESET_PARAMETERS: Record<"easy" | "medium" | "hard", GameParameter
     customEventNextPeriod: "",
     machineDepreciationEnabled: false,
     machineDepreciationRate: 0.1,
+    priceExponent: 2,
+    maxMarketShareCap: 0.9,
   },
   medium: {
     startingCapital: 40000,
@@ -46,6 +48,8 @@ export const PRESET_PARAMETERS: Record<"easy" | "medium" | "hard", GameParameter
     customEventNextPeriod: "",
     machineDepreciationEnabled: false,
     machineDepreciationRate: 0.1,
+    priceExponent: 2,
+    maxMarketShareCap: 0.9,
   },
   hard: {
     startingCapital: 30000,
@@ -69,5 +73,7 @@ export const PRESET_PARAMETERS: Record<"easy" | "medium" | "hard", GameParameter
     customEventNextPeriod: "",
     machineDepreciationEnabled: false,
     machineDepreciationRate: 0.1,
+    priceExponent: 2,
+    maxMarketShareCap: 0.9,
   },
 };
