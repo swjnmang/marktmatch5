@@ -1571,14 +1571,36 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
               {/* Game Finished - Show Analytics */}
               {joined && (game?.status as unknown as string) === "finished" && groupData && (
                 <>
-                  <div className="rounded-lg border-2 border-emerald-400 bg-emerald-50 p-6 mt-8">
-                    <h2 className="text-2xl font-bold text-emerald-900 mb-2 flex items-center gap-2">
-                      <span>🎉</span>
-                      Spiel beendet!
-                    </h2>
-                    <p className="text-emerald-800 mb-4">
-                      Das Spiel ist vorbei. Schaut euch euren Spielverlauf und das finale Ranking an.
-                    </p>
+                  {/* Finish Screen - Full Width Celebration */}
+                  <div className="rounded-2xl border-3 border-emerald-400 bg-gradient-to-br from-emerald-50 to-emerald-100 p-8 mt-8 shadow-lg">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-6">
+                      <div>
+                        <h2 className="text-3xl sm:text-4xl font-bold text-emerald-900 mb-2 flex items-center gap-3">
+                          <span className="text-4xl sm:text-5xl">🎉</span>
+                          Spiel beendet!
+                        </h2>
+                        <p className="text-emerald-800 text-lg">
+                          Herzlichen Glückwunsch! Das Unternehmensplanspiel ist vorbei.
+                        </p>
+                      </div>
+                      <div className="bg-white rounded-lg px-6 py-4 border-2 border-emerald-400 text-center">
+                        <p className="text-sm text-emerald-700 font-semibold">Dein Kapital</p>
+                        <p className="text-3xl font-bold text-emerald-900">€{(groupData.capital || 0).toLocaleString("de-DE")}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4 border border-emerald-200">
+                      <p className="text-emerald-800">
+                        📊 <strong>Schaut euch unten an:</strong> Euer finales Ranking, den Spielverlauf über alle Perioden mit interaktiven Graphen und vergleicht euren Erfolg mit den anderen Gruppen!
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="flex items-center gap-3 my-8">
+                    <div className="flex-1 border-t-2 border-neutral-200"></div>
+                    <span className="text-neutral-500 font-semibold">📈 SPIELANALYSE</span>
+                    <div className="flex-1 border-t-2 border-neutral-200"></div>
                   </div>
 
                   {/* Analytics with ranking and charts */}
