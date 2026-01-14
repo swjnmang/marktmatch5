@@ -30,17 +30,17 @@ function GruppeContent() {
     const urlPin = searchParams.get("pin");
     
     if (urlGameId && urlPin) {
-      // Direct link with PIN - auto-join
+      // Direct link with PIN - auto-join and go directly to welcome screen
       setPin(urlPin);
       setGameId(urlGameId);
-      // Auto-navigate to the game with PIN prefilled
+      // Auto-navigate to the game with PIN prefilled (skip join-form)
       router.push(`/gruppe/${urlGameId}?pin=${urlPin}`);
       return;
     }
 
     if (urlGameId) {
       setGameId(urlGameId);
-      // Auto-navigate to the game
+      // Auto-navigate to the game (skip join-form)
       router.push(`/gruppe/${urlGameId}`);
       return;
     }
