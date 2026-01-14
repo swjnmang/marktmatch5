@@ -48,7 +48,7 @@ export default function Home() {
         </div>
 
         {/* Features */}
-        <div className="mb-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mb-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
           <div className="rounded-xl bg-white p-8 shadow-md border-2 border-neutral-300 text-center hover:shadow-lg transition hover:-translate-y-1">
             <div className="mb-4 text-4xl flex justify-center">⚡</div>
             <h4 className="mb-2 text-base font-semibold text-neutral-800">Schnell starten</h4>
@@ -68,6 +68,11 @@ export default function Home() {
             <div className="mb-4 text-4xl flex justify-center">👥</div>
             <h4 className="mb-2 text-base font-semibold text-neutral-800">Multiplayer</h4>
             <p className="text-sm text-neutral-600">Mit Teams spielen</p>
+          </div>
+          <div className="rounded-xl bg-white p-8 shadow-md border-2 border-neutral-300 text-center hover:shadow-lg transition hover:-translate-y-1">
+            <div className="mb-4 text-4xl flex justify-center">💰</div>
+            <h4 className="mb-2 text-base font-semibold text-neutral-800">Kostenlos</h4>
+            <p className="text-sm text-neutral-600">Ohne Gebühren</p>
           </div>
         </div>
 
