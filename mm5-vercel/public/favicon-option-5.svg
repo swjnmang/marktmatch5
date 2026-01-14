@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <!-- Bold Teal Background -->
+  <rect width="192" height="192" fill="#14b8a6" rx="48"/>
+  
+  <!-- Handshake/Deal icon with upward growth -->
+  <g transform="translate(48, 48)">
+    <!-- Left hand/arm -->
+    <path d="M 20 50 Q 20 40 30 35 Q 35 33 40 35" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="40" cy="35" r="4" fill="#ffffff"/>
+    
+    <!-- Right hand/arm -->
+    <path d="M 76 50 Q 76 40 66 35 Q 61 33 56 35" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="56" cy="35" r="4" fill="#ffffff"/>
+    
+    <!-- Connection/handshake point -->
+    <line x1="40" y1="35" x2="56" y2="35" stroke="#fbbf24" stroke-width="4" stroke-linecap="round"/>
+    
+    <!-- Growth arrow above -->
+    <g transform="translate(48, 15)">
+      <line x1="0" y1="20" x2="0" y2="0" stroke="#fbbf24" stroke-width="3" stroke-linecap="round"/>
+      <polygon points="0,0 -4,8 4,8" fill="#fbbf24"/>
+    </g>
+    
+    <!-- Baseline for stability -->
+    <line x1="20" y1="70" x2="76" y2="70" stroke="#ffffff" stroke-width="2.5" opacity="0.6"/>
+  </g>
+</svg>

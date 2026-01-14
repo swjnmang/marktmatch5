@@ -1,37 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
-  <!-- Background -->
-  <rect width="192" height="192" fill="#f3f4f6" rx="48"/>
+  <!-- Sky-Blue Background with gradient -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0ea5e9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0284c7;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" fill="url(#bgGrad)" rx="48"/>
   
-  <!-- Market chart symbol with upward trend -->
-  <g transform="translate(48, 48)">
-    <!-- Grid background -->
-    <line x1="0" y1="48" x2="96" y2="48" stroke="#e5e7eb" stroke-width="1"/>
-    <line x1="0" y1="32" x2="96" y2="32" stroke="#e5e7eb" stroke-width="1"/>
-    <line x1="0" y1="16" x2="96" y2="16" stroke="#e5e7eb" stroke-width="1"/>
-    
-    <!-- Chart line with trend -->
-    <polyline 
-      points="8,40 24,32 40,36 56,20 72,28 88,8" 
-      fill="none" 
-      stroke="#4b5563" 
-      stroke-width="3"
-      stroke-linecap="round"
-      stroke-linejoin="round"/>
-    
-    <!-- Chart points (nodes) -->
-    <circle cx="8" cy="40" r="3" fill="#4b5563"/>
-    <circle cx="24" cy="32" r="3" fill="#4b5563"/>
-    <circle cx="40" cy="36" r="3" fill="#4b5563"/>
-    <circle cx="56" cy="20" r="3" fill="#4b5563"/>
-    <circle cx="72" cy="28" r="3" fill="#4b5563"/>
-    <circle cx="88" cy="8" r="3" fill="#4b5563"/>
-    
-    <!-- Axes -->
-    <line x1="0" y1="48" x2="0" y2="0" stroke="#4b5563" stroke-width="2.5"/>
-    <line x1="0" y1="48" x2="96" y2="48" stroke="#4b5563" stroke-width="2.5"/>
-    
-    <!-- Axis ticks -->
-    <line x1="-3" y1="48" x2="3" y2="48" stroke="#4b5563" stroke-width="1.5"/>
-    <line x1="96" y1="45" x2="96" y2="51" stroke="#4b5563" stroke-width="1.5"/>
-  </g>
+  <!-- Large "5" in the center -->
+  <text x="96" y="125" font-size="140" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" letter-spacing="-5">5</text>
+  
+  <!-- Subtle accent circle behind the 5 -->
+  <circle cx="96" cy="96" r="65" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.3"/>
 </svg>

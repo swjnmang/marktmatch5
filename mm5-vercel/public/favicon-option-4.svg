@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <!-- Deep Purple Background -->
+  <rect width="192" height="192" fill="#7c3aed" rx="48"/>
+  
+  <!-- Interconnected nodes/network representing competition & markets -->
+  <g transform="translate(96, 96)">
+    <!-- Central node (larger) -->
+    <circle cx="0" cy="0" r="12" fill="#fbbf24" stroke="#ffffff" stroke-width="2"/>
+    
+    <!-- 4 surrounding nodes -->
+    <!-- Top -->
+    <circle cx="0" cy="-40" r="10" fill="#ffffff"/>
+    <line x1="0" y1="-12" x2="0" y2="-30" stroke="#fbbf24" stroke-width="2.5"/>
+    
+    <!-- Right -->
+    <circle cx="40" cy="0" r="10" fill="#ffffff"/>
+    <line x1="12" y1="0" x2="30" y2="0" stroke="#fbbf24" stroke-width="2.5"/>
+    
+    <!-- Bottom -->
+    <circle cx="0" cy="40" r="10" fill="#ffffff"/>
+    <line x1="0" y1="12" x2="0" y2="30" stroke="#fbbf24" stroke-width="2.5"/>
+    
+    <!-- Left -->
+    <circle cx="-40" cy="0" r="10" fill="#ffffff"/>
+    <line x1="-12" y1="0" x2="-30" y2="0" stroke="#fbbf24" stroke-width="2.5"/>
+    
+    <!-- Numbers "5" in center to show the 5th version -->
+    <text x="0" y="6" font-size="16" font-weight="bold" fill="#7c3aed" text-anchor="middle" dominant-baseline="middle">5</text>
+  </g>
+</svg>
