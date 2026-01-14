@@ -48,22 +48,26 @@ export default function Home() {
         </div>
 
         {/* Features */}
-        <div className="mb-20 grid gap-6 rounded-2xl bg-neutral-200 p-10 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="text-neutral-800">
-            <h4 className="mb-2 text-base font-semibold">⚡ Schnell starten</h4>
-            <p className="text-sm opacity-90">In 2 Min einsatzbereit</p>
+        <div className="mb-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-xl bg-white p-8 shadow-md border-2 border-neutral-300 text-center hover:shadow-lg transition hover:-translate-y-1">
+            <div className="mb-4 text-4xl flex justify-center">⚡</div>
+            <h4 className="mb-2 text-base font-semibold text-neutral-800">Schnell starten</h4>
+            <p className="text-sm text-neutral-600">In 2 Min einsatzbereit</p>
           </div>
-          <div className="text-neutral-800">
-            <h4 className="mb-2 text-base font-semibold">📊 Live-Auswertung</h4>
-            <p className="text-sm opacity-90">Ergebnisse in Echtzeit</p>
+          <div className="rounded-xl bg-white p-8 shadow-md border-2 border-neutral-300 text-center hover:shadow-lg transition hover:-translate-y-1">
+            <div className="mb-4 text-4xl flex justify-center">📊</div>
+            <h4 className="mb-2 text-base font-semibold text-neutral-800">Live-Auswertung</h4>
+            <p className="text-sm text-neutral-600">Ergebnisse in Echtzeit</p>
           </div>
-          <div className="text-neutral-800">
-            <h4 className="mb-2 text-base font-semibold">🎓 Lehrreich</h4>
-            <p className="text-sm opacity-90">Wirtschaft verstehen</p>
+          <div className="rounded-xl bg-white p-8 shadow-md border-2 border-neutral-300 text-center hover:shadow-lg transition hover:-translate-y-1">
+            <div className="mb-4 text-4xl flex justify-center">🎓</div>
+            <h4 className="mb-2 text-base font-semibold text-neutral-800">Lehrreich</h4>
+            <p className="text-sm text-neutral-600">Wirtschaft verstehen</p>
           </div>
-          <div className="text-neutral-800">
-            <h4 className="mb-2 text-base font-semibold">👥 Multiplayer</h4>
-            <p className="text-sm opacity-90">Mit Teams spielen</p>
+          <div className="rounded-xl bg-white p-8 shadow-md border-2 border-neutral-300 text-center hover:shadow-lg transition hover:-translate-y-1">
+            <div className="mb-4 text-4xl flex justify-center">👥</div>
+            <h4 className="mb-2 text-base font-semibold text-neutral-800">Multiplayer</h4>
+            <p className="text-sm text-neutral-600">Mit Teams spielen</p>
           </div>
         </div>
 
