@@ -817,7 +817,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
           {joined && (
             <div className="flex flex-col gap-4">
               {/* Waiting for Game to Start - with Lobby Info */}
-              {!game || game.status !== "in_progress" ? (
+              {!game || (game.status !== "in_progress" && game.status !== "finished") ? (
                 <div className="flex flex-col gap-4">
                   {/* Lobby Status Card */}
                   <div className="flex flex-col gap-4 rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-center">
