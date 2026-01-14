@@ -661,7 +661,7 @@ export default function GameDashboardPage() {
                   />
                   <div className="text-sm text-neutral-700 flex-1">
                     <p className="font-semibold text-neutral-900">🏭 Maschinenkauf erlauben</p>
-                    <p className="text-xs text-neutral-600">Gruppen können zusätzliche Produktionsmaschinen kaufen (4 Optionen wie zu Beginn)</p>
+                    <p className="text-xs text-neutral-600">Jede Gruppe kann maximal EINE zusätzliche Maschine kaufen (4 Optionen zur Wahl)</p>
                   </div>
                 </label>
 

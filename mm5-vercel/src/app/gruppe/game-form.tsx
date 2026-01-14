@@ -490,6 +490,12 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       const isAdditionalPurchase = game?.phase !== "machine_selection";
 
       if (isAdditionalPurchase) {
+        // Check if group already bought a machine in a previous additional purchase phase
+        const alreadyBoughtAdditionalMachine = groupData.machines.length > 1;
+        if (alreadyBoughtAdditionalMachine) {
+          throw new Error("Jede Gruppe kann maximal EINE zusätzliche Maschine kaufen. Sie haben das Limit bereits erreicht.");
+        }
+
         const newCapital = groupData.capital - selectedMachine.cost;
         if (newCapital < 0) {
           throw new Error("Nicht genug Kapital für den Maschinenkauf.");
@@ -1055,8 +1061,17 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                           </h3>
                           <p className="text-sm text-neutral-600">
                             Wähle eine Produktionsmaschine für dein Unternehmen. Diese Entscheidung beeinflusst deine Produktionskapazität und Kostenstruktur.
-                            {game?.phase !== "machine_selection" ? " (Zusätzlicher Kauf in dieser Periode)" : ""}
                           </p>
+                          {game?.phase !== "machine_selection" && (
+                            <div className="mt-2 rounded-lg bg-amber-50 border border-amber-200 p-3">
+                              <p className="text-sm font-semibold text-amber-900">
+                                ⚠️ Zusätzlicher Maschinenkauf
+                              </p>
+                              <p className="text-xs text-amber-800 mt-1">
+                                Jede Gruppe kann maximal EINE weitere Maschine kaufen. Dies ist dein Kauf!
+                              </p>
+                            </div>
+                          )}
                         </div>
 
                         <div className="grid gap-4 grid-cols-1">
