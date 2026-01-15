@@ -2,6 +2,7 @@ import type { GameDocument, GroupState, PeriodDecision, PeriodResult } from "./t
 
 /**
  * Calculate market results for all groups in a period
+ * Uses Sequential Softening algorithm for realistic price competition
  */
 export async function calculateMarketResults(
   game: GameDocument,
@@ -67,15 +68,16 @@ export async function calculateMarketResults(
     1 - (priceRatio - 1) * params.priceElasticityFactor
   );
 
-  // Final demand capped below total capacity to avoid "sell-all" scenarios
-  const demandCap = Math.floor(totalCapacity * params.initialMarketSaturationFactor);
+  // Final demand - never more than base demand
   const totalDemand = Math.max(
     1,
-    Math.min(demandCap, Math.floor(baseDemand * priceElasticityEffect * demandBoostMultiplier))
+    Math.floor(baseDemand * priceElasticityEffect * demandBoostMultiplier)
   );
 
+  console.log(`[Market] TotalCapacity=${totalCapacity}, BaseDemand=${baseDemand}, AvgPrice=€${avgMarketPrice.toFixed(2)}, PriceElasticity=${priceElasticityEffect.toFixed(3)}, FinalDemand=${totalDemand}`);
 
-  // Inverse-Preis-Verteilung: Nachfrageanteile nach (p_min / p_i)^alpha
+  // ===== SEQUENTIAL SOFTENING ALGORITHM =====
+  // Groups sorted by price (cheapest first) get priority in demand allocation
   const entries = groups
     .map((group) => {
       const decision = decisions[group.id];
@@ -83,65 +85,42 @@ export async function calculateMarketResults(
       const supply = groupSupplies[group.id] || 0;
       return { id: group.id, price: Math.max(0.01, decision.price), supply };
     })
-    .filter((e): e is { id: string; price: number; supply: number } => !!e);
-
-  const pMin = Math.min(...entries.map(e => e.price));
-  const alpha = params.priceExponent ?? 2;
-  const sCap = Math.max(0, Math.min(1, params.maxMarketShareCap ?? 0.5));
-  const capUnits = Math.floor(sCap * totalDemand);
-
-  const weights = entries.map(e => ({ id: e.id, w: Math.pow(pMin / e.price, alpha), supply: e.supply }));
-  const totalW = weights.reduce((s, x) => s + x.w, 0) || 1;
+    .filter((e): e is { id: string; price: number; supply: number } => !!e)
+    .sort((a, b) => a.price - b.price);  // Sort by price ascending (cheapest first)
 
   const soldByGroup: Record<string, number> = {};
-  // Initial Allokation
-  for (const x of weights) {
-    const share = x.w / totalW;
-    const target = Math.floor(share * totalDemand);
-    const sold = Math.min(target, x.supply, capUnits);
-    soldByGroup[x.id] = sold;
-  }
+  let remainingDemand = totalDemand;
+  const SOFTENING_FACTOR = 0.8;  // Each group gets 80% of remaining demand
 
-  let remainingDemand = totalDemand - Object.values(soldByGroup).reduce((s, v) => s + v, 0);
+  console.log(`[Market] Starting demand allocation (Sequential Softening). Total groups: ${entries.length}`);
 
-  // Proportionale Restverteilung nach Gewicht, begrenzt durch verbleibende Kapazitäten und Cap
-  if (remainingDemand > 0) {
-    const eligible = weights.filter(x => {
-      const sold = soldByGroup[x.id] || 0;
-      return x.supply - sold > 0 && capUnits - sold > 0;
-    });
-    const sumEligW = eligible.reduce((s, x) => s + x.w, 0) || 1;
-    for (const x of eligible) {
-      if (remainingDemand <= 0) break;
-      const sold = soldByGroup[x.id] || 0;
-      const supplyLeft = x.supply - sold;
-      const capLeft = capUnits - sold;
-      const add = Math.min(supplyLeft, capLeft, Math.floor((x.w / sumEligW) * remainingDemand));
-      if (add > 0) {
-        soldByGroup[x.id] = sold + add;
-        remainingDemand -= add;
-      }
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i];
+    
+    if (remainingDemand <= 0) {
+      console.log(`[Market] Group ${i} (€${entry.price.toFixed(2)}): No remaining demand`);
+      soldByGroup[entry.id] = 0;
+      continue;
     }
+
+    // Last group gets all remaining demand
+    const isLastGroup = i === entries.length - 1;
+    const targetDemand = isLastGroup 
+      ? remainingDemand  
+      : Math.floor(remainingDemand * SOFTENING_FACTOR);
+    
+    // Limited by supply
+    const allocated = Math.min(targetDemand, entry.supply);
+    
+    soldByGroup[entry.id] = allocated;
+    remainingDemand -= allocated;
+    
+    console.log(`[Market] Group ${i} (€${entry.price.toFixed(2)}, Supply=${entry.supply}): Target=${targetDemand}, Allocated=${allocated}, Remaining=${remainingDemand}`);
   }
 
-  // Falls noch Einheiten übrig (durch Rundung), verteile 1er-Inkremente nach Gewicht
-  if (remainingDemand > 0) {
-    const order = [...weights].sort((a, b) => b.w - a.w);
-    let idx = 0;
-    while (remainingDemand > 0 && idx < order.length) {
-      const x = order[idx];
-      const sold = soldByGroup[x.id] || 0;
-      if (x.supply - sold > 0 && capUnits - sold > 0) {
-        soldByGroup[x.id] = sold + 1;
-        remainingDemand -= 1;
-      }
-      idx = (idx + 1) % order.length;
-    }
-  }
+  console.log(`[Market] Allocation complete. Total allocated: ${Object.values(soldByGroup).reduce((s, v) => s + v, 0)}, Unmet demand: ${remainingDemand}`);
 
-  console.log(`[Market] Total demand: ${totalDemand}, remaining unmet: ${remainingDemand}`);
-
-  // Berechne Marktanteil und Verkäufe für jede Gruppe
+  // ===== CALCULATE RESULTS FOR EACH GROUP =====
   for (const group of groups) {
     const decision = decisions[group.id];
     if (!decision) continue;
@@ -149,22 +128,21 @@ export async function calculateMarketResults(
     const supply = groupSupplies[group.id] || 0;
     const soldUnits = soldByGroup[group.id] || 0;
     
-    // CRITICAL: Verkaufte Einheiten dürfen Angebot nicht überschreiten
+    // Safety check
     if (soldUnits > supply) {
       console.error(`[CRITICAL] Group ${group.id}: Sold (${soldUnits}) > Supply (${supply})!`);
-      console.error(`  Production: ${decision.production}, Inventory: ${group.inventory}, SellFromInv: ${decision.sellFromInventory}`);
     }
     
     const revenue = Math.round(soldUnits * decision.price * 100) / 100;
     
-    // Variable cost per unit: from machine OR default 5€
+    // Variable cost per unit: from machine
     let varCostPerUnit = 5;
     if (group.machines && group.machines.length > 0) {
       varCostPerUnit = group.machines[0].variableCostPerUnit;
     }
     
     // Apply R&D benefit if applicable
-    const rndBenefit = group.rndBenefitApplied ? 2 : 0; // 2€ cost reduction
+    const rndBenefit = group.rndBenefitApplied ? params.rndVariableCostReduction * varCostPerUnit : 0;
     const effectiveVarCost = Math.max(0, varCostPerUnit - rndBenefit);
     
     // Production costs = quantity × per-unit cost
@@ -178,63 +156,45 @@ export async function calculateMarketResults(
     const rndCost = Math.round((decision.rndInvestment || 0) * 100) / 100;
     const hasMarketAnalysis = freeMarketAnalysis || decision.buyMarketAnalysis;
     const marketAnalysisCost = hasMarketAnalysis ? (freeMarketAnalysis ? 0 : Math.round(params.marketAnalysisCost * 100) / 100) : 0;
-    const marketingCost = Math.round((decision.marketingEffort || 0) * 100) / 100;
-    const machineCost = 0;
+    const machineCost = 0;  // Machine costs not included in this simplified version
     
     // Total costs
-    const totalCosts = Math.round((productionCosts + inventoryCost + rndCost + marketAnalysisCost + marketingCost) * 100) / 100;
+    const totalCosts = Math.round((productionCosts + inventoryCost + rndCost + marketAnalysisCost + machineCost) * 100) / 100;
     
-    // Profit before interest
-    const profit = Math.round((revenue - totalCosts) * 100) / 100;
-    let endingCapital = Math.round((group.capital + profit) * 100) / 100;
+    // Profit and capital
+    const profitBeforeInterest = Math.round((revenue - totalCosts) * 100) / 100;
+    let endingCapital = Math.round((group.capital + profitBeforeInterest) * 100) / 100;
     
-    // Apply interest on negative capital
+    // Interest on negative capital
     let interest = 0;
     if (endingCapital < 0) {
       interest = Math.round(Math.abs(endingCapital) * params.negativeCashInterestRate * 100) / 100;
       endingCapital = Math.round((endingCapital - interest) * 100) / 100;
     }
+    
+    const finalProfit = Math.round((profitBeforeInterest - interest) * 100) / 100;
 
-    // R&D benefit check
-    const newCumulativeRnd = group.cumulativeRndInvestment + rndCost;
-    const rndBenefitApplied = newCumulativeRnd >= params.rndBenefitThreshold && !group.rndBenefitApplied;
-
-    // Store result
     results[group.id] = {
       period: game.period,
+      price: Math.round(decision.price * 100) / 100,
       soldUnits,
       revenue,
       productionCosts,
       variableCosts: productionCosts,
       inventoryCost,
       rndCost,
-      machineCost,
       marketAnalysisCost,
+      machineCost,
       interest,
       totalCosts: Math.round((totalCosts + interest) * 100) / 100,
-      profit: Math.round((profit - interest) * 100) / 100,
+      profit: finalProfit,
       endingInventory: Math.max(0, newInventory),
       endingCapital,
       marketShare: totalDemand > 0 ? Math.round((soldUnits / totalDemand) * 100 * 100) / 100 : 0,
       averageMarketPrice: hasMarketAnalysis ? Math.round(avgMarketPrice * 100) / 100 : 0,
       totalMarketDemand: hasMarketAnalysis ? totalDemand : 0,
+      machineDepreciationCapacityLost: 0,
     };
-  }
-  // Compute demand-weighted average market price after allocation
-  let totalSold = 0;
-  let valueSum = 0;
-  for (const group of groups) {
-    const decision = decisions[group.id];
-    if (!decision) continue;
-    const sold = results[group.id]?.soldUnits || 0;
-    totalSold += sold;
-    valueSum += sold * decision.price;
-  }
-  const demandWeightedAvg = totalSold > 0 ? valueSum / totalSold : avgMarketPrice;
-  for (const gid of Object.keys(results)) {
-    const decision = decisions[gid];
-    const hasMarketAnalysis = freeMarketAnalysis || decision?.buyMarketAnalysis;
-    results[gid].averageMarketPrice = hasMarketAnalysis ? demandWeightedAvg : 0;
   }
 
   return results;
