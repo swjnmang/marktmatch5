@@ -1,62 +1,103 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 
-interface Screenshot {
+interface GameFeature {
   id: number;
+  icon: string;
   title: string;
   description: string;
-  image: string;
+  details: string[];
 }
 
-const screenshots: Screenshot[] = [
+const gameFeatures: GameFeature[] = [
   {
     id: 1,
-    title: "Treffe strategische Entscheidungen",
-    description: "Bestimme Produktion, Preis, Marketing und Investitionen jede Periode neu",
-    image: "/screenshot-1.svg",
+    icon: "🏭",
+    title: "Produktionsmanagement",
+    description: "Steuere deine Produktion strategisch",
+    details: [
+      "Wähle aus verschiedenen Maschinen mit unterschiedlichen Kapazitäten",
+      "Plane deine Produktionsmenge pro Periode",
+      "Verwalte dein Lager und vermeide Überproduktion",
+      "Investiere in Forschung & Entwicklung für Kostensenkung"
+    ]
   },
   {
     id: 2,
-    title: "Beobachte deine Kapitalentwicklung",
-    description: "Verfolge deine Gewinne und Verluste live im Vergleich zu den Konkurrenten",
-    image: "/screenshot-2.svg",
+    icon: "💰",
+    title: "Preisgestaltung & Markt",
+    description: "Finde den optimalen Verkaufspreis",
+    details: [
+      "Setze deinen Verkaufspreis basierend auf Kosten und Konkurrenz",
+      "Beobachte die Marktreaktionen in Echtzeit",
+      "Kaufe Marktanalysen für detaillierte Einblicke",
+      "Passe deine Strategie an die Marktnachfrage an"
+    ]
   },
   {
     id: 3,
-    title: "Konkurriere in der Rangliste",
-    description: "Sieh wer führt und lerne von den Strategien der anderen Teams",
-    image: "/screenshot-3.svg",
+    icon: "📊",
+    title: "Finanzplanung",
+    description: "Halte deine Finanzen im Gleichgewicht",
+    details: [
+      "Überwache dein Startkapital und laufende Kosten",
+      "Vermeide negative Kapitalstände (Zinsen!)",
+      "Analysiere Gewinne und Verluste jeder Periode",
+      "Plane langfristige Investitionen strategisch"
+    ]
   },
   {
     id: 4,
-    title: "Spielleiter verwaltet das Spiel",
-    description: "Der Moderator steuert Perioden, Auswertungen und kann Spezialaufträge vergeben",
-    image: "/screenshot-4.svg",
+    icon: "🎯",
+    title: "Wettbewerb & Ranking",
+    description: "Tritt gegen andere Teams an",
+    details: [
+      "Konkurriere mit bis zu 10 Teams gleichzeitig",
+      "Beobachte die Live-Rangliste nach jeder Periode",
+      "Analysiere Konkurrenzstrategien (wenn Marktanalyse gekauft)",
+      "Sichere dir Bonuspunkte durch Spezialaufträge"
+    ]
   },
   {
     id: 5,
-    title: "Solo-Modus gegen KI-Gegner",
-    description: "Spielen Sie allein gegen intelligente KI-Konkurrenten in verschiedenen Schwierigkeitsstufen",
-    image: "/screenshot-6.svg",
+    icon: "🔬",
+    title: "Forschung & Entwicklung",
+    description: "Investiere in die Zukunft",
+    details: [
+      "Reduziere variable Stückkosten durch F&E-Investitionen",
+      "Erreiche Kostensenkungen ab einem Schwellenwert",
+      "Einmalige Effekte für langfristigen Vorteil",
+      "Plane F&E-Budget strategisch über mehrere Perioden"
+    ]
   },
   {
     id: 6,
-    title: "Überwache den Markt in Echtzeit",
-    description: "Analysiere aktuelle Markttrends, Konkurrenzpositionen und FuE-Investitionen während der Periode",
-    image: "/screenshot-7.svg",
+    icon: "👨‍🏫",
+    title: "Spielleiter-Steuerung",
+    description: "Flexibles Spielmanagement",
+    details: [
+      "Spielleiter steuert Periodenstart und -ende",
+      "Vergabe von Spezialaufträgen möglich",
+      "Echtzeit-Überwachung aller Gruppenentscheidungen",
+      "Automatische Berechnung und Auswertung"
+    ]
   },
   {
     id: 7,
-    title: "Detaillierte Periode-Auswertung",
-    description: "Sehe Umsatz, Gewinne, Marktanteile und Kapazitätsplanung nach jeder Spielrunde",
-    image: "/screenshot-8.svg",
+    icon: "🤖",
+    title: "Solo-Modus mit KI",
+    description: "Übe gegen intelligente Gegner",
+    details: [
+      "Spiele allein ohne echte Teams",
+      "KI-Gegner mit verschiedenen Strategien",
+      "Automatische Periodenberechnung",
+      "Perfekt zum Lernen und Ausprobieren"
+    ]
   },
 ];
 
 export default function ScreenshotSlider() {
-  const sliderRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const isScrollingRef = useRef(false);
@@ -66,7 +107,7 @@ export default function ScreenshotSlider() {
     const container = containerRef.current;
     if (!container) return;
 
-    const scrollDistance = container.clientWidth; // Vollebreite für einen Slide
+    const scrollDistance = container.clientWidth;
     let direction = 1;
 
     const autoScroll = () => {
@@ -84,7 +125,6 @@ export default function ScreenshotSlider() {
       }
     };
 
-    // Auto-scroll alle 8 Sekunden
     scrollIntervalRef.current = setInterval(autoScroll, 8000);
 
     return () => {
@@ -94,7 +134,7 @@ export default function ScreenshotSlider() {
 
   const updateCurrentIndex = (container: HTMLDivElement) => {
     const index = Math.round(container.scrollLeft / container.clientWidth);
-    setCurrentIndex(Math.min(index, screenshots.length - 1));
+    setCurrentIndex(Math.min(index, gameFeatures.length - 1));
   };
 
   const scroll = (direction: "left" | "right") => {
@@ -130,33 +170,34 @@ export default function ScreenshotSlider() {
             }
           }}
         >
-          {screenshots.map((screenshot) => (
+          {gameFeatures.map((feature) => (
             <div
-              key={screenshot.id}
+              key={feature.id}
               className="w-full flex-shrink-0 snap-center"
             >
-              {/* Screenshot Card - Full Width */}
-              <div className="rounded-2xl overflow-hidden shadow-xl border-2 border-neutral-300 bg-white h-full flex flex-col mx-auto max-w-5xl">
-                {/* Image Container */}
-                <div className="relative h-96 bg-gradient-to-br from-neutral-100 to-neutral-200 overflow-hidden">
-                  <Image
-                    src={screenshot.image}
-                    alt={screenshot.title}
-                    fill
-                    className="object-cover"
-                    sizes="100vw"
-                    priority={screenshot.id === 1}
-                  />
+              {/* Feature Card - Full Width */}
+              <div className="rounded-2xl overflow-hidden shadow-xl border-2 border-neutral-300 bg-white h-full flex flex-col mx-auto max-w-4xl">
+                {/* Icon & Header */}
+                <div className="bg-gradient-to-br from-sky-100 to-blue-50 p-10 text-center">
+                  <div className="text-6xl mb-4">{feature.icon}</div>
+                  <h4 className="font-bold text-neutral-900 text-2xl mb-2">
+                    {feature.title}
+                  </h4>
+                  <p className="text-neutral-600 text-base">
+                    {feature.description}
+                  </p>
                 </div>
 
-                {/* Content */}
-                <div className="p-8 flex flex-col flex-grow">
-                  <h4 className="font-bold text-neutral-900 text-xl mb-3">
-                    {screenshot.title}
-                  </h4>
-                  <p className="text-neutral-600 text-base flex-grow">
-                    {screenshot.description}
-                  </p>
+                {/* Details List */}
+                <div className="p-8 flex-grow">
+                  <ul className="space-y-4">
+                    {feature.details.map((detail, idx) => (
+                      <li key={idx} className="flex items-start gap-3">
+                        <span className="text-sky-600 font-bold text-xl mt-0.5">✓</span>
+                        <span className="text-neutral-700 text-base leading-relaxed">{detail}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             </div>
@@ -175,7 +216,7 @@ export default function ScreenshotSlider() {
         {/* Right Arrow Button */}
         <button
           onClick={() => scroll("right")}
-          disabled={currentIndex === screenshots.length - 1}
+          disabled={currentIndex === gameFeatures.length - 1}
           className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-8 sm:translate-x-12 z-10 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow-lg border-2 border-neutral-300 hover:bg-neutral-100 transition disabled:opacity-30 disabled:cursor-not-allowed group"
         >
           <span className="text-neutral-700 font-bold text-2xl">→</span>
@@ -184,7 +225,7 @@ export default function ScreenshotSlider() {
 
       {/* Progress Indicator */}
       <div className="flex justify-center gap-3 mt-8">
-        {screenshots.map((_, index) => (
+        {gameFeatures.map((_, index) => (
           <div
             key={index}
             className={`transition-all duration-300 ${
@@ -207,7 +248,7 @@ export default function ScreenshotSlider() {
 
       {/* Info Text */}
       <p className="text-center text-sm text-neutral-600 mt-6 font-medium">
-        {currentIndex + 1} / {screenshots.length} • Nutze die Pfeile oder klicke auf die Punkte
+        {currentIndex + 1} / {gameFeatures.length} • Nutze die Pfeile oder klicke auf die Punkte
       </p>
     </div>
   );

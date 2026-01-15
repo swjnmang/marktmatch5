@@ -253,21 +253,36 @@ function calculateInversePriceSales(
   // Konstante für "Softening" - jede Gruppe bekommt 80% der verbleibenden Nachfrage
   const SOFTENING_FACTOR = 0.8;
 
+  console.log(`[Market Calc] Total Demand: ${totalDemand}, Total Supply: ${sortedByPrice.reduce((s, g) => s + g.supply, 0)}`);
+
   // Iteriere durch Gruppen nach Preis (günstig zuerst)
-  for (const entry of sortedByPrice) {
-    if (remainingDemand <= 0) break;
+  for (let i = 0; i < sortedByPrice.length; i++) {
+    const entry = sortedByPrice[i];
+    
+    if (remainingDemand <= 0) {
+      console.log(`[Market Calc] Group ${i}: No remaining demand`);
+      break;
+    }
 
     // Diese Gruppe bekommt 80% der verbleibenden Nachfrage
-    const targetDemand = Math.floor(remainingDemand * SOFTENING_FACTOR);
+    // ABER: Wenn es die letzte Gruppe ist, bekommt sie den Rest
+    const isLastGroup = i === sortedByPrice.length - 1;
+    const targetDemand = isLastGroup 
+      ? remainingDemand  // Letzte Gruppe bekommt alles verbleibende
+      : Math.floor(remainingDemand * SOFTENING_FACTOR);
     
     // Aber begrenzt durch ihre verfügbare Kapazität
     const allocationToGroup = Math.min(targetDemand, entry.supply);
+    
+    console.log(`[Market Calc] Group ${i} (€${entry.price}, Supply: ${entry.supply}): Target=${targetDemand}, Allocated=${allocationToGroup}, Remaining before=${remainingDemand}, After=${remainingDemand - allocationToGroup}`);
     
     if (allocationToGroup > 0) {
       soldUnits[entry.id] = allocationToGroup;
       remainingDemand -= allocationToGroup;
     }
   }
+
+  console.log(`[Market Calc] Final allocation:`, soldUnits, `Remaining demand not fulfilled: ${remainingDemand}`);
 
   return soldUnits;
 }
