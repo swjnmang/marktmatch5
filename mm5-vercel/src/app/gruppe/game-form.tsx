@@ -665,7 +665,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       {/* Game Instructions Modal - Shows once at game start */}
       {joined && 
        groupData && 
-       game?.status === "in_progress" && 
+       (game?.status === "in_progress" || game?.phase === "machine_selection") && 
        !groupData.instructionsAcknowledged && 
        !currentTask && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
