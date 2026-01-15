@@ -176,7 +176,7 @@ export default function Home() {
             </div>
             <div>
               <p className="mb-1 font-semibold text-neutral-800">Kontakt</p>
-              <p>E-Mail: <a href="mailto:info@nachhilfe-wirtschaftsschule.de" className="text-neutral-600 hover:underline">info@nachhilfe-wirtschaftsschule.de</a></p>
+              <p>E-Mail: <a href="mailto:info@wss-digital.de" className="text-neutral-600 hover:underline">info@wss-digital.de</a></p>
             </div>
             <div>
               <p className="mb-1 font-semibold text-neutral-800">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</p>
