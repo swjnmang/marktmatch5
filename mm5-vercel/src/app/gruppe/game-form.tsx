@@ -321,11 +321,16 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       (snapshot) => {
         const allGroups = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as GroupState));
         setOtherGroups(allGroups);
+        
+        // Also update game.groups so ranking works
+        if (game) {
+          setGame({ ...game, groups: allGroups });
+        }
       }
     );
 
     return () => unsubscribeGroups();
-  }, [gameId]);
+  }, [gameId, game]);
 
   // Listen to group data changes
   useEffect(() => {
