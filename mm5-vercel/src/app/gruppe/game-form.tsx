@@ -755,8 +755,86 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       )}
 
       <main className="mx-auto flex max-w-3xl flex-col gap-10 px-6 py-14 sm:px-10">
-        {/* Only show rest of UI if no special task is active */}
-        {!currentTask && (
+        {/* Game Finished - Show Only End Screen */}
+        {joined && (game?.status as unknown as string) === "finished" && groupData && (
+          <>
+            {/* Finish Screen - Full Width Celebration */}
+            <div className="rounded-2xl border-3 border-emerald-400 bg-gradient-to-br from-emerald-50 to-emerald-100 p-8 mt-8 shadow-lg">
+              <div className="text-center mb-8">
+                <h2 className="text-4xl sm:text-5xl font-bold text-emerald-900 mb-4 flex items-center justify-center gap-3">
+                  <span className="text-5xl sm:text-6xl">🎉</span>
+                  Spiel beendet!
+                </h2>
+                <p className="text-emerald-800 text-xl mb-6">
+                  Herzlichen Glückwunsch! Das Unternehmensplanspiel ist vorbei.
+                </p>
+              </div>
+
+              {/* Ranking */}
+              <div className="bg-white rounded-lg p-6 border border-emerald-300 shadow-sm">
+                <h3 className="text-2xl font-bold text-neutral-900 mb-6 text-center">📊 Abschlussranking</h3>
+                <div className="space-y-3">
+                  {game && (game.groups || [])
+                    .sort((a, b) => (b.cumulativeProfit || 0) - (a.cumulativeProfit || 0))
+                    .map((group, index) => {
+                      const isCurrentGroup = group.id === groupId;
+                      const medalEmoji = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : "•";
+                      
+                      return (
+                        <div
+                          key={group.id}
+                          className={`flex items-center justify-between p-4 rounded-lg border-2 transition ${
+                            isCurrentGroup
+                              ? "bg-emerald-50 border-emerald-400 ring-2 ring-emerald-200"
+                              : "bg-neutral-50 border-neutral-200"
+                          }`}
+                        >
+                          <div className="flex items-center gap-4 flex-1">
+                            <span className="text-3xl font-bold w-8 text-center">
+                              {medalEmoji}
+                            </span>
+                            <div>
+                              <p className={`font-semibold text-lg ${isCurrentGroup ? "text-emerald-900" : "text-neutral-900"}`}>
+                                #{index + 1} {group.name}
+                              </p>
+                              {isCurrentGroup && (
+                                <p className="text-xs text-emerald-700">← Deine Gruppe</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className={`text-2xl font-bold ${isCurrentGroup ? "text-emerald-600" : "text-neutral-900"}`}>
+                              €{(group.cumulativeProfit || 0).toLocaleString("de-DE")}
+                            </p>
+                            <p className="text-xs text-neutral-600">Gesamtgewinn</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3 my-8">
+              <div className="flex-1 border-t-2 border-neutral-200"></div>
+              <span className="text-neutral-500 font-semibold">📈 SPIELANALYSE</span>
+              <div className="flex-1 border-t-2 border-neutral-200"></div>
+            </div>
+
+            {/* Analytics with ranking and charts */}
+            {game && (
+              <GameAnalytics
+                groups={game.groups || []}
+                currentGroupId={groupId || ""}
+                gameId={gameId || ""}
+              />
+            )}
+          </>
+        )}
+
+        {/* Only show rest of UI if game is NOT finished */}
+        {!(joined && (game?.status as unknown as string) === "finished") && (
           <>
             <div className="flex flex-col gap-2">
               <p className="text-sm font-semibold uppercase tracking-[0.25em] text-neutral-600">Gruppe</p>
@@ -1777,49 +1855,6 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                 </div>
               )}
 
-              {/* Game Finished - Show Analytics */}
-              {joined && (game?.status as unknown as string) === "finished" && groupData && (
-                <>
-                  {/* Finish Screen - Full Width Celebration */}
-                  <div className="rounded-2xl border-3 border-emerald-400 bg-gradient-to-br from-emerald-50 to-emerald-100 p-8 mt-8 shadow-lg">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-6">
-                      <div>
-                        <h2 className="text-3xl sm:text-4xl font-bold text-emerald-900 mb-2 flex items-center gap-3">
-                          <span className="text-4xl sm:text-5xl">🎉</span>
-                          Spiel beendet!
-                        </h2>
-                        <p className="text-emerald-800 text-lg">
-                          Herzlichen Glückwunsch! Das Unternehmensplanspiel ist vorbei.
-                        </p>
-                      </div>
-                      <div className="bg-white rounded-lg px-6 py-4 border-2 border-emerald-400 text-center">
-                        <p className="text-sm text-emerald-700 font-semibold">Dein Kapital</p>
-                        <p className="text-3xl font-bold text-emerald-900">€{(groupData.capital || 0).toLocaleString("de-DE")}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-white rounded-lg p-4 border border-emerald-200">
-                      <p className="text-emerald-800">
-                        📊 <strong>Schaut euch unten an:</strong> Euer finales Ranking, den Spielverlauf über alle Perioden mit interaktiven Graphen und vergleicht euren Erfolg mit den anderen Gruppen!
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Divider */}
-                  <div className="flex items-center gap-3 my-8">
-                    <div className="flex-1 border-t-2 border-neutral-200"></div>
-                    <span className="text-neutral-500 font-semibold">📈 SPIELANALYSE</span>
-                    <div className="flex-1 border-t-2 border-neutral-200"></div>
-                  </div>
-
-                  {/* Analytics with ranking and charts */}
-                  <GameAnalytics
-                    groups={game.groups || []}
-                    currentGroupId={groupId || ""}
-                    gameId={gameId || ""}
-                  />
-                </>
-              )}
             </>
               )}
             </div>
