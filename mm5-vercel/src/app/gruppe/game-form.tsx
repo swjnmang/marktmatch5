@@ -506,6 +506,11 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
           capital: newCapital,
         });
         return;
+      } else {
+        // Initial machine selection - group must have exactly 1 machine
+        if (groupData.machines.length > 0) {
+          throw new Error("Jede Gruppe kann nur EINE Produktionsmaschine beim Start wählen.");
+        }
       }
       
       // Update group with selected machine
@@ -1063,10 +1068,12 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                       <div className="flex flex-col gap-4 rounded-lg border border-neutral-200 bg-white p-6">
                         <div>
                           <h3 className="text-lg font-semibold text-neutral-900 mb-2">
-                            Produktionsmaschine auswählen
+                            {game?.phase === "machine_selection" ? "Produktionsmaschine beim Start wählen" : "Produktionsmaschine auswählen"}
                           </h3>
                           <p className="text-sm text-neutral-600">
-                            Wähle eine Produktionsmaschine für dein Unternehmen. Diese Entscheidung beeinflusst deine Produktionskapazität und Kostenstruktur.
+                            {game?.phase === "machine_selection" 
+                              ? "Wähle EINE Produktionsmaschine für dein Unternehmen. Diese Entscheidung beeinflusst deine Produktionskapazität und Kostenstruktur und kann später nur begrenzt erweitert werden."
+                              : "Wähle eine zusätzliche Produktionsmaschine für dein Unternehmen. Diese Entscheidung beeinflusst deine Produktionskapazität und Kostenstruktur."}
                           </p>
                           {game?.phase !== "machine_selection" && (
                             <div className="mt-2 rounded-lg bg-amber-50 border border-amber-200 p-3">
