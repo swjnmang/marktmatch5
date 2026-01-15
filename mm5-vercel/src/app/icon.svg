@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Background -->
+  <rect width="64" height="64" rx="8" fill="#87CEEB"/>
+  
+  <!-- MM text (smaller, top) -->
+  <text x="32" y="22" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#1f2937" text-anchor="middle" dominant-baseline="middle">MM</text>
+  
+  <!-- 5 (larger, bottom) -->
+  <text x="32" y="45" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#1f2937" text-anchor="middle" dominant-baseline="middle">5</text>
+</svg>

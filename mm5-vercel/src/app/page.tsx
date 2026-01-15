@@ -20,59 +20,59 @@ export default function Home() {
         <div className="mb-20 grid gap-8 sm:grid-cols-2">
           <Link
             href="/spiel-erstellen"
-            className="group rounded-2xl bg-white p-10 shadow-md transition hover:-translate-y-2 hover:shadow-lg border-2 border-neutral-400 text-center flex flex-col items-center"
+            className="group rounded-2xl bg-white p-6 shadow-md transition hover:-translate-y-2 hover:shadow-lg border-2 border-neutral-400 text-center flex flex-col items-center"
           >
-            <div className="mb-6 text-5xl">🚀</div>
-            <h3 className="mb-3 text-2xl font-bold text-neutral-800">Spiel erstellen</h3>
-            <p className="mb-6 text-neutral-600">
+            <div className="mb-4 text-3xl">�</div>
+            <h3 className="mb-2 text-xl font-bold text-neutral-800">Spiel erstellen</h3>
+            <p className="mb-4 text-sm text-neutral-600">
               Gründe dein Unternehmen und führe es zum Erfolg. Allein oder mit deinem Team.
             </p>
-            <button className="inline-block rounded-lg bg-neutral-400 px-6 py-2 text-sm font-semibold text-white transition hover:bg-neutral-600">
+            <button className="inline-block rounded-lg bg-neutral-400 px-5 py-1.5 text-sm font-semibold text-white transition hover:bg-neutral-600">
               Spiel erstellen
             </button>
           </Link>
 
           <Link
             href="/gruppe"
-            className="group rounded-2xl bg-white p-10 shadow-md transition hover:-translate-y-2 hover:shadow-lg border-2 border-neutral-400 text-center flex flex-col items-center"
+            className="group rounded-2xl bg-white p-6 shadow-md transition hover:-translate-y-2 hover:shadow-lg border-2 border-neutral-400 text-center flex flex-col items-center"
           >
-            <div className="mb-6 text-5xl">🎮</div>
-            <h3 className="mb-3 text-2xl font-bold text-neutral-800">Spiel beitreten</h3>
-            <p className="mb-6 text-neutral-600">
+            <div className="mb-4 text-3xl">🎮</div>
+            <h3 className="mb-2 text-xl font-bold text-neutral-800">Spiel beitreten</h3>
+            <p className="mb-4 text-sm text-neutral-600">
               Tritt einem laufenden Spiel bei und treffe strategische Entscheidungen.
             </p>
-            <button className="inline-block rounded-lg bg-neutral-400 px-6 py-2 text-sm font-semibold text-white transition hover:bg-neutral-600">
+            <button className="inline-block rounded-lg bg-neutral-400 px-5 py-1.5 text-sm font-semibold text-white transition hover:bg-neutral-600">
               Code eingeben
             </button>
           </Link>
         </div>
 
         {/* Features */}
-        <div className="mb-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
-          <div className="rounded-xl bg-white p-8 shadow-md border-2 border-neutral-300 text-center hover:shadow-lg transition hover:-translate-y-1">
-            <div className="mb-4 text-4xl flex justify-center">⚡</div>
-            <h4 className="mb-2 text-base font-semibold text-neutral-800">Schnell starten</h4>
-            <p className="text-sm text-neutral-600">In 2 Min einsatzbereit</p>
+        <div className="mb-20 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="rounded-xl bg-white p-5 shadow-md border-2 border-neutral-300 text-center hover:shadow-lg transition hover:-translate-y-1">
+            <div className="mb-3 text-3xl flex justify-center">⚡</div>
+            <h4 className="mb-1.5 text-sm font-semibold text-neutral-800">Schnell starten</h4>
+            <p className="text-xs text-neutral-600">In 2 Min einsatzbereit</p>
           </div>
-          <div className="rounded-xl bg-white p-8 shadow-md border-2 border-neutral-300 text-center hover:shadow-lg transition hover:-translate-y-1">
-            <div className="mb-4 text-4xl flex justify-center">📊</div>
-            <h4 className="mb-2 text-base font-semibold text-neutral-800">Live-Auswertung</h4>
-            <p className="text-sm text-neutral-600">Ergebnisse in Echtzeit</p>
+          <div className="rounded-xl bg-white p-5 shadow-md border-2 border-neutral-300 text-center hover:shadow-lg transition hover:-translate-y-1">
+            <div className="mb-3 text-3xl flex justify-center">📊</div>
+            <h4 className="mb-1.5 text-sm font-semibold text-neutral-800">Live-Auswertung</h4>
+            <p className="text-xs text-neutral-600">Ergebnisse in Echtzeit</p>
           </div>
-          <div className="rounded-xl bg-white p-8 shadow-md border-2 border-neutral-300 text-center hover:shadow-lg transition hover:-translate-y-1">
-            <div className="mb-4 text-4xl flex justify-center">🎓</div>
-            <h4 className="mb-2 text-base font-semibold text-neutral-800">Lehrreich</h4>
-            <p className="text-sm text-neutral-600">Wirtschaft verstehen</p>
+          <div className="rounded-xl bg-white p-5 shadow-md border-2 border-neutral-300 text-center hover:shadow-lg transition hover:-translate-y-1">
+            <div className="mb-3 text-3xl flex justify-center">🎓</div>
+            <h4 className="mb-1.5 text-sm font-semibold text-neutral-800">Lehrreich</h4>
+            <p className="text-xs text-neutral-600">Wirtschaft verstehen</p>
           </div>
-          <div className="rounded-xl bg-white p-8 shadow-md border-2 border-neutral-300 text-center hover:shadow-lg transition hover:-translate-y-1">
-            <div className="mb-4 text-4xl flex justify-center">👥</div>
-            <h4 className="mb-2 text-base font-semibold text-neutral-800">Multiplayer</h4>
-            <p className="text-sm text-neutral-600">Mit Teams spielen</p>
+          <div className="rounded-xl bg-white p-5 shadow-md border-2 border-neutral-300 text-center hover:shadow-lg transition hover:-translate-y-1">
+            <div className="mb-3 text-3xl flex justify-center">👥</div>
+            <h4 className="mb-1.5 text-sm font-semibold text-neutral-800">Multiplayer</h4>
+            <p className="text-xs text-neutral-600">Mit Teams spielen</p>
           </div>
-          <div className="rounded-xl bg-white p-8 shadow-md border-2 border-neutral-300 text-center hover:shadow-lg transition hover:-translate-y-1">
-            <div className="mb-4 text-4xl flex justify-center">💰</div>
-            <h4 className="mb-2 text-base font-semibold text-neutral-800">Kostenlos</h4>
-            <p className="text-sm text-neutral-600">Ohne Gebühren</p>
+          <div className="rounded-xl bg-white p-5 shadow-md border-2 border-neutral-300 text-center hover:shadow-lg transition hover:-translate-y-1">
+            <div className="mb-3 text-3xl flex justify-center">💰</div>
+            <h4 className="mb-1.5 text-sm font-semibold text-neutral-800">Kostenlos</h4>
+            <p className="text-xs text-neutral-600">Ohne Gebühren</p>
           </div>
         </div>
 
