@@ -672,6 +672,25 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
             </div>
 
             <div className="space-y-6 text-left">
+              {/* Market Scenario Box */}
+              <div className="rounded-lg bg-gradient-to-br from-blue-50 to-sky-50 p-5 shadow-sm border border-blue-200">
+                <h2 className="text-xl font-semibold text-neutral-900 mb-3 flex items-center gap-2">
+                  <span className="text-2xl">📱</span>
+                  Das Markt-Szenario
+                </h2>
+                <div className="space-y-3 text-neutral-700 leading-relaxed">
+                  <p>
+                    <strong>Ihr gründet ein Smartwatch-Unternehmen</strong> und betretet einen kompetitiven Markt. Es gibt mehrere andere Unternehmen, die das gleiche Produkt herstellen – mit der <strong>exakt gleichen Qualität</strong>.
+                  </p>
+                  <p className="text-sm bg-white rounded p-3 border-l-4 border-blue-400">
+                    💡 <strong>Wichtig:</strong> Kunden interessieren sich <strong>nur für den Preis</strong>! Da alle Konkurrenten die gleiche Qualität bieten, entscheidet allein der Preis über Verkaufserfolg. Der beste Preis gewinnt die Kunden.
+                  </p>
+                  <p>
+                    Das bedeutet: Eure Strategie muss auf <strong>intelligente Preisgestaltung</strong> und <strong>effiziente Kostenstruktur</strong> ausgerichtet sein, um gegen die Konkurrenz zu bestehen.
+                  </p>
+                </div>
+              </div>
+
               <div className="rounded-lg bg-white p-5 shadow-sm border border-neutral-200">
                 <h2 className="text-xl font-semibold text-neutral-900 mb-3 flex items-center gap-2">
                   <span className="text-2xl">🏭</span>
