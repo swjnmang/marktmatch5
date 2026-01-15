@@ -300,16 +300,35 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
 
   // Load game data and listen to changes
   useEffect(() => {
-    if (!gameId) return;
+    if (!gameId) {
+      console.log("[Game Listener] No gameId, skipping");
+      return;
+    }
     
+    console.log(`[Game Listener] Attaching listener to game: ${gameId}`);
     const gameRef = doc(db, "games", gameId);
-    const unsubscribe = onSnapshot(gameRef, (snapshot) => {
-      if (snapshot.exists()) {
-        setGame({ id: snapshot.id, ...snapshot.data() } as unknown as GameDocument);
+    
+    // Enable offline persistence for real-time updates
+    const unsubscribe = onSnapshot(
+      gameRef,
+      (snapshot) => {
+        if (snapshot.exists()) {
+          const gameData = { id: snapshot.id, ...snapshot.data() } as unknown as GameDocument;
+          console.log(`[Game Listener] ✓ UPDATED: status=${gameData.status}, phase=${gameData.phase}, period=${gameData.period}, groups=${gameData.groups?.length || 0}`);
+          setGame(gameData);
+        } else {
+          console.log(`[Game Listener] Game document does not exist`);
+        }
+      },
+      (error) => {
+        console.error(`[Game Listener] ✗ ERROR:`, error);
       }
-    });
+    );
 
-    return () => unsubscribe();
+    return () => {
+      console.log(`[Game Listener] Detaching listener from ${gameId}`);
+      unsubscribe();
+    };
   }, [gameId]);
 
   // Load all groups in the game (for lobby view and other groups status)
@@ -320,17 +339,15 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       collection(db, "games", gameId, "groups"),
       (snapshot) => {
         const allGroups = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as GroupState));
+        console.log(`[Groups Listener] Groups updated: ${allGroups.length} groups`);
         setOtherGroups(allGroups);
-        
-        // Also update game.groups so ranking works
-        if (game) {
-          setGame({ ...game, groups: allGroups });
-        }
+        // NOTE: Do NOT update game.groups here! The game document should have its own groups array.
+        // Manually updating game state can cause stale data and race conditions.
       }
     );
 
     return () => unsubscribeGroups();
-  }, [gameId, game]);
+  }, [gameId]);
 
   // Listen to group data changes
   useEffect(() => {
@@ -663,11 +680,15 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       )}
 
       {/* Game Instructions Modal - Shows once at game start */}
-      {joined && 
-       groupData && 
-       (game?.status === "in_progress" || game?.phase === "machine_selection") && 
-       !groupData.instructionsAcknowledged && 
-       !currentTask && (
+      {(() => {
+        const shouldShow = joined && 
+                          groupData && 
+                          (game?.status === "in_progress" || game?.phase === "machine_selection") && 
+                          !groupData.instructionsAcknowledged && 
+                          !currentTask;
+        console.log(`[Instructions Modal Check] joined=${joined}, groupData=${!!groupData}, status=${game?.status}, phase=${game?.phase}, instructionsAcknowledged=${groupData?.instructionsAcknowledged}, currentTask=${!!currentTask}, shouldShow=${shouldShow}`);
+        return shouldShow;
+      })() && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
           <div className="w-full max-w-3xl rounded-2xl bg-gradient-to-br from-neutral-50 to-white p-8 shadow-2xl my-8 max-h-[90vh] overflow-y-auto border-2 border-neutral-200">
             <div className="text-center mb-6">
@@ -798,7 +819,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
               <div className="bg-white rounded-lg p-6 border border-emerald-300 shadow-sm">
                 <h3 className="text-2xl font-bold text-neutral-900 mb-6 text-center">📊 Abschlussranking</h3>
                 <div className="space-y-3">
-                  {game && (game.groups || [])
+                  {(otherGroups || [])
                     .sort((a, b) => (b.cumulativeProfit || 0) - (a.cumulativeProfit || 0))
                     .map((group, index) => {
                       const isCurrentGroup = group.id === groupId;
@@ -1160,8 +1181,8 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                 </div>
               )}
 
-              {/* Game Content - only show when game exists and welcome dismissed */}
-              {game && welcomePhase === "none" && (
+              {/* Game Content - only show when game exists, welcome dismissed, AND game has started */}
+              {game && welcomePhase === "none" && game?.status !== "lobby" && (
                 <>
                   {/* Machine Selection / Zusatzkauf */}
                   {(game?.phase === "machine_selection" || game?.allowMachinePurchase) &&

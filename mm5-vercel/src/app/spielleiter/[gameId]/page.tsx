@@ -292,6 +292,131 @@ export default function GameDashboardPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-neutral-100 via-neutral-100 to-neutral-200 px-4 py-6">
       <section className="mx-auto max-w-4xl space-y-4">
+        {/* Game Finished - Show End Screen */}
+        {game.status === "finished" && (
+          <>
+            {/* Header */}
+            <div>
+              <h1 className="text-3xl font-bold text-neutral-800">🎉 Spiel beendet!</h1>
+            </div>
+
+            {/* Finish Screen */}
+            <div className="rounded-2xl border-3 border-emerald-400 bg-gradient-to-br from-emerald-50 to-emerald-100 p-8 shadow-lg">
+              <div className="text-center mb-8">
+                <h2 className="text-4xl font-bold text-emerald-900 mb-4">Das Unternehmensplanspiel ist vorbei!</h2>
+                <p className="text-emerald-800 text-lg">
+                  Herzlichen Glückwunsch - Periode {game.period} erfolgreich abgeschlossen.
+                </p>
+              </div>
+
+              {/* Ranking */}
+              <div className="bg-white rounded-lg p-6 border border-emerald-300 shadow-sm mb-6">
+                <h3 className="text-2xl font-bold text-neutral-900 mb-6 text-center">📊 Abschlussranking</h3>
+                <div className="space-y-3">
+                  {groups
+                    .slice()
+                    .sort((a, b) => (b.cumulativeProfit || 0) - (a.cumulativeProfit || 0))
+                    .map((group, index) => {
+                      const medalEmoji = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : "•";
+                      
+                      return (
+                        <div
+                          key={group.id}
+                          className={`flex items-center justify-between p-4 rounded-lg border-2 transition ${
+                            index === 0
+                              ? "bg-amber-50 border-amber-400"
+                              : "bg-neutral-50 border-neutral-200"
+                          }`}
+                        >
+                          <div className="flex items-center gap-4 flex-1">
+                            <span className="text-3xl font-bold w-8 text-center">
+                              {medalEmoji}
+                            </span>
+                            <div>
+                              <p className={`font-semibold text-lg ${index === 0 ? "text-amber-900" : "text-neutral-900"}`}>
+                                #{index + 1} {group.name}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className={`text-2xl font-bold ${index === 0 ? "text-amber-600" : "text-neutral-900"}`}>
+                              €{(group.cumulativeProfit || 0).toLocaleString("de-DE")}
+                            </p>
+                            <p className="text-xs text-neutral-600">Gesamtgewinn</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 justify-center">
+                <Link
+                  href="/spielleiter"
+                  className="rounded-lg bg-neutral-600 px-6 py-3 text-base font-semibold text-white shadow-md transition hover:bg-neutral-700"
+                >
+                  ← Zurück zur Übersicht
+                </Link>
+                <button
+                  onClick={async () => {
+                    if (!confirm("Möchtest du das Spiel wirklich zurücksetzen und neu starten?")) return;
+                    setStartLoading(true);
+                    try {
+                      const batch = writeBatch(db);
+                      
+                      // Reset game status
+                      batch.update(doc(db, "games", gameId), {
+                        status: "lobby",
+                        period: 0,
+                        phase: "none",
+                        phaseEndsAt: null,
+                        allowMachinePurchase: false,
+                      });
+                      
+                      // Reset all groups
+                      groups.forEach((g) => {
+                        batch.update(doc(db, "games", gameId, "groups", g.id), {
+                          status: "waiting",
+                          machines: [],
+                          capital: game.parameters.startingCapital,
+                          inventory: 0,
+                          cumulativeProfit: 0,
+                          cumulativeRndInvestment: 0,
+                          rndBenefitApplied: false,
+                          lastResult: null,
+                          instructionsAcknowledged: false,
+                        });
+                      });
+                      
+                      await batch.commit();
+                      alert("✓ Spiel wurde zurückgesetzt!");
+                    } catch (err: any) {
+                      alert(`Fehler: ${err.message}`);
+                    } finally {
+                      setStartLoading(false);
+                    }
+                  }}
+                  disabled={startLoading}
+                  className="rounded-lg bg-emerald-600 px-6 py-3 text-base font-semibold text-white shadow-md transition hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  🔄 Spiel neu starten
+                </button>
+              </div>
+            </div>
+
+            <Link
+              href="/spielleiter"
+              className="text-sm font-semibold text-neutral-700 underline-offset-4 hover:underline"
+            >
+              ← Zur Spielleiter-Startseite
+            </Link>
+          </>
+        )}
+
+        {/* Normal dashboard - only show if not finished */}
+        {game.status !== "finished" && (
+          <>
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold text-neutral-800">
@@ -1586,6 +1711,8 @@ export default function GameDashboardPage() {
               </div>
             </div>
           </div>
+        )}
+        </>
         )}
       </section>
     </main>
