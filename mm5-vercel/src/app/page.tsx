@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { VERSION } from "@/lib/version";
 import ScreenshotSlider from "@/components/ScreenshotSlider";
+import { TrendingUp, Gamepad2, Zap, BarChart3, GraduationCap, Users, DollarSign } from "lucide-react";
 
 export default function Home() {
   return (
@@ -22,7 +23,7 @@ export default function Home() {
             href="/spiel-erstellen"
             className="group rounded-2xl bg-white p-6 shadow-md transition hover:-translate-y-2 hover:shadow-lg border-2 border-neutral-400 text-center flex flex-col items-center"
           >
-            <div className="mb-4 text-3xl">�</div>
+            <div className="mb-4"><TrendingUp className="w-12 h-12 text-neutral-700" /></div>
             <h3 className="mb-2 text-xl font-bold text-neutral-800">Spiel erstellen</h3>
             <p className="mb-4 text-sm text-neutral-600">
               Gründe dein Unternehmen und führe es zum Erfolg. Allein oder mit deinem Team.
@@ -36,7 +37,7 @@ export default function Home() {
             href="/gruppe"
             className="group rounded-2xl bg-white p-6 shadow-md transition hover:-translate-y-2 hover:shadow-lg border-2 border-neutral-400 text-center flex flex-col items-center"
           >
-            <div className="mb-4 text-3xl">🎮</div>
+            <div className="mb-4"><Gamepad2 className="w-12 h-12 text-neutral-700" /></div>
             <h3 className="mb-2 text-xl font-bold text-neutral-800">Spiel beitreten</h3>
             <p className="mb-4 text-sm text-neutral-600">
               Tritt einem laufenden Spiel bei und treffe strategische Entscheidungen.
@@ -50,27 +51,27 @@ export default function Home() {
         {/* Features */}
         <div className="mb-20 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <div className="rounded-xl bg-white p-5 shadow-md border-2 border-neutral-300 text-center hover:shadow-lg transition hover:-translate-y-1">
-            <div className="mb-3 text-3xl flex justify-center">⚡</div>
+            <div className="mb-3 flex justify-center"><Zap className="w-10 h-10 text-neutral-700" /></div>
             <h4 className="mb-1.5 text-sm font-semibold text-neutral-800">Schnell starten</h4>
             <p className="text-xs text-neutral-600">In 2 Min einsatzbereit</p>
           </div>
           <div className="rounded-xl bg-white p-5 shadow-md border-2 border-neutral-300 text-center hover:shadow-lg transition hover:-translate-y-1">
-            <div className="mb-3 text-3xl flex justify-center">📊</div>
+            <div className="mb-3 flex justify-center"><BarChart3 className="w-10 h-10 text-neutral-700" /></div>
             <h4 className="mb-1.5 text-sm font-semibold text-neutral-800">Live-Auswertung</h4>
             <p className="text-xs text-neutral-600">Ergebnisse in Echtzeit</p>
           </div>
           <div className="rounded-xl bg-white p-5 shadow-md border-2 border-neutral-300 text-center hover:shadow-lg transition hover:-translate-y-1">
-            <div className="mb-3 text-3xl flex justify-center">🎓</div>
+            <div className="mb-3 flex justify-center"><GraduationCap className="w-10 h-10 text-neutral-700" /></div>
             <h4 className="mb-1.5 text-sm font-semibold text-neutral-800">Lehrreich</h4>
             <p className="text-xs text-neutral-600">Wirtschaft verstehen</p>
           </div>
           <div className="rounded-xl bg-white p-5 shadow-md border-2 border-neutral-300 text-center hover:shadow-lg transition hover:-translate-y-1">
-            <div className="mb-3 text-3xl flex justify-center">👥</div>
+            <div className="mb-3 flex justify-center"><Users className="w-10 h-10 text-neutral-700" /></div>
             <h4 className="mb-1.5 text-sm font-semibold text-neutral-800">Multiplayer</h4>
             <p className="text-xs text-neutral-600">Mit Teams spielen</p>
           </div>
           <div className="rounded-xl bg-white p-5 shadow-md border-2 border-neutral-300 text-center hover:shadow-lg transition hover:-translate-y-1">
-            <div className="mb-3 text-3xl flex justify-center">💰</div>
+            <div className="mb-3 flex justify-center"><DollarSign className="w-10 h-10 text-neutral-700" /></div>
             <h4 className="mb-1.5 text-sm font-semibold text-neutral-800">Kostenlos</h4>
             <p className="text-xs text-neutral-600">Ohne Gebühren</p>
           </div>
