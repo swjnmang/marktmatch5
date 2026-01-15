@@ -219,93 +219,53 @@ export function calculateMarket(
 }
 
 /**
- * Option B: Verteilt Nachfrage basierend auf preis-gewichteten Marktanteilen
- * Marktanteil = (1/preis) / Summe(1/preis)
- * Nachfrage wird dann proportional zu den Marktanteilen verteilt, begrenzt durch Kapazität
+ * Option 2: Sequential with Softening - Realistischer Preiskonkurrenz-Mechanismus
+ * 
+ * Grundprinzip:
+ * - Kunden kaufen vom günstigsten Anbieter zuerst
+ * - Jeder Anbieter bekommt 80% der verbleibenden Nachfrage (bis zu seiner Kapazität)
+ * - Dies ermöglicht realistische Preiskonkurrenz ohne "Winner-Takes-All"
+ * 
+ * Beispiel bei 480 Nachfrage:
+ * - Gruppe A (€50, 100 Cap): 80% von 480 = 384, aber Cap = 100 → bekommt 100
+ * - Verbleibend: 380 Nachfrage
+ * - Gruppe B (€60, 500 Cap): 80% von 380 = 304 → bekommt 304
+ * - Verbleibend: 76 Nachfrage
+ * - Gruppe C (€100, 500 Cap): 80% von 76 = 61 → bekommt 61
  */
 function calculateInversePriceSales(
   inputs: MarketCalculationInput[],
   totalDemand: number,
   parameters: GameParameters
 ): { [groupId: string]: number } {
-  const entries = inputs.map(input => ({
-    id: input.groupId,
-    price: Math.max(0.01, input.decision.price),
-    supply: Math.max(0, input.decision.production + input.decision.sellFromInventory),
-  }));
-
-  // Berechne Preis-Gewichte: 1 / Preis für jeden Anbieter
-  const weights = entries.map(e => ({ 
-    id: e.id, 
-    weight: 1 / e.price,
-    supply: e.supply 
-  }));
-
-  // Gesamtgewicht
-  const totalWeight = weights.reduce((sum, w) => sum + w.weight, 0) || 1;
+  // Sortiere nach Preis (günstig zuerst)
+  const sortedByPrice = inputs
+    .map(input => ({
+      id: input.groupId,
+      price: Math.max(0.01, input.decision.price),
+      supply: Math.max(0, input.decision.production + input.decision.sellFromInventory),
+    }))
+    .sort((a, b) => a.price - b.price);
 
   const soldUnits: { [groupId: string]: number } = {};
+  let remainingDemand = totalDemand;
+  
+  // Konstante für "Softening" - jede Gruppe bekommt 80% der verbleibenden Nachfrage
+  const SOFTENING_FACTOR = 0.8;
 
-  // Phase 1: Initial allocation basierend auf Marktanteilen
-  // Marktanteil = weight / totalWeight
-  for (const entry of weights) {
-    const marketShare = entry.weight / totalWeight;
-    const targetDemand = Math.floor(marketShare * totalDemand);
-    // Verkaufte Menge limitiert durch verfügbares Angebot
-    soldUnits[entry.id] = Math.min(targetDemand, entry.supply);
-  }
+  // Iteriere durch Gruppen nach Preis (günstig zuerst)
+  for (const entry of sortedByPrice) {
+    if (remainingDemand <= 0) break;
 
-  // Berechne ungenutzten Nachfrage
-  const allocatedDemand = Object.values(soldUnits).reduce((sum, units) => sum + units, 0);
-  let remainingDemand = totalDemand - allocatedDemand;
-
-  // Phase 2: Verteile verbleibende Nachfrage proportional unter Gruppen mit verfügbarem Angebot
-  if (remainingDemand > 0) {
-    // Finde Gruppen mit verfügbarem Angebot (haven't sold out)
-    const availableGroups = weights.filter(w => {
-      const alreadySold = soldUnits[w.id] || 0;
-      return w.supply - alreadySold > 0;
-    });
-
-    if (availableGroups.length > 0) {
-      // Berechne Gewichte neu basierend auf verfügbaren Gruppen
-      const availableWeight = availableGroups.reduce((sum, g) => sum + g.weight, 0);
-
-      for (const entry of availableGroups) {
-        if (remainingDemand <= 0) break;
-
-        const marketShare = entry.weight / availableWeight;
-        const additionalDemand = Math.floor(marketShare * remainingDemand);
-        const alreadySold = soldUnits[entry.id] || 0;
-        const availableSupply = entry.supply - alreadySold;
-
-        const additionalSold = Math.min(additionalDemand, availableSupply);
-        if (additionalSold > 0) {
-          soldUnits[entry.id] = alreadySold + additionalSold;
-          remainingDemand -= additionalSold;
-        }
-      }
-    }
-  }
-
-  // Phase 3: Verteile verbleibende Einzeleinheiten nach Gewicht (Rounding)
-  if (remainingDemand > 0) {
-    const sorted = [...weights].sort((a, b) => b.weight - a.weight);
-    let idx = 0;
-    let iterations = 0;
-    const maxIterations = Math.min(remainingDemand * 2, 10000);
-
-    while (remainingDemand > 0 && iterations < maxIterations) {
-      const entry = sorted[idx % sorted.length];
-      const alreadySold = soldUnits[entry.id] || 0;
-
-      if (alreadySold < entry.supply) {
-        soldUnits[entry.id] = alreadySold + 1;
-        remainingDemand--;
-      }
-
-      idx++;
-      iterations++;
+    // Diese Gruppe bekommt 80% der verbleibenden Nachfrage
+    const targetDemand = Math.floor(remainingDemand * SOFTENING_FACTOR);
+    
+    // Aber begrenzt durch ihre verfügbare Kapazität
+    const allocationToGroup = Math.min(targetDemand, entry.supply);
+    
+    if (allocationToGroup > 0) {
+      soldUnits[entry.id] = allocationToGroup;
+      remainingDemand -= allocationToGroup;
     }
   }
 
