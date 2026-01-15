@@ -1114,7 +1114,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
               )}
 
               {/* Waiting for Game to Start - with Lobby Info */}
-              {welcomePhase === "none" && (game?.status === "lobby" || !game) && (
+              {welcomePhase === "none" && game?.status === "lobby" && (
                 <div className="flex flex-col gap-4">
                   {/* Lobby Status Card */}
                   <div className="flex flex-col gap-4 rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-center">
