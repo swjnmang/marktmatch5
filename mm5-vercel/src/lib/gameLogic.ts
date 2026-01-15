@@ -222,7 +222,9 @@ export function calculateMarket(
 }
 
 /**
- * Verteilt Nachfrage sequentiell: Günstigster Preis verkauft zuerst alles, dann nächster, etc.
+ * Option B: Verteilt Nachfrage basierend auf preis-gewichteten Marktanteilen
+ * Marktanteil = (1/preis) / Summe(1/preis)
+ * Nachfrage wird dann proportional zu den Marktanteilen verteilt, begrenzt durch Kapazität
  */
 function calculateInversePriceSales(
   inputs: MarketCalculationInput[],
@@ -235,59 +237,78 @@ function calculateInversePriceSales(
     supply: Math.max(0, input.decision.production + input.decision.sellFromInventory),
   }));
 
-  const pMin = Math.min(...entries.map(e => e.price));
-  const alpha = parameters.priceExponent ?? 2;
-  const sCap = Math.max(0, Math.min(1, parameters.maxMarketShareCap ?? 0.5));
-  const capUnits = Math.floor(sCap * totalDemand);
+  // Berechne Preis-Gewichte: 1 / Preis für jeden Anbieter
+  const weights = entries.map(e => ({ 
+    id: e.id, 
+    weight: 1 / e.price,
+    supply: e.supply 
+  }));
 
-  const weights = entries.map(e => ({ id: e.id, w: Math.pow(pMin / e.price, alpha), supply: e.supply }));
-  const totalW = weights.reduce((s, x) => s + x.w, 0) || 1;
+  // Gesamtgewicht
+  const totalWeight = weights.reduce((sum, w) => sum + w.weight, 0) || 1;
 
   const soldUnits: { [groupId: string]: number } = {};
 
-  // Initial allocation
-  for (const x of weights) {
-    const share = x.w / totalW;
-    const target = Math.floor(share * totalDemand);
-    soldUnits[x.id] = Math.min(target, x.supply, capUnits);
+  // Phase 1: Initial allocation basierend auf Marktanteilen
+  // Marktanteil = weight / totalWeight
+  for (const entry of weights) {
+    const marketShare = entry.weight / totalWeight;
+    const targetDemand = Math.floor(marketShare * totalDemand);
+    // Verkaufte Menge limitiert durch verfügbares Angebot
+    soldUnits[entry.id] = Math.min(targetDemand, entry.supply);
   }
 
-  let remainingDemand = totalDemand - Object.values(soldUnits).reduce((s, v) => s + v, 0);
+  // Berechne ungenutzten Nachfrage
+  const allocatedDemand = Object.values(soldUnits).reduce((sum, units) => sum + units, 0);
+  let remainingDemand = totalDemand - allocatedDemand;
 
-  // Proportional redistribution among eligible
+  // Phase 2: Verteile verbleibende Nachfrage proportional unter Gruppen mit verfügbarem Angebot
   if (remainingDemand > 0) {
-    const eligible = weights.filter(x => {
-      const sold = soldUnits[x.id] || 0;
-      return x.supply - sold > 0 && capUnits - sold > 0;
+    // Finde Gruppen mit verfügbarem Angebot (haven't sold out)
+    const availableGroups = weights.filter(w => {
+      const alreadySold = soldUnits[w.id] || 0;
+      return w.supply - alreadySold > 0;
     });
-    const sumEligW = eligible.reduce((s, x) => s + x.w, 0) || 1;
-    for (const x of eligible) {
-      if (remainingDemand <= 0) break;
-      const sold = soldUnits[x.id] || 0;
-      const supplyLeft = x.supply - sold;
-      const capLeft = capUnits - sold;
-      const add = Math.min(supplyLeft, capLeft, Math.floor((x.w / sumEligW) * remainingDemand));
-      if (add > 0) {
-        soldUnits[x.id] = sold + add;
-        remainingDemand -= add;
+
+    if (availableGroups.length > 0) {
+      // Berechne Gewichte neu basierend auf verfügbaren Gruppen
+      const availableWeight = availableGroups.reduce((sum, g) => sum + g.weight, 0);
+
+      for (const entry of availableGroups) {
+        if (remainingDemand <= 0) break;
+
+        const marketShare = entry.weight / availableWeight;
+        const additionalDemand = Math.floor(marketShare * remainingDemand);
+        const alreadySold = soldUnits[entry.id] || 0;
+        const availableSupply = entry.supply - alreadySold;
+
+        const additionalSold = Math.min(additionalDemand, availableSupply);
+        if (additionalSold > 0) {
+          soldUnits[entry.id] = alreadySold + additionalSold;
+          remainingDemand -= additionalSold;
+        }
       }
     }
   }
 
-  // Distribute remaining single units by weight
+  // Phase 3: Verteile verbleibende Einzeleinheiten nach Gewicht (Rounding)
   if (remainingDemand > 0) {
-    const order = [...weights].sort((a, b) => b.w - a.w);
+    const sorted = [...weights].sort((a, b) => b.weight - a.weight);
     let idx = 0;
-    let guard = 0;
-    while (remainingDemand > 0 && guard < 10000) {
-      const x = order[idx];
-      const sold = soldUnits[x.id] || 0;
-      if (x.supply - sold > 0 && capUnits - sold > 0) {
-        soldUnits[x.id] = sold + 1;
-        remainingDemand -= 1;
+    let iterations = 0;
+    const maxIterations = Math.min(remainingDemand * 2, 10000);
+
+    while (remainingDemand > 0 && iterations < maxIterations) {
+      const entry = sorted[idx % sorted.length];
+      const alreadySold = soldUnits[entry.id] || 0;
+
+      if (alreadySold < entry.supply) {
+        soldUnits[entry.id] = alreadySold + 1;
+        remainingDemand--;
       }
-      idx = (idx + 1) % order.length;
-      guard++;
+
+      idx++;
+      iterations++;
     }
   }
 
