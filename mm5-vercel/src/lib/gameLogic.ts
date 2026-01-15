@@ -65,12 +65,9 @@ export function calculateMarket(
     1 - parameters.priceElasticityFactor * (priceRatio - 1)
   );
 
-  // Nachfrage darf Kapazität und tatsächliches Angebot nicht überschreiten
-  // Begrenze zusätzlich unterhalb der Gesamtkapazität (Marktsättigungsfaktor)
-  const capacityCap = Math.floor(totalCapacity * parameters.initialMarketSaturationFactor);
-  const adjustedDemand = Math.floor(
-    Math.min(baseDemand * priceElasticityMultiplier, capacityCap, totalOffered || capacityCap)
-  );
+  // Nachfrage wird durch Preiselastizität und Marktsättigung bestimmt
+  // NICHT durch Angebot (Angebot und Nachfrage sind getrennt!)
+  const adjustedDemand = Math.floor(baseDemand * priceElasticityMultiplier);
 
   // 5. Berechne Marketing-Scores (ab Periode 5)
   const marketingScores: { [groupId: string]: number } = {};
