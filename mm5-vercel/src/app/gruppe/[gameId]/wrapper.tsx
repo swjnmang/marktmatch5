@@ -1,14 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { collection } from "firebase/firestore";
+import { isSessionValid, isDeviceAuthorized } from "@/lib/session-utils";
 import { GruppeGameForm } from "../game-form";
 
 export function GruppeGameWrapper() {
   const params = useParams();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const gameId = params.gameId as string;
   const pinFromUrl = searchParams.get("pin");
   const [validated, setValidated] = useState(false);
@@ -17,23 +19,39 @@ export function GruppeGameWrapper() {
 
   useEffect(() => {
     const validateAndJoin = async () => {
-      // If already joined (localStorage exists), skip validation
+      console.log(`[GruppeGameWrapper] Validating game ${gameId}`);
+
+      // FIRST: Check if this is a valid session from browser refresh
+      if (isSessionValid(gameId)) {
+        console.log(`[GruppeGameWrapper] ✓ Session is VALID for game ${gameId}`);
+        if (isDeviceAuthorized(gameId)) {
+          console.log(`[GruppeGameWrapper] ✓ Device is AUTHORIZED - continuing game`);
+          setValidated(true);
+          setValidating(false);
+          return;
+        }
+      }
+
+      // SECOND: Check for legacy localStorage group entry
       const storedGroupId = localStorage.getItem(`group_${gameId}`);
       if (storedGroupId) {
+        console.log(`[GruppeGameWrapper] Found legacy group entry for ${gameId}`);
         setValidated(true);
         setValidating(false);
         return;
       }
 
-      // If no PIN provided, show the form
+      // THIRD: If no PIN provided, show the form
       if (!pinFromUrl) {
+        console.log(`[GruppeGameWrapper] No PIN in URL - showing join form`);
         setValidated(false);
         setValidating(false);
         return;
       }
 
-      // Validate PIN and join
+      // FOURTH: Validate PIN and join
       try {
+        console.log(`[GruppeGameWrapper] Validating PIN from URL for game ${gameId}`);
         // const groupsRef = collection(db, "games", gameId, "groups");
         // In a real app, you'd validate the PIN against game settings
         // For now, we'll just mark as validated and let the form complete the join

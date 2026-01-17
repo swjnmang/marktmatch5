@@ -196,6 +196,27 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
     setIsAdmin(checkPinFromLocalStorage(gameId));
   }, [gameId]);
 
+  // Keep session alive while game is active - update activity every 30 seconds
+  useEffect(() => {
+    if (!joined || !gameId) return;
+
+    console.log(`[SessionKeepAlive] Starting keep-alive timer for game ${gameId}`);
+    
+    // Update immediately on join
+    updateSessionActivity(gameId);
+
+    // Then update every 30 seconds
+    const interval = setInterval(() => {
+      console.log(`[SessionKeepAlive] Updating session activity for ${gameId}`);
+      updateSessionActivity(gameId);
+    }, 30000); // 30 seconds
+
+    return () => {
+      console.log(`[SessionKeepAlive] Clearing keep-alive timer`);
+      clearInterval(interval);
+    };
+  }, [joined, gameId]);
+
   // Auto-join with prefilled PIN (from QR code or direct link)
   useEffect(() => {
     if (autoJoinAttempted || !prefilledPin || joined || !gameId) return;
