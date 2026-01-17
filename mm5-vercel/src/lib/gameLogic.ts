@@ -62,7 +62,7 @@ export function calculateMarket(
   const priceRatio = avgPrice / parameters.demandReferencePrice;
   const priceElasticityMultiplier = Math.max(
     parameters.minPriceElasticityDemandMultiplier,
-    1 - parameters.priceElasticityFactor * (priceRatio - 1)
+    Math.min(1.0, 1 - parameters.priceElasticityFactor * (priceRatio - 1))
   );
 
   // Nachfrage wird durch Preiselastizität und Marktsättigung bestimmt
