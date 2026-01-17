@@ -71,8 +71,7 @@ export async function calculateMarketResults(
 
   console.log(`[Market] TotalSupply=${totalSupply}, BaseDemand=${baseDemand}, AvgPrice=€${avgMarketPrice.toFixed(2)}, PriceElasticity=${priceElasticityEffect.toFixed(3)}, FinalDemand=${totalDemand}`);
 
-  // ===== SEQUENTIAL SOFTENING ALGORITHM =====
-  // Groups sorted by price (cheapest first) get priority in demand allocation
+  // Prepare group data for allocation
   const entries = groups
     .map((group) => {
       const decision = decisions[group.id];
@@ -80,40 +79,61 @@ export async function calculateMarketResults(
       const supply = groupSupplies[group.id] || 0;
       return { id: group.id, price: Math.max(0.01, decision.price), supply };
     })
-    .filter((e): e is { id: string; price: number; supply: number } => !!e)
-    .sort((a, b) => a.price - b.price);  // Sort by price ascending (cheapest first)
+    .filter((e): e is { id: string; price: number; supply: number } => !!e);
 
   const soldByGroup: Record<string, number> = {};
-  let remainingDemand = totalDemand;
-  const SOFTENING_FACTOR = 0.8;  // Each group gets 80% of remaining demand
 
-  console.log(`[Market] Starting demand allocation (Sequential Softening). Total groups: ${entries.length}`);
+  // ===== INVERSE PRICE ALLOCATION MODEL =====
+  // MODELL 1: Je günstiger der Preis, desto höher der Marktanteil
+  // Formel: marketShare = (1/price) / sum(1/allPrices)
+  // Realistisch: Kunden kaufen das Günstigste. Der Markt crasht nicht.
+  
+  const groupDataForAlloc = entries.map(entry => ({
+    ...entry,
+    inverse: 1 / Math.max(0.01, entry.price),
+  }));
+  
+  const inverseSum = groupDataForAlloc.reduce((sum, g) => sum + g.inverse, 0);
+  
+  const marketShares = groupDataForAlloc.map(g => ({
+    ...g,
+    marketShare: inverseSum > 0 ? g.inverse / inverseSum : 0,
+  }));
 
-  for (let i = 0; i < entries.length; i++) {
-    const entry = entries[i];
+  // First pass: allocate based on market share
+  let allocatedDemand = 0;
+  let unallocatedDemand = totalDemand;
+
+  marketShares.forEach(item => {
+    const targetDemand = Math.floor(item.marketShare * totalDemand);
+    const canSell = Math.min(targetDemand, item.supply);
+    soldByGroup[item.id] = canSell;
+    allocatedDemand += canSell;
+    unallocatedDemand -= canSell;
+    console.log(`[Inverse Model] Group €${item.price.toFixed(2)}: Inverse=${item.inverse.toFixed(6)}, Share=${(item.marketShare*100).toFixed(2)}%, Target=${targetDemand}, CanSupply=${item.supply}, Sold=${canSell}`);
+  });
+
+  // Second pass: redistribute unmet demand to groups with remaining capacity (by price)
+  if (unallocatedDemand > 0) {
+    console.log(`[Inverse Model] Unallocated: ${unallocatedDemand} units - redistributing...`);
+    const sortedByPrice = marketShares.sort((a, b) => a.price - b.price);
     
-    if (remainingDemand <= 0) {
-      console.log(`[Market] Group ${i} (€${entry.price.toFixed(2)}): No remaining demand`);
-      soldByGroup[entry.id] = 0;
-      continue;
+    for (const item of sortedByPrice) {
+      if (unallocatedDemand <= 0) break;
+      
+      const alreadySold = soldByGroup[item.id] || 0;
+      const remainingCapacity = item.supply - alreadySold;
+      const canTake = Math.min(remainingCapacity, unallocatedDemand);
+      
+      if (canTake > 0) {
+        soldByGroup[item.id] = alreadySold + canTake;
+        unallocatedDemand -= canTake;
+        console.log(`[Inverse Model] Group €${item.price.toFixed(2)}: Taking ${canTake} from overflow → ${soldByGroup[item.id]} total`);
+      }
     }
-
-    // Last group gets all remaining demand
-    const isLastGroup = i === entries.length - 1;
-    const targetDemand = isLastGroup 
-      ? remainingDemand  
-      : Math.floor(remainingDemand * SOFTENING_FACTOR);
-    
-    // Limited by supply
-    const allocated = Math.min(targetDemand, entry.supply);
-    
-    soldByGroup[entry.id] = allocated;
-    remainingDemand -= allocated;
-    
-    console.log(`[Market] Group ${i} (€${entry.price.toFixed(2)}, Supply=${entry.supply}): Target=${targetDemand}, Allocated=${allocated}, Remaining=${remainingDemand}`);
   }
 
-  console.log(`[Market] Allocation complete. Total allocated: ${Object.values(soldByGroup).reduce((s, v) => s + v, 0)}, Unmet demand: ${remainingDemand}`);
+  console.log(`[Inverse Model] Allocation complete. Total: ${allocatedDemand + (totalDemand - unallocatedDemand)}, Unmet: ${unallocatedDemand}`);
 
   // ===== CALCULATE RESULTS FOR EACH GROUP =====
   for (const group of groups) {

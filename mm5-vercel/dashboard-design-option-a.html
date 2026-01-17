@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spiel-Dashboard (Spielleiter)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --background: #f3f4f6;
+            --foreground: #222;
+            --surface: #fff;
+            --muted: #64748b;
+            --accent: #64748b;
+            --accent-strong: #475569;
+            --border: #d1d5db;
+        }
+        body {
+            background: linear-gradient(135deg, var(--background) 0%, #d1d5db 100%);
+            color: var(--foreground);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-gray-200">
+    <div class="max-w-7xl mx-auto p-6">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-900">Spiel-Dashboard</h1>
+            <p class="text-gray-600 mt-2">Spielleiter-Übersicht für Periode 2/5</p>
+        </div>
+
+        <!-- KPI Übersicht - Neutral Gray -->
+        <div class="grid grid-cols-4 gap-4 mb-8">
+            <div class="bg-white rounded-lg shadow p-4 border-l-4 border-gray-400">
+                <div class="text-sm text-gray-600 font-semibold">Spielstand</div>
+                <div class="text-2xl font-bold text-gray-900">Periode 2/5</div>
+                <div class="text-xs text-gray-500 mt-1">40% des Spiels abgeschlossen</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4 border-l-4 border-orange-400">
+                <div class="text-sm text-gray-600 font-semibold">Gruppen Status</div>
+                <div class="text-2xl font-bold text-orange-600">⚠ 2 wartend</div>
+                <div class="text-xs text-gray-500 mt-1">Bereit zum Starten</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4 border-l-4 border-emerald-400">
+                <div class="text-sm text-gray-600 font-semibold">Gesamt-Umsatz</div>
+                <div class="text-2xl font-bold text-emerald-700">€92.139</div>
+                <div class="text-xs text-gray-500 mt-1">Über alle Perioden</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4 border-l-4 border-gray-400">
+                <div class="text-sm text-gray-600 font-semibold">Ø Kapital</div>
+                <div class="text-2xl font-bold text-gray-900">€375.054</div>
+                <div class="text-xs text-gray-500 mt-1">Pro Gruppe</div>
+            </div>
+        </div>
+
+        <!-- Hauptinhalt 2-spaltig -->
+        <div class="grid grid-cols-3 gap-6 mb-8">
+            <!-- Linke Spalte: Spielstand -->
+            <div class="col-span-2">
+                <div class="bg-white rounded-lg shadow">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-xl font-bold text-gray-900">Spielstand</h2>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <!-- Gruppe 1 -->
+                        <div class="border border-gray-200 bg-white rounded-lg p-4 hover:shadow-md transition hover:border-gray-300">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-bold text-gray-900">Edge1</h3>
+                                    <div class="flex items-center gap-2 mt-2">
+                                        <span class="inline-block w-3 h-3 bg-orange-500 rounded-full"></span>
+                                        <span class="text-sm text-orange-700 font-semibold">Wartend</span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-2xl font-bold text-gray-900">€69.110</div>
+                                    <div class="text-xs text-gray-600">Kapital</div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-3 mt-4 text-sm border-t border-gray-200 pt-3">
+                                <div>
+                                    <div class="text-gray-600 text-xs font-semibold">Marktanteil</div>
+                                    <div class="font-bold text-gray-900 text-lg">24.0%</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-600 text-xs font-semibold">Ranking</div>
+                                    <div class="font-bold text-gray-900 text-lg">Platz 1</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-600 text-xs font-semibold">Lager</div>
+                                    <div class="font-bold text-gray-900 text-lg">145 E.</div>
+                                </div>
+                            </div>
+                            <button class="w-full mt-3 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded font-semibold transition">
+                                🖊 Bearbeiten
+                            </button>
+                        </div>
+
+                        <!-- Gruppe 2 -->
+                        <div class="border border-gray-200 bg-white rounded-lg p-4 hover:shadow-md transition hover:border-gray-300">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-bold text-gray-900">Chrome1</h3>
+                                    <div class="flex items-center gap-2 mt-2">
+                                        <span class="inline-block w-3 h-3 bg-orange-500 rounded-full"></span>
+                                        <span class="text-sm text-orange-700 font-semibold">Wartend</span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-2xl font-bold text-gray-900">€81.029.495,5</div>
+                                    <div class="text-xs text-gray-600">Kapital</div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-3 mt-4 text-sm border-t border-gray-200 pt-3">
+                                <div>
+                                    <div class="text-gray-600 text-xs font-semibold">Marktanteil</div>
+                                    <div class="font-bold text-gray-900 text-lg">26.9%</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-600 text-xs font-semibold">Ranking</div>
+                                    <div class="font-bold text-gray-900 text-lg">Platz 2</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-600 text-xs font-semibold">Lager</div>
+                                    <div class="font-bold text-gray-900 text-lg">463 E.</div>
+                                </div>
+                            </div>
+                            <button class="w-full mt-3 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded font-semibold transition">
+                                🖊 Bearbeiten
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rechte Spalte: Schnell-Aktionen -->
+            <div>
+                <div class="bg-white rounded-lg shadow mb-6">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-xl font-bold text-gray-900">Schnell-Aktionen</h2>
+                    </div>
+                    <div class="p-6 space-y-3">
+                        <button class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-bold text-lg transition shadow-md">
+                            ▶ Start Periode 3
+                        </button>
+                        <button class="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded font-semibold transition">
+                            ⚙ Spieleinstellungen
+                        </button>
+                        <button class="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded font-semibold transition">
+                            🏆 Ranking anzeigen
+                        </button>
+                        <button class="w-full bg-gray-700 hover:bg-gray-800 text-white py-2 rounded font-semibold transition">
+                            ⏹ Spiel beenden
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 border-l-4 border-gray-400 rounded-lg p-4">
+                    <div class="text-sm font-semibold text-gray-900 mb-2">💡 Hinweis</div>
+                    <div class="text-sm text-gray-700">Beide Gruppen haben ihre Entscheidungen eingereicht. Du kannst die nächste Periode starten.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aktionen & Einstellungen -->
+        <div class="bg-white rounded-lg shadow mb-8">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-bold text-gray-900">Einstellungen & Aktionen</h2>
+            </div>
+            <div class="p-6">
+                <!-- Tab-Buttons -->
+                <div class="flex gap-4 mb-6 border-b border-gray-200">
+                    <button class="pb-3 border-b-2 border-gray-600 text-gray-900 font-semibold">
+                        📋 Spezialaufträge
+                    </button>
+                    <button class="pb-3 text-gray-600 hover:text-gray-900 font-semibold">
+                        ⚡ Aktionen für nächste Periode
+                    </button>
+                    <button class="pb-3 text-gray-600 hover:text-gray-900 font-semibold">
+                        📊 Marktbedingungen
+                    </button>
+                </div>
+
+                <!-- Spezialaufträge Inhalt -->
+                <div class="bg-gray-50 rounded p-4 text-center text-gray-600">
+                    <p class="mb-2">Keine Spezialaufträge für diese Periode konfiguriert.</p>
+                    <button class="text-gray-700 hover:text-gray-900 font-semibold">→ Hinzufügen</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Periodenverlauf -->
+        <div class="bg-white rounded-lg shadow mb-8 p-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">Periodenverlauf</h3>
+            <div class="flex items-center justify-center gap-4">
+                <div class="text-center">
+                    <div class="w-12 h-12 mx-auto bg-emerald-100 rounded-full flex items-center justify-center mb-2 border-2 border-emerald-300">
+                        <span class="text-emerald-700 font-bold text-lg">✓</span>
+                    </div>
+                    <div class="text-sm font-semibold text-gray-900">P1</div>
+                    <div class="text-xs text-gray-600">Fertig</div>
+                </div>
+                <div class="text-gray-400 text-2xl">→</div>
+                <div class="text-center">
+                    <div class="w-12 h-12 mx-auto bg-emerald-100 rounded-full flex items-center justify-center mb-2 border-2 border-emerald-300">
+                        <span class="text-emerald-700 font-bold text-lg">✓</span>
+                    </div>
+                    <div class="text-sm font-semibold text-gray-900">P2</div>
+                    <div class="text-xs text-gray-600">Fertig</div>
+                </div>
+                <div class="text-gray-400 text-2xl">→</div>
+                <div class="text-center">
+                    <div class="w-12 h-12 mx-auto bg-gray-200 rounded-full flex items-center justify-center mb-2 border-2 border-gray-400">
+                        <span class="text-gray-700 font-bold text-lg">→</span>
+                    </div>
+                    <div class="text-sm font-semibold text-gray-900">P3</div>
+                    <div class="text-xs text-gray-600">Aktiv</div>
+                </div>
+                <div class="text-gray-400 text-2xl">→</div>
+                <div class="text-center">
+                    <div class="w-12 h-12 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-2 border-2 border-gray-300">
+                        <span class="text-gray-400 font-bold text-lg">□</span>
+                    </div>
+                    <div class="text-sm font-semibold text-gray-900">P4</div>
+                    <div class="text-xs text-gray-600">Offen</div>
+                </div>
+                <div class="text-gray-400 text-2xl">→</div>
+                <div class="text-center">
+                    <div class="w-12 h-12 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-2 border-2 border-gray-300">
+                        <span class="text-gray-400 font-bold text-lg">□</span>
+                    </div>
+                    <div class="text-sm font-semibold text-gray-900">P5</div>
+                    <div class="text-xs text-gray-600">Offen</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Spielabschluss -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">Spielabschluss</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <button class="bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition">
+                    🏆 Ranking anzeigen
+                </button>
+                <button class="bg-gray-700 hover:bg-gray-800 text-white py-3 rounded-lg font-semibold transition">
+                    🏁 Spiel beenden
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+    <div class="max-w-7xl mx-auto p-6">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-900">Spiel-Dashboard (Option A: 2-Spaltig)</h1>
+            <p class="text-gray-600 mt-2">Moderne 2-spaltige Anordnung mit KPI-Übersicht</p>
+        </div>
+
+        <!-- KPI Übersicht -->
+        <div class="grid grid-cols-4 gap-4 mb-8">
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-sm text-gray-600">Spielstand</div>
+                <div class="text-2xl font-bold text-gray-900">Periode 2/5</div>
+                <div class="text-xs text-gray-500 mt-1">↳ P3 startet nach Entscheidungen</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-sm text-gray-600">Gruppen Status</div>
+                <div class="text-2xl font-bold text-orange-600">⚠ 2 wartend</div>
+                <div class="text-xs text-gray-500 mt-1">↳ Alle müssen entscheiden</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-sm text-gray-600">Gesamt-Umsatz</div>
+                <div class="text-2xl font-bold text-green-600">€92.139</div>
+                <div class="text-xs text-gray-500 mt-1">↳ Über alle Perioden</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-sm text-gray-600">Ø Kapital</div>
+                <div class="text-2xl font-bold text-blue-600">€375.054</div>
+                <div class="text-xs text-gray-500 mt-1">↳ Pro Gruppe</div>
+            </div>
+        </div>
+
+        <!-- Hauptinhalt 2-spaltig -->
+        <div class="grid grid-cols-3 gap-6 mb-8">
+            <!-- Linke Spalte: Spielstand -->
+            <div class="col-span-2">
+                <div class="bg-white rounded-lg shadow">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-xl font-bold text-gray-900">Spielstand</h2>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <!-- Gruppe 1 -->
+                        <div class="border border-red-200 bg-red-50 rounded-lg p-4 hover:shadow-md transition">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-bold text-gray-900">Edge1</h3>
+                                    <div class="flex items-center gap-2 mt-2">
+                                        <span class="inline-block w-3 h-3 bg-red-500 rounded-full"></span>
+                                        <span class="text-sm text-red-700 font-semibold">Wartend</span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-2xl font-bold text-gray-900">€69.110</div>
+                                    <div class="text-xs text-gray-600">Kapital</div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-3 mt-4 text-sm border-t border-red-200 pt-3">
+                                <div>
+                                    <div class="text-gray-600">Marktanteil</div>
+                                    <div class="font-bold text-gray-900">24.0%</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-600">Ranking</div>
+                                    <div class="font-bold text-gray-900">Platz 1</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-600">Lager</div>
+                                    <div class="font-bold text-gray-900">145 E.</div>
+                                </div>
+                            </div>
+                            <button class="w-full mt-3 bg-orange-500 hover:bg-orange-600 text-white py-2 rounded font-semibold transition">
+                                🖊 Bearbeiten
+                            </button>
+                        </div>
+
+                        <!-- Gruppe 2 -->
+                        <div class="border border-red-200 bg-red-50 rounded-lg p-4 hover:shadow-md transition">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-bold text-gray-900">Chrome1</h3>
+                                    <div class="flex items-center gap-2 mt-2">
+                                        <span class="inline-block w-3 h-3 bg-red-500 rounded-full"></span>
+                                        <span class="text-sm text-red-700 font-semibold">Wartend</span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-2xl font-bold text-gray-900">€81.029.495,5</div>
+                                    <div class="text-xs text-gray-600">Kapital</div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-3 mt-4 text-sm border-t border-red-200 pt-3">
+                                <div>
+                                    <div class="text-gray-600">Marktanteil</div>
+                                    <div class="font-bold text-gray-900">26.9%</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-600">Ranking</div>
+                                    <div class="font-bold text-gray-900">Platz 2</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-600">Lager</div>
+                                    <div class="font-bold text-gray-900">463 E.</div>
+                                </div>
+                            </div>
+                            <button class="w-full mt-3 bg-orange-500 hover:bg-orange-600 text-white py-2 rounded font-semibold transition">
+                                🖊 Bearbeiten
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rechte Spalte: Schnell-Aktionen -->
+            <div>
+                <div class="bg-white rounded-lg shadow mb-6">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-xl font-bold text-gray-900">Schnell-Aktionen</h2>
+                    </div>
+                    <div class="p-6 space-y-3">
+                        <button class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold text-lg transition shadow-md">
+                            ▶ Start Periode 3
+                        </button>
+                        <button class="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded font-semibold transition">
+                            ⚙ Spieleinstellungen
+                        </button>
+                        <button class="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded font-semibold transition">
+                            🏆 Ranking anzeigen
+                        </button>
+                        <button class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded font-semibold transition">
+                            ⏹ Spiel beenden
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="text-sm font-semibold text-blue-900 mb-2">💡 Hinweis</div>
+                    <div class="text-sm text-blue-800">Beide Gruppen haben ihre Entscheidungen eingereicht. Du kannst die nächste Periode starten.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aktionen & Einstellungen -->
+        <div class="bg-white rounded-lg shadow mb-8">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-bold text-gray-900">Einstellungen & Aktionen</h2>
+            </div>
+            <div class="p-6">
+                <!-- Tab-Buttons -->
+                <div class="flex gap-4 mb-6 border-b border-gray-200">
+                    <button class="pb-3 border-b-2 border-blue-600 text-blue-600 font-semibold">
+                        📋 Spezialaufträge
+                    </button>
+                    <button class="pb-3 text-gray-600 hover:text-gray-900 font-semibold">
+                        ⚡ Aktionen für nächste Periode
+                    </button>
+                    <button class="pb-3 text-gray-600 hover:text-gray-900 font-semibold">
+                        📊 Marktbedingungen
+                    </button>
+                </div>
+
+                <!-- Spezialaufträge Inhalt -->
+                <div class="bg-gray-50 rounded p-4 text-center text-gray-600">
+                    <p class="mb-2">Keine Spezialaufträge für diese Periode konfiguriert.</p>
+                    <button class="text-blue-600 hover:text-blue-800 font-semibold">→ Hinzufügen</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Periodenverlauf -->
+        <div class="bg-white rounded-lg shadow mb-8 p-6">
+            <h3 class="text-lg font-bold mb-4">Periodenverlauf</h3>
+            <div class="flex items-center justify-center gap-4">
+                <div class="text-center">
+                    <div class="w-12 h-12 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-2">
+                        <span class="text-green-700 font-bold">✓</span>
+                    </div>
+                    <div class="text-sm font-semibold">P1</div>
+                    <div class="text-xs text-gray-600">Fertig</div>
+                </div>
+                <div class="text-gray-400">→</div>
+                <div class="text-center">
+                    <div class="w-12 h-12 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-2">
+                        <span class="text-green-700 font-bold">✓</span>
+                    </div>
+                    <div class="text-sm font-semibold">P2</div>
+                    <div class="text-xs text-gray-600">Fertig</div>
+                </div>
+                <div class="text-gray-400">→</div>
+                <div class="text-center">
+                    <div class="w-12 h-12 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                        <span class="text-blue-700 font-bold">→</span>
+                    </div>
+                    <div class="text-sm font-semibold">P3</div>
+                    <div class="text-xs text-gray-600">Aktiv</div>
+                </div>
+                <div class="text-gray-400">→</div>
+                <div class="text-center">
+                    <div class="w-12 h-12 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-2">
+                        <span class="text-gray-400 font-bold">□</span>
+                    </div>
+                    <div class="text-sm font-semibold">P4</div>
+                    <div class="text-xs text-gray-600">Offen</div>
+                </div>
+                <div class="text-gray-400">→</div>
+                <div class="text-center">
+                    <div class="w-12 h-12 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-2">
+                        <span class="text-gray-400 font-bold">□</span>
+                    </div>
+                    <div class="text-sm font-semibold">P5</div>
+                    <div class="text-xs text-gray-600">Offen</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Spielabschluss -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-bold mb-4">Spielabschluss</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <button class="bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition">
+                    🏆 Ranking anzeigen
+                </button>
+                <button class="bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition">
+                    🏁 Spiel beenden
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

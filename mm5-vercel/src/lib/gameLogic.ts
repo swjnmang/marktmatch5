@@ -78,8 +78,9 @@ export function calculateMarket(
     });
   }
 
-  // 6. Sequentielle Nachfrageverteilung: Günstigster Preis zuerst
-  const soldUnitsMap = calculateInversePriceSales(inputs, adjustedDemand, parameters);
+  // 6. Inverse Preis-Nachfrageverteilung: Je günstiger der Preis, desto höher der Marktanteil
+  // Das ist realistisch: Kunden kaufen das Günstigste. Der Markt crasht nicht durch extreme Preise.
+  const soldUnitsMap = calculateInversePriceAllocation(inputs, adjustedDemand, parameters);
 
   // 7. Berechne Ergebnisse für jede Gruppe
   const results: MarketCalculationResult[] = inputs.map((input) => {
@@ -229,57 +230,86 @@ export function calculateMarket(
  * - Gruppe B (€60, 500 Cap): 80% von 380 = 304 → bekommt 304
  * - Verbleibend: 76 Nachfrage
  * - Gruppe C (€100, 500 Cap): 80% von 76 = 61 → bekommt 61
+/**
+ * MODELL 1: INVERSES PREIS-MODELL (Inverse Price Allocation)
+ * 
+ * Formel: marketShare = (1/price) / sum(1/allPrices)
+ * 
+ * Interpretation:
+ * - Realistisch: Kunden kaufen das Günstigste
+ * - Je günstiger der Preis, desto höher die Nachfrage-Quote
+ * - Der Markt crasht NICHT durch extreme Preise
+ * - Teure Gruppen werden wirtschaftlich bestraft (niedriger Marktanteil)
+ * 
+ * Algorithmus:
+ * 1. Berechne inverse Preise: 1/price für jede Gruppe
+ * 2. Marktanteil = (1/price) / sum(1/allPrices)
+ * 3. Allokiere: min(marktanteil * demand, produktion)
+ * 4. Wenn Gruppe weniger produziert als ihr Marktanteil: Rest an nächstbilligere Gruppe
  */
-function calculateInversePriceSales(
+function calculateInversePriceAllocation(
   inputs: MarketCalculationInput[],
   totalDemand: number,
   parameters: GameParameters
 ): { [groupId: string]: number } {
-  // Sortiere nach Preis (günstig zuerst)
-  const sortedByPrice = inputs
-    .map(input => ({
-      id: input.groupId,
-      price: Math.max(0.01, input.decision.price),
-      supply: Math.max(0, input.decision.production + input.decision.sellFromInventory),
-    }))
-    .sort((a, b) => a.price - b.price);
+  // Schritt 1: Berechne Inverse für alle Gruppen
+  const groupData = inputs.map(input => ({
+    id: input.groupId,
+    price: Math.max(0.01, input.decision.price),
+    supply: Math.max(0, input.decision.production + input.decision.sellFromInventory),
+    inverse: 1 / Math.max(0.01, input.decision.price),  // Inverse des Preises
+  }));
 
-  const soldUnits: { [groupId: string]: number } = {};
-  let remainingDemand = totalDemand;
+  // Schritt 2: Summe der Inversen
+  const inverseSum = groupData.reduce((sum, g) => sum + g.inverse, 0);
   
-  // Konstante für "Softening" - jede Gruppe bekommt 80% der verbleibenden Nachfrage
-  const SOFTENING_FACTOR = 0.8;
+  // Schritt 3: Berechne Marktanteile
+  const marketShares = groupData.map(g => ({
+    ...g,
+    marketShare: inverseSum > 0 ? g.inverse / inverseSum : 0,
+  }));
 
-  console.log(`[Market Calc] Total Demand: ${totalDemand}, Total Supply: ${sortedByPrice.reduce((s, g) => s + g.supply, 0)}`);
+  // Schritt 4: Erste Allokation (kann Überbieter sein)
+  const firstAllocation = marketShares.map(g => ({
+    ...g,
+    targetDemand: Math.floor(g.marketShare * totalDemand),
+  }));
 
-  // Iteriere durch Gruppen nach Preis (günstig zuerst)
-  for (let i = 0; i < sortedByPrice.length; i++) {
-    const entry = sortedByPrice[i];
-    
-    if (remainingDemand <= 0) {
-      console.log(`[Market Calc] Group ${i}: No remaining demand`);
-      break;
-    }
+  // Schritt 5: Begrenzen durch verfügbare Produktion
+  const soldUnits: { [groupId: string]: number } = {};
+  let allocatedDemand = 0;
+  let unallocatedDemand = totalDemand;
 
-    // Diese Gruppe bekommt 80% der verbleibenden Nachfrage
-    // ABER: Wenn es die letzte Gruppe ist, bekommt sie den Rest
-    const isLastGroup = i === sortedByPrice.length - 1;
-    const targetDemand = isLastGroup 
-      ? remainingDemand  // Letzte Gruppe bekommt alles verbleibende
-      : Math.floor(remainingDemand * SOFTENING_FACTOR);
+  // Erste Pass: Jede Gruppe nach ihrer Kapazität
+  firstAllocation.forEach(item => {
+    const canSell = Math.min(item.targetDemand, item.supply);
+    soldUnits[item.id] = canSell;
+    allocatedDemand += canSell;
+    unallocatedDemand -= canSell;
+    console.log(`[Inverse Model] Group €${item.price.toFixed(2)}: Inverse=${item.inverse.toFixed(6)}, Share=${(item.marketShare*100).toFixed(2)}%, Target=${item.targetDemand}, Can Supply=${item.supply}, Sold=${canSell}`);
+  });
+
+  // Zweite Pass: Verteile überschüssige Nachfrage an Gruppen mit Kapazität (nach Preis sortiert)
+  if (unallocatedDemand > 0) {
+    console.log(`[Inverse Model] Unallocated Demand: ${unallocatedDemand} units - redistributing by price...`);
+    const sortedByPrice = marketShares.sort((a, b) => a.price - b.price);
     
-    // Aber begrenzt durch ihre verfügbare Kapazität
-    const allocationToGroup = Math.min(targetDemand, entry.supply);
-    
-    console.log(`[Market Calc] Group ${i} (€${entry.price}, Supply: ${entry.supply}): Target=${targetDemand}, Allocated=${allocationToGroup}, Remaining before=${remainingDemand}, After=${remainingDemand - allocationToGroup}`);
-    
-    if (allocationToGroup > 0) {
-      soldUnits[entry.id] = allocationToGroup;
-      remainingDemand -= allocationToGroup;
+    for (const item of sortedByPrice) {
+      if (unallocatedDemand <= 0) break;
+      
+      const alreadySold = soldUnits[item.id] || 0;
+      const remainingCapacity = item.supply - alreadySold;
+      const canTake = Math.min(remainingCapacity, unallocatedDemand);
+      
+      if (canTake > 0) {
+        soldUnits[item.id] = alreadySold + canTake;
+        unallocatedDemand -= canTake;
+        console.log(`[Inverse Model] Group €${item.price.toFixed(2)}: Taking ${canTake} from overflow. New total: ${soldUnits[item.id]}`);
+      }
     }
   }
 
-  console.log(`[Market Calc] Final allocation:`, soldUnits, `Remaining demand not fulfilled: ${remainingDemand}`);
+  console.log(`[Market Calc - Inverse Model] Total Demand: ${totalDemand}, Total Allocated: ${allocatedDemand + (totalDemand - unallocatedDemand)}, Unallocated: ${unallocatedDemand}`);
 
   return soldUnits;
 }

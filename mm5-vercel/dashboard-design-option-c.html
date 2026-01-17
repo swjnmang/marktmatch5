@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Design - Option C: Großzügige Karten</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="max-w-7xl mx-auto p-6">
+        <!-- Header mit KPI inline -->
+        <div class="mb-8">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h1 class="text-4xl font-bold text-gray-900">Spiel-Dashboard</h1>
+                    <p class="text-gray-600 mt-2">Option C: Großzügige Kartenlayouts</p>
+                </div>
+                <button class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold text-lg transition shadow-lg">
+                    ▶ START PERIODE 3
+                </button>
+            </div>
+
+            <!-- Quick Status Bar -->
+            <div class="bg-white rounded-lg shadow p-4 flex gap-8 border-l-4 border-blue-600">
+                <div class="flex-1">
+                    <div class="text-sm text-gray-600 font-semibold">Spielstand</div>
+                    <div class="text-2xl font-bold text-gray-900">Periode 2/5</div>
+                </div>
+                <div class="flex-1 border-l border-gray-200 pl-6">
+                    <div class="text-sm text-gray-600 font-semibold">Gruppen Status</div>
+                    <div class="text-2xl font-bold"><span class="text-red-600">2</span> <span class="text-sm text-gray-600">wartend</span></div>
+                </div>
+                <div class="flex-1 border-l border-gray-200 pl-6">
+                    <div class="text-sm text-gray-600 font-semibold">Gesamt-Umsatz</div>
+                    <div class="text-2xl font-bold text-green-600">€92.139</div>
+                </div>
+                <div class="flex-1 border-l border-gray-200 pl-6">
+                    <div class="text-sm text-gray-600 font-semibold">Ø Kapital</div>
+                    <div class="text-2xl font-bold text-blue-600">€375.054</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gruppen als große Karten (Grid) -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Gruppen (Spielstand)</h2>
+            <div class="grid grid-cols-2 gap-6">
+                <!-- Gruppe 1 Große Karte -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition border-l-4 border-red-500">
+                    <!-- Header -->
+                    <div class="bg-gradient-to-r from-red-50 to-red-100 px-6 py-4 border-b border-red-200 flex justify-between items-start">
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900">Edge1</h3>
+                            <div class="flex items-center gap-2 mt-2">
+                                <span class="inline-block w-4 h-4 bg-red-500 rounded-full animate-pulse"></span>
+                                <span class="text-sm text-red-700 font-bold">Wartend</span>
+                            </div>
+                        </div>
+                        <button class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded font-semibold transition">
+                            🖊 Bearbeiten
+                        </button>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="p-6">
+                        <!-- Großes Kapital Display -->
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 mb-6 border border-green-200">
+                            <div class="text-sm text-gray-600 font-semibold">Kapital</div>
+                            <div class="text-3xl font-bold text-green-700">€69.110</div>
+                        </div>
+
+                        <!-- Metrics Grid -->
+                        <div class="grid grid-cols-3 gap-4 mb-6">
+                            <div class="bg-blue-50 rounded-lg p-4 text-center border border-blue-200">
+                                <div class="text-2xl font-bold text-blue-600">24.0%</div>
+                                <div class="text-xs text-gray-600 font-semibold mt-2">Marktanteil</div>
+                            </div>
+                            <div class="bg-yellow-50 rounded-lg p-4 text-center border border-yellow-200">
+                                <div class="text-2xl font-bold text-yellow-600">1</div>
+                                <div class="text-xs text-gray-600 font-semibold mt-2">Ranking</div>
+                            </div>
+                            <div class="bg-purple-50 rounded-lg p-4 text-center border border-purple-200">
+                                <div class="text-2xl font-bold text-purple-600">145</div>
+                                <div class="text-xs text-gray-600 font-semibold mt-2">Lager (E.)</div>
+                            </div>
+                        </div>
+
+                        <!-- Details -->
+                        <div class="bg-gray-50 rounded-lg p-4 text-sm space-y-2">
+                            <div class="flex justify-between"><span class="text-gray-600">Letzte Periode Umsatz:</span> <span class="font-bold">€11.250</span></div>
+                            <div class="flex justify-between"><span class="text-gray-600">Produktionskapazität:</span> <span class="font-bold">250 E.</span></div>
+                            <div class="flex justify-between"><span class="text-gray-600">Maschinen:</span> <span class="font-bold">2</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gruppe 2 Große Karte -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition border-l-4 border-red-500">
+                    <!-- Header -->
+                    <div class="bg-gradient-to-r from-red-50 to-red-100 px-6 py-4 border-b border-red-200 flex justify-between items-start">
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900">Chrome1</h3>
+                            <div class="flex items-center gap-2 mt-2">
+                                <span class="inline-block w-4 h-4 bg-red-500 rounded-full animate-pulse"></span>
+                                <span class="text-sm text-red-700 font-bold">Wartend</span>
+                            </div>
+                        </div>
+                        <button class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded font-semibold transition">
+                            🖊 Bearbeiten
+                        </button>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="p-6">
+                        <!-- Großes Kapital Display -->
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 mb-6 border border-green-200">
+                            <div class="text-sm text-gray-600 font-semibold">Kapital</div>
+                            <div class="text-3xl font-bold text-green-700">€81.029.495</div>
+                        </div>
+
+                        <!-- Metrics Grid -->
+                        <div class="grid grid-cols-3 gap-4 mb-6">
+                            <div class="bg-blue-50 rounded-lg p-4 text-center border border-blue-200">
+                                <div class="text-2xl font-bold text-blue-600">26.9%</div>
+                                <div class="text-xs text-gray-600 font-semibold mt-2">Marktanteil</div>
+                            </div>
+                            <div class="bg-yellow-50 rounded-lg p-4 text-center border border-yellow-200">
+                                <div class="text-2xl font-bold text-yellow-600">2</div>
+                                <div class="text-xs text-gray-600 font-semibold mt-2">Ranking</div>
+                            </div>
+                            <div class="bg-purple-50 rounded-lg p-4 text-center border border-purple-200">
+                                <div class="text-2xl font-bold text-purple-600">463</div>
+                                <div class="text-xs text-gray-600 font-semibold mt-2">Lager (E.)</div>
+                            </div>
+                        </div>
+
+                        <!-- Details -->
+                        <div class="bg-gray-50 rounded-lg p-4 text-sm space-y-2">
+                            <div class="flex justify-between"><span class="text-gray-600">Letzte Periode Umsatz:</span> <span class="font-bold">€19.600</span></div>
+                            <div class="flex justify-between"><span class="text-gray-600">Produktionskapazität:</span> <span class="font-bold">280 E.</span></div>
+                            <div class="flex justify-between"><span class="text-gray-600">Maschinen:</span> <span class="font-bold">1</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aktionen & Einstellungen -->
+        <div class="grid grid-cols-3 gap-6 mb-8">
+            <!-- Schnell-Aktionen -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">⚡ Schnell-Aktionen</h3>
+                <div class="space-y-3">
+                    <button class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold transition">
+                        ▶ Start Periode 3
+                    </button>
+                    <button class="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded font-semibold transition">
+                        ⚙ Einstellungen
+                    </button>
+                    <button class="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded font-semibold transition">
+                        🏆 Ranking
+                    </button>
+                </div>
+            </div>
+
+            <!-- Periodenverlauf -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">📈 Periodenverlauf</h3>
+                <div class="flex justify-between items-center text-sm">
+                    <div class="text-center">
+                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-1">✓</div>
+                        <div class="font-bold">P1</div>
+                    </div>
+                    <div class="flex-1 text-center text-gray-400">→</div>
+                    <div class="text-center">
+                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-1">✓</div>
+                        <div class="font-bold">P2</div>
+                    </div>
+                    <div class="flex-1 text-center text-gray-400">→</div>
+                    <div class="text-center">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-1">→</div>
+                        <div class="font-bold">P3</div>
+                    </div>
+                    <div class="flex-1 text-center text-gray-400">→</div>
+                    <div class="text-center">
+                        <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-1">□</div>
+                        <div class="font-bold">P4</div>
+                    </div>
+                    <div class="flex-1 text-center text-gray-400">→</div>
+                    <div class="text-center">
+                        <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-1">□</div>
+                        <div class="font-bold">P5</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info -->
+            <div class="bg-blue-50 rounded-lg border-l-4 border-blue-600 p-6">
+                <h3 class="text-xl font-bold text-blue-900 mb-3">💡 Status</h3>
+                <p class="text-sm text-blue-800">Beide Gruppen haben ihre Entscheidungen eingereicht. Die nächste Periode kann gestartet werden.</p>
+            </div>
+        </div>
+
+        <!-- Unten: Spezialaufträge & Spielabschluss -->
+        <div class="grid grid-cols-2 gap-6">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">📋 Spezialaufträge</h3>
+                <p class="text-gray-600 mb-4">Keine Spezialaufträge für diese Periode konfiguriert.</p>
+                <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-semibold transition">
+                    + Hinzufügen
+                </button>
+            </div>
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">🏁 Spielabschluss</h3>
+                <p class="text-gray-600 mb-4">Beende das Spiel und zeige das finale Ranking an.</p>
+                <button class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded font-semibold transition">
+                    Spiel beenden
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

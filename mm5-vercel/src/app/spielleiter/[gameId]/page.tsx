@@ -12,6 +12,7 @@ import { PREDEFINED_TASKS } from "@/lib/special-tasks";
 import type { GameDocument, GroupState, PeriodDecision, SpecialTask } from "@/lib/types";
 import { calculateMarket, type MarketCalculationInput } from "@/lib/gameLogic";
 import { PeriodTimer } from "@/components/PeriodTimer";
+import { SpielleiterDashboard } from "@/components/SpielleiterDashboard";
 // import { SessionManagementPanel } from "@/components/SessionManagementPanel"; // Removed: Using group edit modal instead
 
 export default function GameDashboardPage() {
@@ -530,8 +531,49 @@ export default function GameDashboardPage() {
           </div>
         )}
 
-        {/* Game Info + Groups Combined */}
-        <div className="rounded-xl bg-white p-4 shadow-lg ring-1 ring-neutral-200">
+        {/* NEW Modern Dashboard for In-Progress Games */}
+        {game.status === "in_progress" && (
+          <SpielleiterDashboard
+            game={game}
+            groups={groups}
+            onStartPeriod={async () => {
+              if (!game) return;
+              setStartLoading(true);
+              setStartError("");
+              try {
+                const endsAt = Date.now() + (game.parameters?.periodDurationMinutes || 10) * 60 * 1000;
+                const batch = writeBatch(db);
+                batch.update(doc(db, "games", gameId), {
+                  phase: "decisions",
+                  phaseEndsAt: endsAt,
+                  periodDeadline: endsAt,
+                });
+                groups.forEach((g) => {
+                  batch.update(doc(db, "games", gameId, "groups", g.id), { status: "waiting" });
+                });
+                await batch.commit();
+              } catch (err: any) {
+                console.error("Error starting period:", err);
+                setStartError(`Fehler: ${err.message}`);
+              } finally {
+                setStartLoading(false);
+              }
+            }}
+            onEditGroup={(group) => {
+              setEditingGroup(group);
+              setEditGroupName(group.name || "");
+              setShowGroupEditModal(true);
+            }}
+            onShowSettings={() => setShowSettingsModal(true)}
+            onShowRanking={() => setShowRankingModal(true)}
+            onEndGame={() => setShowConfirmEndModal(true)}
+            startLoading={startLoading}
+          />
+        )}
+
+        {/* OLD Dashboard (Lobby & Details) - Hide when in_progress */}
+        {game.status === "lobby" && (
+          <div className="rounded-xl bg-white p-4 shadow-lg ring-1 ring-neutral-200">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold text-neutral-900">
               {game.status === "lobby" ? "Wartende Gruppen" : "Spielstand"}
@@ -547,82 +589,8 @@ export default function GameDashboardPage() {
                   </span>
                 </>
               )}
-              {game.status === "in_progress" && (
-                <>
-                  <span className="rounded-lg bg-neutral-50 px-2 py-1 text-neutral-700 border border-neutral-200">
-                    P{game.period}
-                  </span>
-                  <span className="rounded-lg bg-indigo-50 px-2 py-1 text-indigo-700 border border-indigo-200">
-                    {game.phase === "machine_selection" ? "Maschinen" : game.phase === "decisions" ? "Entscheidungen" : "Ergebnisse"}
-                  </span>
-                  {game.phase === "decisions" && (
-                    <span className="rounded-lg bg-emerald-50 px-2 py-1 text-emerald-700 border border-emerald-200">
-                      {groups.filter((g) => g.status === "submitted").length}/{groups.length}
-                    </span>
-                  )}
-                </>
-              )}
             </div>
           </div>
-
-          {/* Timer-Anzeige für Entscheidungsphase */}
-          {game.status === "in_progress" && game.phase === "decisions" && game.periodDeadline && (
-            <div className="mb-4">
-              <PeriodTimer 
-                deadline={game.periodDeadline} 
-                onExpire={async () => {
-                  // Auto-end period when timer expires
-                  if (!game || calculateLoading) return;
-                  console.log("[Auto-End] Timer abgelaufen, beende Periode automatisch");
-                  setCalculateLoading(true);
-                  setStartError("");
-                  try {
-                    const decisionsSnapshot = await getDocs(collection(db, "games", gameId, "decisions"));
-                    const decisions: { [groupId: string]: PeriodDecision } = {};
-                    decisionsSnapshot.forEach((doc) => {
-                      decisions[doc.id] = doc.data() as PeriodDecision;
-                    });
-
-                    const inputs: MarketCalculationInput[] = groups.map((group) => ({
-                      groupId: group.id,
-                      decision: decisions[group.id],
-                      groupState: group,
-                    }));
-
-                    const results = calculateMarket(game.parameters, game.period, inputs, game.activePeriodActions);
-
-                    const batch = writeBatch(db);
-                    results.forEach((result) => {
-                      batch.update(doc(db, "games", gameId, "groups", result.groupId), {
-                        capital: result.newCapital,
-                        inventory: result.newInventory,
-                        cumulativeProfit: result.newCumulativeProfit,
-                        cumulativeRndInvestment: result.newCumulativeRndInvestment,
-                        rndBenefitApplied: result.newRndBenefitApplied,
-                        machines: result.newMachines,
-                        status: "calculated",
-                        lastResult: result.result,
-                      });
-                    });
-
-                    batch.update(doc(db, "games", gameId), {
-                      phase: "results",
-                      phaseEndsAt: null,
-                      periodDeadline: null,
-                      allowMachinePurchase: false,
-                    });
-
-                    await batch.commit();
-                  } catch (err: any) {
-                    console.error("Error auto-calculating results:", err);
-                    setStartError(`Auto-Berechnung Fehler: ${err.message}`);
-                  } finally {
-                    setCalculateLoading(false);
-                  }
-                }}
-              />
-            </div>
-          )}
 
           <div className="space-y-2">
             {groups.length > 0 ? (
@@ -630,9 +598,7 @@ export default function GameDashboardPage() {
                 <div
                   key={group.id}
                   className={`flex items-center justify-between rounded-lg border px-3 py-2 transition ${
-                    group.status === "submitted"
-                      ? "border-emerald-300 bg-emerald-50"
-                      : group.status === "ready"
+                    group.status === "ready"
                       ? "border-neutral-300 bg-neutral-50"
                       : "border-red-300 bg-red-50"
                   }`}
@@ -643,31 +609,15 @@ export default function GameDashboardPage() {
                     </p>
                     <div className="flex gap-3 text-xs">
                       <span className={
-                        group.status === "submitted"
-                          ? "text-emerald-700 font-semibold"
-                          : group.status === "ready"
+                        group.status === "ready"
                           ? "text-neutral-700"
                           : "text-red-700"
                       }>
-                        {group.status === "ready" ? "✓ Bereit" : group.status === "submitted" ? "✅ Eingereicht" : "⏳ Wartend"}
+                        {group.status === "ready" ? "✓ Bereit" : "⏳ Wartend"}
                       </span>
-                      {game.status === "in_progress" && game.phase === "machine_selection" && (
-                        <span className={group.instructionsAcknowledged ? "text-emerald-600" : "text-amber-600"}>
-                          {group.instructionsAcknowledged ? "📖 Anleitung gelesen" : "⏳ Liest Anleitung"}
-                        </span>
-                      )}
-                      {group.selectedMachine && (
-                        <span className="text-neutral-600">• {group.selectedMachine}</span>
-                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    {game.status !== "lobby" && (
-                      <div className="text-right text-xs text-neutral-600">
-                        <p>€{group.capital.toLocaleString("de-DE")}</p>
-                        <p className="text-neutral-500">Lager: {group.inventory}</p>
-                      </div>
-                    )}
                     <button
                       onClick={() => {
                         setEditingGroup(group);
@@ -684,17 +634,17 @@ export default function GameDashboardPage() {
               ))
             ) : (
               <p className="text-center text-neutral-600 py-4 text-sm">
-                {game.status === "lobby" 
-                  ? "Noch keine Gruppen beigetreten. Teile den Gruppen-PIN!" 
-                  : "Keine Gruppen vorhanden"}
+                Noch keine Gruppen beigetreten. Teile den Gruppen-PIN!
               </p>
             )}
           </div>
 
           {/* Session Management Panel removed - using group edit modal instead */}
         </div>
+        )}
 
-        {/* Settings & Actions - Vertical Layout */}
+        {/* Settings & Actions - Vertical Layout (Only for Lobby) */}
+        {game.status === "lobby" && (
         <div className="rounded-xl bg-white p-4 shadow-lg ring-1 ring-neutral-200">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold text-neutral-900">Einstellungen & Aktionen</h2>
@@ -772,202 +722,9 @@ export default function GameDashboardPage() {
             )}
           </div>
 
-          {/* Actions for Next Period (collapsible) */}
-          {game.status === "in_progress" && (
-            <div className="mt-6 pt-6 border-t border-neutral-200">
-              <button
-                type="button"
-                onClick={() => setShowActionsSection((v) => !v)}
-                aria-expanded={showActionsSection}
-                className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-left hover:bg-neutral-50"
-              >
-                <h3 className="text-sm font-semibold text-neutral-900">⚡ Aktionen für die nächste Periode</h3>
-                <span className="text-xs text-neutral-500">{showActionsSection ? "Ausklappen schließen" : "Ausklappen"}</span>
-              </button>
-              {showActionsSection && (
-                <div className="mt-2">
-                  <p className="text-xs text-neutral-600 mb-4">
-                    Diese Einstellungen gelten nur für die kommende Periode {game.period + 1} und werden danach automatisch zurückgesetzt.
-                  </p>
-                  <div className="space-y-3">
-                {/* Machine Purchase */}
-                <label className="flex items-start gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 cursor-pointer hover:bg-neutral-100 transition">
-                  <input
-                    type="checkbox"
-                    checked={allowMachinePurchaseNext}
-                    onChange={async (e) => {
-                      const checked = e.target.checked;
-                      setAllowMachinePurchaseNext(checked);
-                      try {
-                        await updateDoc(doc(db, "games", gameId), {
-                          "parameters.allowMachinePurchaseNextPeriod": checked,
-                        });
-                      } catch (err: any) {
-                        alert(`Fehler: ${err.message}`);
-                      }
-                    }}
-                    className="mt-1 accent-neutral-600 cursor-pointer"
-                  />
-                  <div className="text-sm text-neutral-700 flex-1">
-                    <p className="font-semibold text-neutral-900">🏭 Maschinenkauf erlauben</p>
-                    <p className="text-xs text-neutral-600">Jede Gruppe kann maximal EINE zusätzliche Maschine kaufen (4 Optionen zur Wahl)</p>
-                  </div>
-                </label>
-
-                {/* Demand Boost */}
-                <label className="flex items-start gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 cursor-pointer hover:bg-neutral-100 transition">
-                  <input
-                    type="checkbox"
-                    checked={demandBoostNext}
-                    onChange={async (e) => {
-                      const checked = e.target.checked;
-                      setDemandBoostNext(checked);
-                      try {
-                        await updateDoc(doc(db, "games", gameId), {
-                          "parameters.demandBoostNextPeriod": checked
-                        });
-                      } catch (err: any) {
-                        alert(`Fehler: ${err.message}`);
-                      }
-                    }}
-                    className="mt-1 accent-emerald-600 cursor-pointer"
-                  />
-                  <div className="text-sm text-neutral-700 flex-1">
-                    <p className="font-semibold text-neutral-900">📈 Nachfrage-Boost (+30%)</p>
-                    <p className="text-xs text-neutral-600">Die Marktnachfrage steigt um 30% (z.B. durch Werbekampagne, Feiertag)</p>
-                  </div>
-                </label>
-
-                {/* Free Market Analysis */}
-                <label className="flex items-start gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 cursor-pointer hover:bg-neutral-100 transition">
-                  <input
-                    type="checkbox"
-                    checked={freeMarketAnalysisNext}
-                    onChange={async (e) => {
-                      const checked = e.target.checked;
-                      setFreeMarketAnalysisNext(checked);
-                      try {
-                        await updateDoc(doc(db, "games", gameId), {
-                          "parameters.freeMarketAnalysisNextPeriod": checked
-                        });
-                      } catch (err: any) {
-                        alert(`Fehler: ${err.message}`);
-                      }
-                    }}
-                    className="mt-1 accent-neutral-600 cursor-pointer"
-                  />
-                  <div className="text-sm text-neutral-700 flex-1">
-                    <p className="font-semibold text-neutral-900">📊 Kostenlose Marktanalyse</p>
-                    <p className="text-xs text-neutral-600">Alle Gruppen erhalten automatisch Wettbewerbsinformationen (normalerweise kostenpflichtig)</p>
-                  </div>
-                </label>
-
-                {/* No Inventory Costs */}
-                <label className="flex items-start gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 cursor-pointer hover:bg-neutral-100 transition">
-                  <input
-                    type="checkbox"
-                    checked={noInventoryCostsNext}
-                    onChange={async (e) => {
-                      const checked = e.target.checked;
-                      setNoInventoryCostsNext(checked);
-                      try {
-                        await updateDoc(doc(db, "games", gameId), {
-                          "parameters.noInventoryCostsNextPeriod": checked
-                        });
-                      } catch (err: any) {
-                        alert(`Fehler: ${err.message}`);
-                      }
-                    }}
-                    className="mt-1 accent-purple-600 cursor-pointer"
-                  />
-                  <div className="text-sm text-neutral-700 flex-1">
-                    <p className="font-semibold text-neutral-900">📦 Keine Lagerkosten</p>
-                    <p className="text-xs text-neutral-600">Lagerkosten fallen weg (z.B. durch Sonderangebot oder bessere Lagerverwaltung)</p>
-                  </div>
-                </label>
-
-                {/* F&E (Research & Development) */}
-                <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-3">
-                  <label className="flex items-start gap-3 cursor-pointer mb-3">
-                    <input
-                      type="checkbox"
-                      checked={allowRnDNext}
-                      onChange={async (e) => {
-                        const checked = e.target.checked;
-                        setAllowRnDNext(checked);
-                        try {
-                          await updateDoc(doc(db, "games", gameId), {
-                            "activePeriodActions.allowRnD": checked,
-                            "activePeriodActions.rndThreshold": rndThresholdNext
-                          });
-                        } catch (err: any) {
-                          alert(`Fehler: ${err.message}`);
-                        }
-                      }}
-                      className="mt-1 accent-indigo-600 cursor-pointer"
-                    />
-                    <div className="text-sm text-neutral-700 flex-1">
-                      <p className="font-semibold text-neutral-900">🔬 Forschung & Entwicklung (F&E)</p>
-                      <p className="text-xs text-neutral-600">Gruppen können in F&E investieren, um ihre Produktionskosten zu senken</p>
-                    </div>
-                  </label>
-                  {allowRnDNext && (
-                    <div className="ml-6 mt-2 flex items-end gap-2">
-                      <label className="flex flex-col gap-1 flex-1">
-                        <span className="text-xs font-semibold text-neutral-700">Mindestinvestition (€)</span>
-                        <input
-                          type="number"
-                          value={rndThresholdNext}
-                          onChange={(e) => setRndThresholdNext(Math.max(0, parseInt(e.target.value) || 0))}
-                          onBlur={async () => {
-                            try {
-                              await updateDoc(doc(db, "games", gameId), {
-                                "activePeriodActions.rndThreshold": rndThresholdNext
-                              });
-                            } catch (err: any) {
-                              alert(`Fehler: ${err.message}`);
-                            }
-                          }}
-                          className="w-full px-2 py-1 border border-neutral-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-indigo-600"
-                        />
-                      </label>
-                      <span className="text-xs text-neutral-600 pb-1">ab dieser Summe erhalten Gruppen Kostenreduktion</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Custom Event Text */}
-                <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-3">
-                  <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                    💬 Freies Ereignis beschreiben
-                  </label>
-                  <textarea
-                    placeholder="z.B. 'Streik beim Lieferanten - Produktionskosten steigen um 1€' oder 'Neue Technologie verfügbar'"
-                    rows={2}
-                    value={customEventNext}
-                    onChange={(e) => setCustomEventNext(e.target.value)}
-                    onBlur={async (e) => {
-                      const value = e.target.value;
-                      try {
-                        await updateDoc(doc(db, "games", gameId), {
-                          "parameters.customEventNextPeriod": value
-                        });
-                      } catch (err: any) {
-                        alert(`Fehler: ${err.message}`);
-                      }
-                    }}
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-600"
-                  />
-                  <p className="text-xs text-neutral-600 mt-1">
-                    Wird den Gruppen als Hinweis angezeigt (hat keine automatische Auswirkung auf Berechnungen)
-                  </p>
-                </div>
-              </div>
-                </div>
-              )}
-            </div>
-          )}
+          {/* Session Management Panel removed - using group edit modal instead */}
         </div>
+        )}
 
         <div className="flex flex-col gap-2">
           {/* Lobby Start Button */}

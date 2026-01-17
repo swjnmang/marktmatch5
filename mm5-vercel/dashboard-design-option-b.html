@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Design - Option B: Kompakt / Akkordeon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="max-w-4xl mx-auto p-6">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-900">Spiel-Dashboard (Option B: Akkordeon)</h1>
+            <p class="text-gray-600 mt-2">Platzsparend mit aufklappbaren Abschnitten</p>
+        </div>
+
+        <!-- KPI Mini Bar -->
+        <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg shadow p-4 mb-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <span class="font-bold">Periode 2/5</span> · 
+                    <span class="font-bold">2 Gruppen wartend</span> · 
+                    <span class="font-bold">Gesamtumsatz: €92.139</span>
+                </div>
+                <button class="bg-green-600 hover:bg-green-700 px-6 py-2 rounded font-bold transition">
+                    ▶ START P3
+                </button>
+            </div>
+        </div>
+
+        <!-- Akkordeon Sektion 1: KPI Übersicht -->
+        <div class="bg-white rounded-lg shadow mb-3">
+            <button class="w-full px-6 py-4 text-left flex justify-between items-center border-b border-gray-200 hover:bg-gray-50">
+                <h2 class="text-lg font-bold text-gray-900">📊 KPI Übersicht</h2>
+                <span class="text-2xl">−</span>
+            </button>
+            <div class="p-6 grid grid-cols-4 gap-4">
+                <div>
+                    <div class="text-sm text-gray-600 font-semibold">Spielstand</div>
+                    <div class="text-xl font-bold text-gray-900">Periode 2/5</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-600 font-semibold">Gruppen</div>
+                    <div class="text-xl font-bold text-orange-600">2 wartend</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-600 font-semibold">Gesamt-Umsatz</div>
+                    <div class="text-xl font-bold text-green-600">€92.139</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-600 font-semibold">Ø Kapital</div>
+                    <div class="text-xl font-bold text-blue-600">€375.054</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Akkordeon Sektion 2: Spielstand -->
+        <div class="bg-white rounded-lg shadow mb-3">
+            <button class="w-full px-6 py-4 text-left flex justify-between items-center border-b border-gray-200 hover:bg-gray-50">
+                <h2 class="text-lg font-bold text-gray-900">👥 Spielstand (2 Gruppen)</h2>
+                <span class="text-2xl">−</span>
+            </button>
+            <div class="p-6 space-y-3">
+                <!-- Gruppe 1 Kompakt -->
+                <div class="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <div>
+                        <div class="font-bold text-gray-900">Edge1</div>
+                        <div class="text-xs text-red-700 font-semibold">⚠ Wartend</div>
+                    </div>
+                    <div class="text-right flex-1 mx-4">
+                        <div class="grid grid-cols-3 gap-6 text-sm">
+                            <div>
+                                <div class="text-gray-600">Kapital</div>
+                                <div class="font-bold">€69.110</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-600">Markt %</div>
+                                <div class="font-bold">24.0%</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-600">Ranking</div>
+                                <div class="font-bold">Platz 1</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded font-semibold transition whitespace-nowrap ml-4">
+                        🖊 Bearbeiten
+                    </button>
+                </div>
+
+                <!-- Gruppe 2 Kompakt -->
+                <div class="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <div>
+                        <div class="font-bold text-gray-900">Chrome1</div>
+                        <div class="text-xs text-red-700 font-semibold">⚠ Wartend</div>
+                    </div>
+                    <div class="text-right flex-1 mx-4">
+                        <div class="grid grid-cols-3 gap-6 text-sm">
+                            <div>
+                                <div class="text-gray-600">Kapital</div>
+                                <div class="font-bold">€81.029.495</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-600">Markt %</div>
+                                <div class="font-bold">26.9%</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-600">Ranking</div>
+                                <div class="font-bold">Platz 2</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded font-semibold transition whitespace-nowrap ml-4">
+                        🖊 Bearbeiten
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Akkordeon Sektion 3: Aktionen -->
+        <div class="bg-white rounded-lg shadow mb-3">
+            <button class="w-full px-6 py-4 text-left flex justify-between items-center border-b border-gray-200 hover:bg-gray-50">
+                <h2 class="text-lg font-bold text-gray-900">⚡ Aktionen für nächste Periode</h2>
+                <span class="text-2xl">+</span>
+            </button>
+        </div>
+
+        <!-- Akkordeon Sektion 4: Spezialaufträge -->
+        <div class="bg-white rounded-lg shadow mb-3">
+            <button class="w-full px-6 py-4 text-left flex justify-between items-center border-b border-gray-200 hover:bg-gray-50">
+                <h2 class="text-lg font-bold text-gray-900">📋 Spezialaufträge</h2>
+                <span class="text-2xl">+</span>
+            </button>
+        </div>
+
+        <!-- Akkordeon Sektion 5: Spielabschluss -->
+        <div class="bg-white rounded-lg shadow">
+            <button class="w-full px-6 py-4 text-left flex justify-between items-center border-b border-gray-200 hover:bg-gray-50">
+                <h2 class="text-lg font-bold text-gray-900">🏁 Spielabschluss</h2>
+                <span class="text-2xl">+</span>
+            </button>
+        </div>
+
+        <!-- Info Box unten -->
+        <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="text-sm font-semibold text-blue-900 mb-2">💡 Hinweis</div>
+            <div class="text-sm text-blue-800">Beide Gruppen sind bereit. Du kannst Periode 3 starten, oder Aktionen/Spezialaufträge für die nächste Periode konfigurieren.</div>
+        </div>
+    </div>
+</body>
+</html>
