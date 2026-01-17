@@ -278,25 +278,6 @@ export function SpielleiterDashboard({
           })}
         </div>
       </div>
-
-      {/* Spielabschluss */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">Spielabschluss</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <button
-            onClick={onShowRanking}
-            className="bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition"
-          >
-            🏆 Ranking anzeigen
-          </button>
-          <button
-            onClick={onEndGame}
-            className="bg-gray-700 hover:bg-gray-800 text-white py-3 rounded-lg font-semibold transition"
-          >
-            🏁 Spiel beenden
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

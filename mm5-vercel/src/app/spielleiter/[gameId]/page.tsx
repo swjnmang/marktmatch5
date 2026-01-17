@@ -543,17 +543,107 @@ export default function GameDashboardPage() {
               try {
                 const endsAt = Date.now() + (game.parameters?.periodDurationMinutes || 10) * 60 * 1000;
                 const batch = writeBatch(db);
-                batch.update(doc(db, "games", gameId), {
-                  phase: "decisions",
-                  phaseEndsAt: endsAt,
-                  periodDeadline: endsAt,
-                });
-                groups.forEach((g) => {
-                  batch.update(doc(db, "games", gameId, "groups", g.id), { status: "waiting" });
-                });
+
+                // Intelligente Phase-Verwaltung basierend auf aktuellem Status
+                if (game.phase === "machine_selection") {
+                  // Nach Maschinenwahl → Entscheidungsphase starten
+                  batch.update(doc(db, "games", gameId), {
+                    phase: "decisions",
+                    phaseEndsAt: endsAt,
+                    periodDeadline: endsAt,
+                  });
+                  groups.forEach((g) => {
+                    batch.update(doc(db, "games", gameId, "groups", g.id), { status: "waiting" });
+                  });
+                } else if (game.phase === "decisions") {
+                  // Wenn alle Gruppen entschieden haben → Auswertung starten (phase: "results")
+                  if (!allGroupsSubmitted) {
+                    throw new Error("Nicht alle Gruppen haben entschieden!");
+                  }
+                  
+                  // Hole alle Entscheidungen
+                  const decisionsSnapshot = await getDocs(collection(db, "games", gameId, "decisions"));
+                  const decisions: { [groupId: string]: PeriodDecision } = {};
+                  decisionsSnapshot.forEach((doc) => {
+                    decisions[doc.id] = doc.data() as PeriodDecision;
+                  });
+
+                  // Baue Eingaben für Marktberechnung
+                  const inputs: MarketCalculationInput[] = groups.map((group) => ({
+                    groupId: group.id,
+                    decision: decisions[group.id],
+                    groupState: group,
+                  }));
+
+                  // Berechne Markt
+                  const results = calculateMarket(game.parameters, game.period, inputs, game.activePeriodActions);
+
+                  // Aktualisiere Gruppen mit Ergebnissen
+                  results.forEach((result) => {
+                    batch.update(doc(db, "games", gameId, "groups", result.groupId), {
+                      capital: result.newCapital,
+                      inventory: result.newInventory,
+                      cumulativeProfit: result.newCumulativeProfit,
+                      cumulativeRndInvestment: result.newCumulativeRndInvestment,
+                      rndBenefitApplied: result.newRndBenefitApplied,
+                      machines: result.newMachines,
+                      status: "calculated",
+                      lastResult: result.result,
+                    });
+                  });
+
+                  // Setze Phase auf "results"
+                  batch.update(doc(db, "games", gameId), {
+                    phase: "results",
+                    phaseEndsAt: null,
+                    periodDeadline: null,
+                    allowMachinePurchase: false,
+                  });
+                } else if (game.phase === "results") {
+                  // Nach Auswertung → Nächste Periode starten
+                  const actionsForNextPeriod = {
+                    period: game.period + 1,
+                    allowMachinePurchase: allowMachinePurchaseNext,
+                    demandBoost: demandBoostNext,
+                    freeMarketAnalysis: freeMarketAnalysisNext,
+                    noInventoryCosts: noInventoryCostsNext,
+                    allowRnD: allowRnDNext,
+                    rndThreshold: rndThresholdNext,
+                    customEvent: customEventNext.trim(),
+                  };
+
+                  batch.update(doc(db, "games", gameId), {
+                    period: game.period + 1,
+                    phase: "machine_selection",
+                    phaseEndsAt: endsAt,
+                    allowMachinePurchase: allowMachinePurchaseNext,
+                    activePeriodActions: actionsForNextPeriod,
+                    "parameters.allowMachinePurchaseNextPeriod": false,
+                    "parameters.demandBoostNextPeriod": false,
+                    "parameters.freeMarketAnalysisNextPeriod": false,
+                    "parameters.noInventoryCostsNextPeriod": false,
+                    "parameters.customEventNextPeriod": "",
+                  });
+                  groups.forEach((g) => {
+                    batch.update(doc(db, "games", gameId, "groups", g.id), { 
+                      status: "selecting",
+                      selectedMachine: "",
+                      machines: [],
+                      instructionsAcknowledged: false,
+                    });
+                  });
+                  setAllowMachinePurchaseNext(false);
+                  setDemandBoostNext(false);
+                  setFreeMarketAnalysisNext(false);
+                  setNoInventoryCostsNext(false);
+                  setAllowRnDNext(false);
+                  setRndThresholdNext(10000);
+                  setCustomEventNext("");
+                }
+
                 await batch.commit();
               } catch (err: any) {
-                console.error("Error starting period:", err);
+                console.error("Error in period progression:", err);
                 setStartError(`Fehler: ${err.message}`);
               } finally {
                 setStartLoading(false);
