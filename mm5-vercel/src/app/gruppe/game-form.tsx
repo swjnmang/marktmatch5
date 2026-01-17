@@ -1560,17 +1560,20 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                         <span>Verkauf aus Lagerbestand <span className="text-red-600">*</span></span>
                         <input
                           type="number"
-                          value={sellFromInventory === 0 ? "" : sellFromInventory}
+                          value={(groupData?.inventory || 0) === 0 ? "0" : (sellFromInventory === 0 ? "" : sellFromInventory)}
                           onChange={(e) =>
                             setSellFromInventory(
                               e.target.value === "" ? 0 : Number(e.target.value)
                             )
                           }
+                          disabled={(groupData?.inventory || 0) === 0}
                           min={0}
                           max={groupData?.inventory || 0}
                           placeholder="0"
                           className={`rounded-lg border px-3 py-2 text-base shadow-sm focus:outline-none focus:ring-2 ${
-                            sellFromInventory === 0 && sellFromInventory.toString().length === 0
+                            (groupData?.inventory || 0) === 0
+                              ? "border-neutral-300 bg-neutral-100 text-neutral-600 cursor-not-allowed"
+                              : sellFromInventory === 0 && sellFromInventory.toString().length === 0
                               ? "border-red-300 focus:border-red-400 focus:ring-red-200"
                               : "border-neutral-200 focus:border-neutral-400 focus:ring-neutral-200"
                           }`}
