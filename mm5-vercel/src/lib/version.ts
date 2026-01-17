@@ -2,9 +2,9 @@
 // Updated automatically on each commit
 
 export const VERSION = {
-  number: '1.3.0',
-  date: '09.01.2026',
-  time: '22:15',
-  commit: 'pending',
-  buildDate: new Date(),
+  number: '1.2.0',
+  date: '17.01.2026',
+  time: '11:24',
+  commit: 'a24fbea',
+  buildDate: new Date('2026-01-17T10:24:49.970Z'),
 };

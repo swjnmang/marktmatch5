@@ -3,8 +3,8 @@
   "version": "1.2.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "node update-version.js && next dev",
+    "build": "node update-version.js && next build",
     "start": "next start",
     "lint": "eslint",
     "version:update": "node update-version.js",
