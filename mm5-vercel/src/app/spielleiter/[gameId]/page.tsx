@@ -673,6 +673,11 @@ export default function GameDashboardPage() {
               </p>
             )}
           </div>
+
+          {/* Session Management Panel - Direct in Spielstand */}
+          <div className="border-t border-neutral-200 pt-4 mt-4">
+            <SessionManagementPanel gameId={gameId} />
+          </div>
         </div>
 
         {/* Settings & Actions - Vertical Layout */}
@@ -698,11 +703,6 @@ export default function GameDashboardPage() {
               ? "Starte die nächste Periode."
               : "Verwalte den Spielablauf."}
           </p>
-
-          {/* Session Management */}
-          <div className="mb-4 border-t border-neutral-200 pt-4">
-            <SessionManagementPanel gameId={gameId} />
-          </div>
           
           {startError && (
             <div className="mb-4 rounded bg-red-50 p-2 text-xs text-red-700">{startError}</div>

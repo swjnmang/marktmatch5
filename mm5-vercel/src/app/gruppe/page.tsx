@@ -48,44 +48,62 @@ function GruppeContent() {
     }
 
     // Check for valid session and auto-redirect to active game
-    const allKeys = Object.keys(localStorage || {});
-    const sessionKeys = allKeys.filter((k) => k.startsWith("session_") && !k.includes("device") && !k.includes("activity"));
-    
-    for (const sessionKey of sessionKeys) {
-      const gameIdFromKey = sessionKey.replace("session_", "");
+    // IMPORTANT: Check this IMMEDIATELY on mount, even before searchParams
+    const checkSessions = () => {
+      const allKeys = Object.keys(localStorage || {});
+      const sessionKeys = allKeys.filter((k) => k.startsWith("session_") && !k.includes("device") && !k.includes("activity"));
       
-      // Check if session is valid and on same device
-      if (isSessionValid(gameIdFromKey)) {
-        if (isDeviceAuthorized(gameIdFromKey)) {
-          // Valid session on same device - auto redirect
-          console.log(`Auto-redirecting to active game: ${gameIdFromKey}`);
-          router.push(`/gruppe/${gameIdFromKey}`);
-          return;
-        } else {
-          // Session exists but from different device - show conflict option
-          console.log(`Device conflict detected for game: ${gameIdFromKey}`);
-          const conflict = getConflictingSession(gameIdFromKey);
-          if (conflict) {
-            setResumeGameId(gameIdFromKey);
-            setResumeGroupId(conflict.groupId);
-            setDeviceConflict(true);
-            return;
+      console.log(`[GruppeContent] Found ${sessionKeys.length} sessions in localStorage`);
+      
+      for (const sessionKey of sessionKeys) {
+        const gameIdFromKey = sessionKey.replace("session_", "");
+        
+        console.log(`[GruppeContent] Checking session for game ${gameIdFromKey}`);
+        
+        // Check if session is valid and on same device
+        if (isSessionValid(gameIdFromKey)) {
+          console.log(`[GruppeContent] Session is VALID for game ${gameIdFromKey}`);
+          if (isDeviceAuthorized(gameIdFromKey)) {
+            // Valid session on same device - auto redirect
+            console.log(`[GruppeContent] ✓ AUTO-REDIRECTING to active game: ${gameIdFromKey}`);
+            router.push(`/gruppe/${gameIdFromKey}`);
+            return true;
+          } else {
+            // Session exists but from different device - show conflict option
+            console.log(`[GruppeContent] Device conflict detected for game: ${gameIdFromKey}`);
+            const conflict = getConflictingSession(gameIdFromKey);
+            if (conflict) {
+              setResumeGameId(gameIdFromKey);
+              setResumeGroupId(conflict.groupId);
+              setDeviceConflict(true);
+              return true;
+            }
           }
+        } else {
+          console.log(`[GruppeContent] Session EXPIRED or invalid for game ${gameIdFromKey}`);
         }
       }
+      return false;
+    };
+
+    // Try to resume session immediately
+    if (checkSessions()) {
+      return;
     }
 
     // Fallback: Detect previous session on this device (legacy support)
+    const allKeys = Object.keys(localStorage || {});
     const groupKey = allKeys.find((k) => k.startsWith("group_"));
     if (groupKey && !deviceConflict) {
       const gid = groupKey.replace("group_", "");
       const storedGroupId = localStorage.getItem(groupKey);
       if (gid && storedGroupId && isSessionValid(gid) && isDeviceAuthorized(gid)) {
+        console.log(`[GruppeContent] Fallback: Found legacy session for game ${gid}`);
         setResumeGameId(gid);
         setResumeGroupId(storedGroupId);
       }
     }
-  }, [searchParams, router]);
+  }, [router]);
 
   const startQRScanning = async () => {
     if (!videoRef.current) return;
