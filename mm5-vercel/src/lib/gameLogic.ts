@@ -58,7 +58,7 @@ export function calculateMarket(
   // 4. Preiselastizität - Nachfrage wird durch höhere Preise reduziert
   const priceRatio = avgPrice / parameters.demandReferencePrice;
   const priceElasticityMultiplier = Math.max(
-    parameters.minPriceElasticityDemandMultiplier,
+    0.01,  // Allow demand to drop to 1% at extreme prices (realistic competition)
     Math.min(1.0, 1 - parameters.priceElasticityFactor * (priceRatio - 1))
   );
 

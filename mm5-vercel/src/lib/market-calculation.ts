@@ -57,9 +57,9 @@ export async function calculateMarketResults(
   
   // Price elasticity effect with safety bounds
   const priceRatio = Math.max(0.01, avgMarketPrice / params.demandReferencePrice);
-  // Price elasticity only reduces demand from base (cap at 1.0)
+  // Price elasticity only reduces demand from base (cap at 1.0, floor at 0.01 for extreme prices)
   const priceElasticityEffect = Math.max(
-    params.minPriceElasticityDemandMultiplier,
+    0.01,  // Allow demand to drop to 1% at extreme prices (realistic competition)
     Math.min(1.0, 1 - (priceRatio - 1) * params.priceElasticityFactor)
   );
 
