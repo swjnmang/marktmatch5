@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useSearchParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { collection } from "firebase/firestore";
 import { isSessionValid, isDeviceAuthorized } from "@/lib/session-utils";
@@ -9,27 +9,44 @@ import { GruppeGameForm } from "../game-form";
 
 export function GruppeGameWrapper() {
   const params = useParams();
-  const searchParams = useSearchParams();
-  const router = useRouter();
   const gameId = params.gameId as string;
-  const pinFromUrl = searchParams.get("pin");
   const [validated, setValidated] = useState(false);
   const [validating, setValidating] = useState(true);
   const [error, setError] = useState("");
+  const [pinFromUrl, setPinFromUrl] = useState<string | null>(null);
 
+  // Extract PIN from window.location ONLY - avoid useSearchParams race condition
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const pin = urlParams.get("pin");
+    setPinFromUrl(pin);
+    
+    console.log(`[GruppeGameWrapper] URL parsed: gameId=${gameId}, pin=${pin || "none"}`);
+  }, [gameId]);
+
+  // Validate session and PIN - runs AFTER pinFromUrl is set
+  useEffect(() => {
+    if (pinFromUrl === undefined) return; // Not yet parsed URL
+    
     const validateAndJoin = async () => {
-      console.log(`[GruppeGameWrapper] Validating game ${gameId}`);
+      console.log(`[GruppeGameWrapper] Starting validation for game ${gameId}`);
 
       // FIRST: Check if this is a valid session from browser refresh
+      console.log(`[GruppeGameWrapper] Checking session validity...`);
       if (isSessionValid(gameId)) {
         console.log(`[GruppeGameWrapper] ✓ Session is VALID for game ${gameId}`);
         if (isDeviceAuthorized(gameId)) {
-          console.log(`[GruppeGameWrapper] ✓ Device is AUTHORIZED - continuing game`);
+          console.log(`[GruppeGameWrapper] ✓ Device is AUTHORIZED - continuing game WITHOUT form`);
           setValidated(true);
           setValidating(false);
           return;
+        } else {
+          console.log(`[GruppeGameWrapper] ✗ Device mismatch - session from different device`);
         }
+      } else {
+        console.log(`[GruppeGameWrapper] ✗ No valid session found`);
       }
 
       // SECOND: Check for legacy localStorage group entry

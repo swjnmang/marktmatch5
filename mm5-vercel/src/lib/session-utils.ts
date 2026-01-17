@@ -40,12 +40,19 @@ export function saveSession(groupId: string, gameId: string): void {
     createdAt: Date.now(),
   };
   
+  console.log(`[SaveSession] Saving session for groupId=${groupId}, gameId=${gameId}`);
+  console.log(`[SaveSession] Device ID: ${deviceId.substring(0, 20)}...`);
+  
   localStorage.setItem(`session_${gameId}`, JSON.stringify(session));
+  console.log(`[SaveSession] ✓ Set localStorage.session_${gameId}`);
+  
   // Also save individual keys for backward compatibility
   localStorage.setItem(`group_${gameId}`, groupId);
   localStorage.setItem(`gameId_${groupId}`, gameId);
   localStorage.setItem(`session_device_${gameId}`, deviceId);
   localStorage.setItem(`session_activity_${gameId}`, Date.now().toString());
+  
+  console.log(`[SaveSession] ✓ Saved all session keys for game ${gameId}`);
 }
 
 /**
@@ -53,15 +60,23 @@ export function saveSession(groupId: string, gameId: string): void {
  */
 export function updateSessionActivity(gameId: string): void {
   const sessionStr = localStorage.getItem(`session_${gameId}`);
+  
   if (sessionStr) {
     try {
       const session: SessionData = JSON.parse(sessionStr);
+      const oldTime = new Date(session.lastActivity).toLocaleTimeString();
       session.lastActivity = Date.now();
+      const newTime = new Date(session.lastActivity).toLocaleTimeString();
+      
       localStorage.setItem(`session_${gameId}`, JSON.stringify(session));
+      console.log(`[UpdateActivity] Game ${gameId}: ${oldTime} → ${newTime}`);
     } catch (e) {
-      console.error("Error updating session activity:", e);
+      console.error("[UpdateActivity] Error updating session activity:", e);
     }
+  } else {
+    console.warn(`[UpdateActivity] ✗ No session found for game ${gameId}`);
   }
+  
   // Also update individual key for compatibility
   localStorage.setItem(`session_activity_${gameId}`, Date.now().toString());
 }
@@ -71,12 +86,18 @@ export function updateSessionActivity(gameId: string): void {
  */
 export function getSession(gameId: string): SessionData | null {
   const sessionStr = localStorage.getItem(`session_${gameId}`);
-  if (!sessionStr) return null;
+  
+  if (!sessionStr) {
+    console.log(`[GetSession] Game ${gameId}: No session_${gameId} in localStorage`);
+    return null;
+  }
   
   try {
-    return JSON.parse(sessionStr);
+    const session = JSON.parse(sessionStr);
+    console.log(`[GetSession] Game ${gameId}: Found session (groupId=${session.groupId})`);
+    return session;
   } catch (e) {
-    console.error("Error parsing session:", e);
+    console.error(`[GetSession] Game ${gameId}: Error parsing session:`, e);
     return null;
   }
 }
@@ -88,14 +109,26 @@ export function getSession(gameId: string): SessionData | null {
  */
 export function isSessionValid(gameId: string, expiryMinutes: number = 90): boolean {
   const session = getSession(gameId);
-  if (!session) return false;
+  
+  console.log(`[SessionValid] Checking session for game ${gameId}:`);
+  console.log(`[SessionValid] Session found: ${session ? "YES" : "NO"}`);
+  
+  if (!session) {
+    console.log(`[SessionValid] ✗ No session data in localStorage`);
+    return false;
+  }
   
   const now = Date.now();
   const expiryMs = expiryMinutes * 60 * 1000;
-  const isExpired = (now - session.lastActivity) > expiryMs;
+  const timeSinceActivity = now - session.lastActivity;
+  const isExpired = timeSinceActivity > expiryMs;
+  
+  console.log(`[SessionValid] Session data: groupId=${session.groupId}, createdAt=${new Date(session.createdAt).toLocaleTimeString()}`);
+  console.log(`[SessionValid] Last activity: ${new Date(session.lastActivity).toLocaleTimeString()} (${Math.round(timeSinceActivity / 1000)}s ago)`);
+  console.log(`[SessionValid] Expiry after ${expiryMinutes}min inactivity: ${isExpired ? "EXPIRED ✗" : "VALID ✓"}`);
   
   if (isExpired) {
-    console.log(`Session expired for game ${gameId}`);
+    console.log(`[SessionValid] ✗ Session expired (inactive for ${Math.round(timeSinceActivity / 60000)}min)`);
     clearSession(gameId);
     return false;
   }
@@ -109,13 +142,23 @@ export function isSessionValid(gameId: string, expiryMinutes: number = 90): bool
  */
 export function isDeviceAuthorized(gameId: string): boolean {
   const session = getSession(gameId);
-  if (!session) return false;
-  
   const currentDeviceId = getOrCreateDeviceId();
+  
+  console.log(`[DeviceAuth] Checking device authorization for game ${gameId}:`);
+  
+  if (!session) {
+    console.log(`[DeviceAuth] ✗ No session found`);
+    return false;
+  }
+  
   const isAuthorized = session.deviceId === currentDeviceId;
   
+  console.log(`[DeviceAuth] Session device: ${session.deviceId.substring(0, 20)}...`);
+  console.log(`[DeviceAuth] Current device: ${currentDeviceId.substring(0, 20)}...`);
+  console.log(`[DeviceAuth] Match: ${isAuthorized ? "YES ✓" : "NO ✗"}`);
+  
   if (!isAuthorized) {
-    console.warn(`Device mismatch: session device=${session.deviceId}, current device=${currentDeviceId}`);
+    console.warn(`[DeviceAuth] ✗ Device mismatch!`);
   }
   
   return isAuthorized;
