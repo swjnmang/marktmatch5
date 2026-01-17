@@ -28,6 +28,8 @@ export function SpielleiterDashboard({
   const [activeTab, setActiveTab] = useState<"special" | "actions" | "market">("special");
 
   const allGroupsSubmitted = groups.length > 0 && groups.every((g) => g.status === "submitted");
+  const allGroupsReady = groups.length > 0 && groups.every((g) => g.status === "ready");
+  const canStartPeriod = (allGroupsSubmitted || allGroupsReady) && groups.length > 0;
   const totalSupply = groups.reduce((sum, g) => sum + (g.lastResult?.soldUnits || 0), 0);
   const totalUmsatz = groups.reduce((sum, g) => sum + (g.lastResult?.revenue || 0), 0);
   const avgKapital = groups.length > 0 ? groups.reduce((sum, g) => sum + g.capital, 0) / groups.length : 0;
@@ -138,9 +140,9 @@ export function SpielleiterDashboard({
             <div className="p-6 space-y-3">
               <button
                 onClick={onStartPeriod}
-                disabled={!allGroupsSubmitted || startLoading}
+                disabled={!canStartPeriod || startLoading}
                 className={`w-full text-white py-3 rounded-lg font-bold text-lg transition shadow-md ${
-                  !allGroupsSubmitted || startLoading
+                  !canStartPeriod || startLoading
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-emerald-600 hover:bg-emerald-700"
                 }`}
@@ -171,9 +173,9 @@ export function SpielleiterDashboard({
           <div className="bg-blue-50 border-l-4 border-gray-400 rounded-lg p-4">
             <div className="text-sm font-semibold text-gray-900 mb-2">💡 Hinweis</div>
             <div className="text-sm text-gray-700">
-              {allGroupsSubmitted
+              {canStartPeriod
                 ? "Alle Gruppen sind bereit. Du kannst die nächste Periode starten!"
-                : `${groups.filter(g => g.status !== "submitted").length} Gruppe(n) müssen noch entscheiden.`}
+                : `${groups.filter(g => g.status !== "ready" && g.status !== "submitted").length} Gruppe(n) müssen noch reagieren.`}
             </div>
           </div>
         </div>
