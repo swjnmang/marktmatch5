@@ -943,7 +943,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
             {/* Analytics with ranking and charts */}
             {game && (
               <GameAnalytics
-                groups={game.groups || []}
+                groups={otherGroups || []}
                 currentGroupId={groupId || ""}
                 gameId={gameId || ""}
               />
