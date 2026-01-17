@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { ui } from "@/lib/ui";
+import { getSession, isSessionValid, isDeviceAuthorized, getConflictingSession, updateSessionActivity } from "@/lib/session-utils";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,7 @@ function GruppeContent() {
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [deviceConflict, setDeviceConflict] = useState(false);
 
   // Auto-load gameId from URL params if present
   useEffect(() => {
@@ -45,13 +47,40 @@ function GruppeContent() {
       return;
     }
 
-    // Detect previous session on this device
-    const localKeys = Object.keys(localStorage || {});
-    const groupKey = localKeys.find((k) => k.startsWith("group_"));
-    if (groupKey) {
+    // Check for valid session and auto-redirect to active game
+    const allKeys = Object.keys(localStorage || {});
+    const sessionKeys = allKeys.filter((k) => k.startsWith("session_") && !k.includes("device") && !k.includes("activity"));
+    
+    for (const sessionKey of sessionKeys) {
+      const gameIdFromKey = sessionKey.replace("session_", "");
+      
+      // Check if session is valid and on same device
+      if (isSessionValid(gameIdFromKey)) {
+        if (isDeviceAuthorized(gameIdFromKey)) {
+          // Valid session on same device - auto redirect
+          console.log(`Auto-redirecting to active game: ${gameIdFromKey}`);
+          router.push(`/gruppe/${gameIdFromKey}`);
+          return;
+        } else {
+          // Session exists but from different device - show conflict option
+          console.log(`Device conflict detected for game: ${gameIdFromKey}`);
+          const conflict = getConflictingSession(gameIdFromKey);
+          if (conflict) {
+            setResumeGameId(gameIdFromKey);
+            setResumeGroupId(conflict.groupId);
+            setDeviceConflict(true);
+            return;
+          }
+        }
+      }
+    }
+
+    // Fallback: Detect previous session on this device (legacy support)
+    const groupKey = allKeys.find((k) => k.startsWith("group_"));
+    if (groupKey && !deviceConflict) {
       const gid = groupKey.replace("group_", "");
       const storedGroupId = localStorage.getItem(groupKey);
-      if (gid && storedGroupId) {
+      if (gid && storedGroupId && isSessionValid(gid) && isDeviceAuthorized(gid)) {
         setResumeGameId(gid);
         setResumeGroupId(storedGroupId);
       }
@@ -152,16 +181,30 @@ function GruppeContent() {
 
         <div className={ui.card.padded}>
         {resumeGameId && resumeGroupId && (
-          <div className="mb-6 flex items-center justify-between rounded-lg border border-emerald-400/40 bg-emerald-500/20 p-4">
+          <div className={`mb-6 flex items-center justify-between rounded-lg border p-4 ${
+            deviceConflict
+              ? "border-orange-400/40 bg-orange-500/20"
+              : "border-emerald-400/40 bg-emerald-500/20"
+          }`}>
             <div>
-              <p className="text-sm font-semibold text-emerald-100">Vorherige Sitzung gefunden</p>
-              <p className="text-xs text-emerald-200">Du kannst dein letztes Spiel sofort fortsetzen.</p>
+              <p className={`text-sm font-semibold ${deviceConflict ? "text-orange-100" : "text-emerald-100"}`}>
+                {deviceConflict ? "Sitzung auf anderem Gerät aktiv" : "Vorherige Sitzung gefunden"}
+              </p>
+              <p className={`text-xs ${deviceConflict ? "text-orange-200" : "text-emerald-200"}`}>
+                {deviceConflict 
+                  ? "Ein anderes Gerät spielt aktuell diese Gruppe. Klick hier, um auf diesem Gerät zu spielen."
+                  : "Du kannst dein letztes Spiel sofort fortsetzen."}
+              </p>
             </div>
             <button
               onClick={() => router.push(`/gruppe/${resumeGameId}`)}
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+              className={`rounded-lg px-4 py-2 text-sm font-semibold text-white transition ${
+                deviceConflict
+                  ? "bg-orange-600 hover:bg-orange-700"
+                  : "bg-emerald-600 hover:bg-emerald-700"
+              }`}
             >
-              Sitzung wieder aufnehmen
+              {deviceConflict ? "Übernehmen" : "Sitzung fortsetzen"}
             </button>
           </div>
         )}

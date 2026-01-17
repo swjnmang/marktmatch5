@@ -59,6 +59,7 @@ export interface GroupState {
   status: "waiting" | "ready" | "submitted" | "calculated" | "selecting";
   selectedMachine?: string;
   joinedAt?: Timestamp; // Firestore Timestamp
+  lastActivityTime?: number; // Unix timestamp in milliseconds for session timeout tracking
   lastResult?: PeriodResult;
   isAI?: boolean; // Flag for AI-controlled groups in Solo mode
   aiStrategy?: "aggressive" | "conservative" | "balanced" | "innovative";

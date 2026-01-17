@@ -12,6 +12,7 @@ import { PREDEFINED_TASKS } from "@/lib/special-tasks";
 import type { GameDocument, GroupState, PeriodDecision, SpecialTask } from "@/lib/types";
 import { calculateMarket, type MarketCalculationInput } from "@/lib/gameLogic";
 import { PeriodTimer } from "@/components/PeriodTimer";
+import { SessionManagementPanel } from "@/components/SessionManagementPanel";
 
 export default function GameDashboardPage() {
   const params = useParams();
@@ -697,6 +698,11 @@ export default function GameDashboardPage() {
               ? "Starte die nächste Periode."
               : "Verwalte den Spielablauf."}
           </p>
+
+          {/* Session Management */}
+          <div className="mb-4 border-t border-neutral-200 pt-4">
+            <SessionManagementPanel gameId={gameId} />
+          </div>
           
           {startError && (
             <div className="mb-4 rounded bg-red-50 p-2 text-xs text-red-700">{startError}</div>

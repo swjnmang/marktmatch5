@@ -10,6 +10,7 @@ import { checkPinFromLocalStorage } from "@/lib/auth";
 import type { GameDocument, GroupState, Machine, PeriodDecision, SpecialTask } from "@/lib/types";
 import { PeriodTimer } from "@/components/PeriodTimer";
 import GameAnalytics from "@/components/GameAnalytics";
+import { saveSession, updateSessionActivity, getSession, isDeviceAuthorized, clearSession } from "@/lib/session-utils";
 
 const MACHINE_OPTIONS: Machine[] = [
   { name: "SmartMini-Fertiger", cost: 5000, capacity: 100, variableCostPerUnit: 6 },
@@ -158,32 +159,37 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
 
   // Check localStorage on mount for existing group session (same device/browser)
   useEffect(() => {
-    const existingGroupId = localStorage.getItem(`group_${gameId}`);
+    const session = getSession(gameId);
     const isSoloMode = localStorage.getItem(`solo_mode_${gameId}`);
 
-    if (existingGroupId && isSoloMode) {
-      setIsSolo(true);
-      // In Solo mode, resume automatically
+    // Check if session is valid and on same device
+    if (session && isDeviceAuthorized(gameId)) {
+      if (isSoloMode) {
+        setIsSolo(true);
+      }
+      // Resume automatically
       const loadGroup = async () => {
         try {
-          const groupDoc = await getDoc(doc(db, "games", gameId, "groups", existingGroupId));
+          const groupDoc = await getDoc(doc(db, "games", gameId, "groups", session.groupId));
           if (groupDoc.exists()) {
-            setGroupId(existingGroupId);
+            setGroupId(session.groupId);
             setGroupData({ id: groupDoc.id, ...groupDoc.data() } as GroupState);
             setJoined(true);
+            // Update activity timestamp
+            updateSessionActivity(gameId);
           } else {
             // If not found, fall back to manual resume option
-            setStoredGroupId(existingGroupId);
+            setStoredGroupId(session.groupId);
           }
         } catch (err) {
           console.error("Error loading group:", err);
-          setStoredGroupId(existingGroupId);
+          setStoredGroupId(session.groupId);
         }
       };
       loadGroup();
-    } else if (existingGroupId) {
-      // In group mode, offer explicit resume button
-      setStoredGroupId(existingGroupId);
+    } else if (session && !isDeviceAuthorized(gameId)) {
+      // Session exists but from different device - show stored option
+      setStoredGroupId(session.groupId);
     }
 
     // Admin PIN might already be stored
@@ -215,10 +221,11 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
           cumulativeRndInvestment: 0,
           rndBenefitApplied: false,
           status: "waiting",
+          lastActivityTime: Date.now(),
         };
         const docRef = await addDoc(groupsRef, newGroup);
-        localStorage.setItem(`group_${gameId}`, docRef.id);
-        localStorage.setItem(`gameId_${docRef.id}`, gameId);
+        // Use new session utilities
+        saveSession(docRef.id, gameId);
         setGroupId(docRef.id);
         setGroupData({ id: docRef.id, ...newGroup });
         setWelcomePhase("welcome");
@@ -406,10 +413,11 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
         cumulativeRndInvestment: 0,
         rndBenefitApplied: false,
         status: "waiting",
+        lastActivityTime: Date.now(),
       };
       const docRef = await addDoc(groupsRef, newGroup);
-      localStorage.setItem(`group_${gameId}`, docRef.id);
-      localStorage.setItem(`gameId_${docRef.id}`, gameId);
+      // Use new session utilities
+      saveSession(docRef.id, gameId);
       setGroupId(docRef.id);
       setGroupData({ id: docRef.id, ...newGroup });
       setWelcomePhase("welcome");
@@ -430,7 +438,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       const groupDoc = await getDoc(groupRef);
       if (!groupDoc.exists()) {
         setError("Deine vorige Sitzung wurde nicht gefunden.");
-        localStorage.removeItem(`group_${gameId}`);
+        clearSession(gameId);
         setStoredGroupId(null);
         return;
       }
@@ -440,6 +448,8 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       setWelcomePhase("welcome");
       setJoined(true);
       setIsAdmin(checkPinFromLocalStorage(gameId));
+      // Update session activity
+      updateSessionActivity(gameId);
     } catch (err: any) {
       setError(`Fehler beim Wiederbeitritt: ${err.message}`);
     } finally {
@@ -466,7 +476,12 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
         submittedAt: serverTimestamp() as any,
       };
       await setDoc(doc(db, "games", gameId, "decisions", groupId), decision);
-      await updateDoc(doc(db, "games", gameId, "groups", groupId), { status: "submitted" });
+      await updateDoc(doc(db, "games", gameId, "groups", groupId), { 
+        status: "submitted",
+        lastActivityTime: Date.now(),
+      });
+      // Update session activity
+      updateSessionActivity(gameId);
 
       // Check if this is Solo mode
       const isSoloMode = localStorage.getItem(`solo_mode_${gameId}`);
@@ -949,18 +964,51 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
           )}
 
           {!joined && storedGroupId && (
-            <div className="mb-4 flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50 p-4">
-              <div>
-                <p className="text-sm font-semibold text-emerald-900">Vorherige Sitzung gefunden</p>
-                <p className="text-xs text-emerald-800">Du kannst deine bestehende Gruppe auf diesem Gerät sofort fortsetzen.</p>
+            <div className="mb-4 space-y-3">
+              {/* Resume Session Card */}
+              <div className="flex items-start justify-between rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-emerald-900">Vorherige Sitzung gefunden</p>
+                  <p className="text-xs text-emerald-800 mt-1">Du kannst deine bestehende Gruppe auf diesem Gerät sofort fortsetzen.</p>
+                  {groupData && (
+                    <div className="mt-2 grid grid-cols-3 gap-2 text-xs bg-white/50 rounded p-2">
+                      <div>
+                        <p className="text-emerald-700 font-semibold">{groupData.name}</p>
+                        <p className="text-emerald-600">Gruppe</p>
+                      </div>
+                      <div>
+                        <p className="text-emerald-700 font-semibold">€{groupData.capital.toLocaleString("de-DE")}</p>
+                        <p className="text-emerald-600">Kapital</p>
+                      </div>
+                      <div>
+                        <p className="text-emerald-700 font-semibold">P{game?.period || 1}</p>
+                        <p className="text-emerald-600">Periode</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleResumeSession}
+                  disabled={loading}
+                  className="ml-4 flex-shrink-0 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:bg-emerald-400 transition whitespace-nowrap"
+                >
+                  {loading ? "⏳" : "✓"} {loading ? "Lädt..." : "Fortsetzen"}
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={handleResumeSession}
-                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
-              >
-                Sitzung wieder aufnehmen
-              </button>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-px bg-neutral-200"></div>
+                <p className="text-xs text-neutral-500">ODER</p>
+                <div className="flex-1 h-px bg-neutral-200"></div>
+              </div>
+
+              {/* New Session Card */}
+              <div className="rounded-lg border border-orange-200 bg-orange-50 p-3">
+                <p className="text-xs font-semibold text-orange-900">⚠️ Neue Sitzung starten</p>
+                <p className="text-xs text-orange-800 mt-1">Bitte nur verwenden, wenn die alte Sitzung nicht mehr aktiv ist. Durch das Starten einer neuen Sitzung wird die alte blockiert.</p>
+              </div>
             </div>
           )}
 
