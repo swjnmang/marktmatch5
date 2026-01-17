@@ -441,6 +441,13 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
     return () => unsubscribeTask();
   }, [gameId]);
 
+  // Auto-set sellFromInventory to 0 if inventory is 0
+  useEffect(() => {
+    if (groupData && groupData.inventory === 0 && sellFromInventory !== 0) {
+      setSellFromInventory(0);
+    }
+  }, [groupData?.inventory]);
+
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -1546,7 +1553,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                         />
                         <span className="text-xs text-neutral-500">
                           Max: {groupData?.machines?.reduce((sum, m) => sum + m.capacity, 0) || 0}{" "}
-                          (Kapazität). 0 möglich.
+                          (Kapazität).
                         </span>
                       </label>
                       <label className="flex flex-col gap-1 text-sm text-neutral-700">
@@ -1569,7 +1576,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                           }`}
                         />
                         <span className="text-xs text-neutral-500">
-                          Lagerbestand: {groupData?.inventory || 0}. 0 möglich.
+                          Lagerbestand: {groupData?.inventory || 0}.
                         </span>
                       </label>
                       <label className="flex flex-col gap-1 text-sm text-neutral-700">
