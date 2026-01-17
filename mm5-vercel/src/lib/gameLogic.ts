@@ -35,21 +35,18 @@ export function calculateMarket(
 ): MarketCalculationResult[] {
   const actions = activeActions && activeActions.period === period ? activeActions : undefined;
 
-  // 1. Berechne Gesamtkapazität aller Gruppen
-  const totalCapacity = inputs.reduce((sum, input) => {
-    const groupCapacity = input.groupState.machines.reduce((cap, m) => cap + m.capacity, 0);
-    return sum + groupCapacity;
-  }, 0);
-
-  // 2. Berechne Basisnachfrage (Marktsättigung als Anteil der Gesamtkapazität)
-  const demandBoostMultiplier = actions?.demandBoost ? 1.3 : 1;
-  const baseDemand = parameters.initialMarketSaturationFactor * totalCapacity * demandBoostMultiplier;
-
-  // 3. Berechne Durchschnittspreis
+  // 1. Berechne Gesamtangebot aller Gruppen
   const totalOffered = inputs.reduce((sum, input) => {
     const offered = input.decision.production + input.decision.sellFromInventory;
     return sum + offered;
   }, 0);
+
+  // 2. Berechne Basisnachfrage (80% des tatsächlich angebotenen Volumen)
+  // WICHTIG: Nachfrage basiert auf ANGEBOT, nicht auf Maschinenkapazität!
+  const demandBoostMultiplier = actions?.demandBoost ? 1.3 : 1;
+  const baseDemand = parameters.initialMarketSaturationFactor * totalOffered * demandBoostMultiplier;
+
+  // 3. Berechne Durchschnittspreis
 
   const weightedPriceSum = inputs.reduce((sum, input) => {
     const offered = input.decision.production + input.decision.sellFromInventory;

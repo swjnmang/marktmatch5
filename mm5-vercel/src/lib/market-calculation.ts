@@ -51,21 +51,16 @@ export async function calculateMarketResults(
     throw new Error(`Invalid market price: ${avgMarketPrice}`);
   }
 
-  // Calculate total machine capacity across all groups
-  const totalCapacity = groups.reduce((sum, g) => {
-    const cap = g.machines?.reduce((c, m) => c + m.capacity, 0) || 0;
-    return sum + cap;
-  }, 0);
-
-  // Base demand as a fraction of total capacity (market saturation)
-  const baseDemand = Math.floor(totalCapacity * params.initialMarketSaturationFactor);
+  // Base demand as a fraction of total supply (market saturation)
+  // WICHTIG: Nachfrage basiert auf ANGEBOT (totalSupply), nicht auf Maschinenkapazität!
+  const baseDemand = Math.floor(totalSupply * params.initialMarketSaturationFactor);
   
   // Price elasticity effect with safety bounds
   const priceRatio = Math.max(0.01, avgMarketPrice / params.demandReferencePrice);
   // Price elasticity only reduces demand from base (cap at 1.0)
   const priceElasticityEffect = Math.max(
     params.minPriceElasticityDemandMultiplier,
-    1 - (priceRatio - 1) * params.priceElasticityFactor
+    Math.min(1.0, 1 - (priceRatio - 1) * params.priceElasticityFactor)
   );
 
   // Final demand - never more than base demand
@@ -74,7 +69,7 @@ export async function calculateMarketResults(
     Math.floor(baseDemand * priceElasticityEffect * demandBoostMultiplier)
   );
 
-  console.log(`[Market] TotalCapacity=${totalCapacity}, BaseDemand=${baseDemand}, AvgPrice=€${avgMarketPrice.toFixed(2)}, PriceElasticity=${priceElasticityEffect.toFixed(3)}, FinalDemand=${totalDemand}`);
+  console.log(`[Market] TotalSupply=${totalSupply}, BaseDemand=${baseDemand}, AvgPrice=€${avgMarketPrice.toFixed(2)}, PriceElasticity=${priceElasticityEffect.toFixed(3)}, FinalDemand=${totalDemand}`);
 
   // ===== SEQUENTIAL SOFTENING ALGORITHM =====
   // Groups sorted by price (cheapest first) get priority in demand allocation
