@@ -6,13 +6,13 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { db } from "@/lib/firebase";
-import { doc, collection, onSnapshot, updateDoc, writeBatch, getDocs, setDoc, deleteDoc, type Timestamp } from "firebase/firestore";
+import { doc, collection, onSnapshot, updateDoc, writeBatch, getDocs, setDoc, deleteDoc, getDoc, type Timestamp } from "firebase/firestore";
 import { checkPinFromLocalStorage } from "@/lib/auth";
 import { PREDEFINED_TASKS } from "@/lib/special-tasks";
 import type { GameDocument, GroupState, PeriodDecision, SpecialTask } from "@/lib/types";
 import { calculateMarket, type MarketCalculationInput } from "@/lib/gameLogic";
 import { PeriodTimer } from "@/components/PeriodTimer";
-import { SessionManagementPanel } from "@/components/SessionManagementPanel";
+// import { SessionManagementPanel } from "@/components/SessionManagementPanel"; // Removed: Using group edit modal instead
 
 export default function GameDashboardPage() {
   const params = useParams();
@@ -52,6 +52,10 @@ export default function GameDashboardPage() {
   const [settingsLoading, setSettingsLoading] = useState(false);
   const [showSpecialSection, setShowSpecialSection] = useState(false);
   const [showActionsSection, setShowActionsSection] = useState(false);
+  const [showGroupEditModal, setShowGroupEditModal] = useState(false);
+  const [editingGroup, setEditingGroup] = useState<GroupState | null>(null);
+  const [editGroupName, setEditGroupName] = useState("");
+  const [editLoading, setEditLoading] = useState(false);
 
   const allGroupsReady = groups.length > 0 && groups.every((g) => g.status === "ready");
   const allGroupsSubmitted = groups.length > 0 && groups.every((g) => g.status === "submitted");
@@ -633,10 +637,23 @@ export default function GameDashboardPage() {
                       : "border-red-300 bg-red-50"
                   }`}
                 >
-                  <div>
-                    <p className="font-semibold text-sm text-neutral-900">
-                      {group.name || `Gruppe ${index + 1}`}
-                    </p>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-sm text-neutral-900">
+                        {group.name || `Gruppe ${index + 1}`}
+                      </p>
+                      <button
+                        onClick={() => {
+                          setEditingGroup(group);
+                          setEditGroupName(group.name || "");
+                          setShowGroupEditModal(true);
+                        }}
+                        className="rounded px-2 py-1 text-xs font-semibold text-neutral-700 hover:bg-neutral-200 transition"
+                        title="Gruppe bearbeiten"
+                      >
+                        ✏️ Bearbeiten
+                      </button>
+                    </div>
                     <div className="flex gap-3 text-xs">
                       <span className={
                         group.status === "submitted"
@@ -674,10 +691,7 @@ export default function GameDashboardPage() {
             )}
           </div>
 
-          {/* Session Management Panel - Direct in Spielstand */}
-          <div className="border-t border-neutral-200 pt-4 mt-4">
-            <SessionManagementPanel gameId={gameId} />
-          </div>
+          {/* Session Management Panel removed - using group edit modal instead */}
         </div>
 
         {/* Settings & Actions - Vertical Layout */}
@@ -1736,6 +1750,88 @@ export default function GameDashboardPage() {
           </div>
         )}
         </>
+        )}
+
+        {/* Group Edit Modal */}
+        {showGroupEditModal && editingGroup && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+              <h3 className="mb-4 text-lg font-bold text-neutral-900">
+                👥 {editingGroup.name || "Gruppe"} bearbeiten
+              </h3>
+
+              <div className="space-y-4">
+                {/* Rename Group */}
+                <div>
+                  <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                    📝 Gruppenname ändern
+                  </label>
+                  <input
+                    type="text"
+                    value={editGroupName}
+                    onChange={(e) => setEditGroupName(e.target.value)}
+                    placeholder="z.B. Team A, Gruppe 1"
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-600"
+                  />
+                  <button
+                    onClick={async () => {
+                      if (!editingGroup || !editGroupName.trim()) return;
+                      setEditLoading(true);
+                      try {
+                        await updateDoc(doc(db, "games", gameId, "groups", editingGroup.id), {
+                          name: editGroupName.trim()
+                        });
+                        setShowGroupEditModal(false);
+                      } catch (err: any) {
+                        alert(`Fehler beim Speichern: ${err.message}`);
+                      } finally {
+                        setEditLoading(false);
+                      }
+                    }}
+                    disabled={editLoading || !editGroupName.trim()}
+                    className="mt-2 w-full rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:bg-neutral-300 disabled:cursor-not-allowed"
+                  >
+                    {editLoading ? "Speichert..." : "✓ Speichern"}
+                  </button>
+                </div>
+
+                {/* Delete Group */}
+                <div className="border-t border-neutral-200 pt-4">
+                  <p className="text-sm text-neutral-600 mb-3">
+                    ⚠️ <strong>Warnung:</strong> Die Gruppe wird aus dem Spiel entfernt und kann nicht wiederhergestellt werden.
+                  </p>
+                  <button
+                    onClick={async () => {
+                      if (!editingGroup || !window.confirm(`Gruppe "${editingGroup.name}" wirklich löschen?`)) return;
+                      setEditLoading(true);
+                      try {
+                        // Delete group from database
+                        await deleteDoc(doc(db, "games", gameId, "groups", editingGroup.id));
+                        setShowGroupEditModal(false);
+                      } catch (err: any) {
+                        alert(`Fehler beim Löschen: ${err.message}`);
+                      } finally {
+                        setEditLoading(false);
+                      }
+                    }}
+                    disabled={editLoading}
+                    className="w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:bg-neutral-300 disabled:cursor-not-allowed"
+                  >
+                    {editLoading ? "Wird gelöscht..." : "🗑️ Gruppe löschen"}
+                  </button>
+                </div>
+
+                {/* Close Button */}
+                <button
+                  onClick={() => setShowGroupEditModal(false)}
+                  disabled={editLoading}
+                  className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 disabled:opacity-50"
+                >
+                  Abbrechen
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </section>
     </main>
