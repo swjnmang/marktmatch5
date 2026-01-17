@@ -1518,7 +1518,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                           Trefft eure strategischen Entscheidungen für diese Periode. Bestimmt die <strong>Produktionsmenge</strong>, die <strong>Verkaufsmengen aus dem Lager</strong> und den <strong>Verkaufspreis</strong>. Optional könnt ihr auch eine <strong>Marktanalyse</strong> kaufen, um mehr über die Konkurrenz zu erfahren.
                         </p>
                         <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2 mt-2">
-                          ⚠️ <strong>Pflichtfelder:</strong> Die drei Felder Produktionsmenge, Verkauf aus Lagerbestand und Verkaufspreis müssen alle ausgefüllt sein. Wenn ihr nicht produzieren/verkaufen möchtet, gebt <strong>0</strong> ein.
+                          ⚠️ <strong>Pflichtfelder:</strong> Die drei Felder Produktionsmenge, Verkauf aus Lagerbestand und Verkaufspreis müssen alle ausgefüllt sein. Der Verkaufspreis muss <strong>größer als 0</strong> sein! Produktionsmenge und Verkauf können auch 0 sein.
                         </p>
                       </div>
                     <div className="grid gap-4 sm:grid-cols-2">
@@ -1582,9 +1582,9 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                           onChange={(e) =>
                             setPrice(e.target.value === "" ? 0 : Number(e.target.value))
                           }
-                          min={0}
+                          min={0.01}
                           step={0.5}
-                          placeholder="0"
+                          placeholder="z.B. 50"
                           className={`rounded-lg border px-3 py-2 text-base shadow-sm focus:outline-none focus:ring-2 ${
                             price === 0 && price.toString().length === 0
                               ? "border-red-300 focus:border-red-400 focus:ring-red-200"
@@ -1592,7 +1592,6 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                           }`}
                           required
                         />
-                        <span className="text-xs text-neutral-500">0 möglich.</span>
                       </label>
                     </div>
                     <label className="flex items-center gap-2 text-sm text-neutral-700">
@@ -1648,9 +1647,9 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                     )}
                     <button
                       type="submit"
-                      disabled={decisionLoading || production === 0 && String(production) === "" || sellFromInventory === 0 && String(sellFromInventory) === "" || price === 0 && String(price) === ""}
+                      disabled={decisionLoading || production === 0 && String(production) === "" || sellFromInventory === 0 && String(sellFromInventory) === "" || price <= 0}
                       className="inline-flex w-fit items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed"
-                      title={decisionLoading ? "Wird eingereicht..." : "Alle Felder müssen ausgefüllt sein (auch 0 ist erlaubt)"}
+                      title={decisionLoading ? "Wird eingereicht..." : "Alle Felder müssen ausgefüllt sein. Verkaufspreis muss > 0 sein!"}
                     >
                       {decisionLoading ? "Wird eingereicht..." : "Entscheidungen einreichen"}
                     </button>
