@@ -656,6 +656,8 @@ export default function GameDashboardPage() {
             }}
             onShowSettings={() => setShowSettingsModal(true)}
             onShowRanking={() => setShowRankingModal(true)}
+            onShowSpecialTasks={() => setShowTaskModal(true)}
+            onShowActions={() => setShowSettingsModal(true)}
             onEndGame={() => setShowConfirmEndModal(true)}
             startLoading={startLoading}
           />

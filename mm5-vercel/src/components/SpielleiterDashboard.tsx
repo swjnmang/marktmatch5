@@ -12,6 +12,8 @@ interface SpielleiterDashboardProps {
   onShowSettings: () => void;
   onShowRanking: () => void;
   onEndGame: () => void;
+  onShowSpecialTasks?: () => void;
+  onShowActions?: () => void;
   startLoading: boolean;
 }
 
@@ -23,6 +25,8 @@ export function SpielleiterDashboard({
   onShowSettings,
   onShowRanking,
   onEndGame,
+  onShowSpecialTasks,
+  onShowActions,
   startLoading,
 }: SpielleiterDashboardProps) {
   const [activeTab, setActiveTab] = useState<"special" | "actions" | "market">("special");
@@ -181,10 +185,10 @@ export function SpielleiterDashboard({
         </div>
       </div>
 
-      {/* Aktionen & Einstellungen */}
+      {/* Spezialaufträge & Aktionen */}
       <div className="bg-white rounded-lg shadow">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">Einstellungen & Aktionen</h2>
+          <h2 className="text-xl font-bold text-gray-900">Spezialaufträge & Aktionen</h2>
         </div>
         <div className="p-6">
           {/* Tab-Buttons */}
@@ -225,19 +229,29 @@ export function SpielleiterDashboard({
           <div className="bg-gray-50 rounded p-4 text-center text-gray-600 min-h-32 flex items-center justify-center">
             {activeTab === "special" && (
               <div>
-                <p className="mb-2">Keine Spezialaufträge für diese Periode konfiguriert.</p>
-                <button className="text-gray-700 hover:text-gray-900 font-semibold">→ Hinzufügen</button>
+                <p className="mb-3 font-semibold text-gray-700">Spezialaufträge an alle Gruppen senden</p>
+                <button
+                  onClick={onShowSpecialTasks}
+                  className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-lg font-semibold transition"
+                >
+                  📋 Hinzufügen / Bearbeiten
+                </button>
               </div>
             )}
             {activeTab === "actions" && (
               <div>
-                <p className="mb-2">Keine Aktionen für die nächste Periode konfiguriert.</p>
-                <button className="text-gray-700 hover:text-gray-900 font-semibold">→ Hinzufügen</button>
+                <p className="mb-3 font-semibold text-gray-700">Aktionen für nächste Periode konfigurieren</p>
+                <button
+                  onClick={onShowActions}
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold transition"
+                >
+                  ⚡ Hinzufügen / Bearbeiten
+                </button>
               </div>
             )}
             {activeTab === "market" && (
               <div>
-                <p className="text-gray-700">Marktdaten werden hier angezeigt.</p>
+                <p className="text-gray-700">Marktinformationen werden hier angezeigt.</p>
               </div>
             )}
           </div>
