@@ -927,26 +927,6 @@ export default function GameDashboardPage() {
         </div>
 
         {/* Ranking & End Game Buttons - Only show after period 1 */}
-        {game.status === "in_progress" && game.period >= 1 && (
-          <div className="rounded-xl bg-white p-4 shadow-lg ring-1 ring-neutral-200">
-            <h3 className="text-sm font-semibold text-neutral-900 mb-3">Spielabschluss</h3>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowRankingModal(true)}
-                className="flex-1 rounded-lg bg-neutral-400 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-neutral-600"
-              >
-                🏆 Ranking anzeigen
-              </button>
-              <button
-                onClick={() => setShowConfirmEndModal(true)}
-                className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700"
-              >
-                🏁 Spiel beenden
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* Special Task Modal */}
         {showTaskModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
