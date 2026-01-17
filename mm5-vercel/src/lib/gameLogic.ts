@@ -283,39 +283,25 @@ function calculateInversePriceAllocation(
 
   // Schritt 5: Begrenzen durch verfügbare Produktion
   const soldUnits: { [groupId: string]: number } = {};
-  let allocatedDemand = 0;
-  let unallocatedDemand = totalDemand;
+  let totalSoldUnits = 0;
 
-  // Erste Pass: Jede Gruppe nach ihrer Kapazität
+  // Allokiere Nachfrage basierend auf Marktanteilen und verfügbarer Kapazität
+  // WICHTIG: Wenn eine Gruppe nicht genug Kapazität hat, bleibt die Nachfrage UNVERKAUFT
+  // Das ist realistisch - der Markt kann nicht beliebig expandieren!
   firstAllocation.forEach(item => {
     const canSell = Math.min(item.targetDemand, item.supply);
     soldUnits[item.id] = canSell;
-    allocatedDemand += canSell;
-    unallocatedDemand -= canSell;
-    console.log(`[Inverse Model] Group €${item.price.toFixed(2)}: Inverse=${item.inverse.toFixed(6)}, Share=${(item.marketShare*100).toFixed(2)}%, Target=${item.targetDemand}, Can Supply=${item.supply}, Sold=${canSell}`);
+    totalSoldUnits += canSell;
+    console.log(`[Inverse Model] Group €${item.price.toFixed(2)}: Inverse=${item.inverse.toFixed(6)}, Share=${(item.marketShare*100).toFixed(2)}%, Target=${item.targetDemand}, Capacity=${item.supply}, Sold=${canSell}`);
   });
 
-  // Zweite Pass: Verteile überschüssige Nachfrage an Gruppen mit Kapazität (nach Preis sortiert)
-  if (unallocatedDemand > 0) {
-    console.log(`[Inverse Model] Unallocated Demand: ${unallocatedDemand} units - redistributing by price...`);
-    const sortedByPrice = marketShares.sort((a, b) => a.price - b.price);
-    
-    for (const item of sortedByPrice) {
-      if (unallocatedDemand <= 0) break;
-      
-      const alreadySold = soldUnits[item.id] || 0;
-      const remainingCapacity = item.supply - alreadySold;
-      const canTake = Math.min(remainingCapacity, unallocatedDemand);
-      
-      if (canTake > 0) {
-        soldUnits[item.id] = alreadySold + canTake;
-        unallocatedDemand -= canTake;
-        console.log(`[Inverse Model] Group €${item.price.toFixed(2)}: Taking ${canTake} from overflow. New total: ${soldUnits[item.id]}`);
-      }
-    }
+  // Unverkaufte Nachfrage bleibt verloren (der Markt kann sie nicht befriedigen)
+  const unmetDemand = totalDemand - totalSoldUnits;
+  if (unmetDemand > 0) {
+    console.log(`[Inverse Model] ⚠️ Unmet Demand: ${unmetDemand} units - No group can supply it (realistic market constraint)`);
   }
 
-  console.log(`[Market Calc - Inverse Model] Total Demand: ${totalDemand}, Total Allocated: ${allocatedDemand + (totalDemand - unallocatedDemand)}, Unallocated: ${unallocatedDemand}`);
+  console.log(`[Market Calc - Inverse Model] Total Demand: ${totalDemand}, Total Sold: ${totalSoldUnits}, Unmet: ${unmetDemand}`);
 
   return soldUnits;
 }
