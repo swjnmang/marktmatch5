@@ -664,76 +664,67 @@ export default function GameDashboardPage() {
           />
         )}
 
-        {/* OLD Dashboard (Lobby & Details) - Hide when in_progress */}
+        {/* Lobby - Compact Group List */}
         {game.status === "lobby" && (
           <div className="rounded-xl bg-white p-4 shadow-lg ring-1 ring-neutral-200">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-neutral-900">
-              {game.status === "lobby" ? "Wartende Gruppen" : "Spielstand"}
-            </h2>
-            <div className="flex gap-2 text-xs">
-              {game.status === "lobby" && (
-                <>
-                  <span className="rounded-lg bg-emerald-50 px-2 py-1 text-emerald-700 border border-emerald-200">
-                    ✓ {groups.filter((g) => g.status === "ready").length}
-                  </span>
-                  <span className="rounded-lg bg-amber-50 px-2 py-1 text-amber-700 border border-amber-200">
-                    ⏳ {groups.filter((g) => g.status !== "ready").length}
-                  </span>
-                </>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold text-neutral-900">
+                Wartende Gruppen ({groups.length})
+              </h2>
+              <div className="flex gap-2 text-xs">
+                <span className="rounded-lg bg-emerald-50 px-2 py-1 text-emerald-700 border border-emerald-200">
+                  ✓ {groups.filter((g) => g.status === "ready").length}
+                </span>
+                <span className="rounded-lg bg-amber-50 px-2 py-1 text-amber-700 border border-amber-200">
+                  ⏳ {groups.filter((g) => g.status !== "ready").length}
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              {groups.length > 0 ? (
+                groups.map((group) => (
+                  <div
+                    key={group.id}
+                    className="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 hover:bg-neutral-100 transition"
+                  >
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="text-sm">
+                        <span className="font-semibold text-neutral-900">
+                          Gruppe: {group.name || `Gruppe`}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                      <span className={`text-xs font-semibold ${
+                        group.status === "ready"
+                          ? "text-emerald-700"
+                          : "text-amber-700"
+                      }`}>
+                        {group.status === "ready" ? "✓ Bereit" : "⏳ Wartend"}
+                      </span>
+                      <button
+                        onClick={() => {
+                          setEditingGroup(group);
+                          setEditGroupName(group.name || "");
+                          setShowGroupEditModal(true);
+                        }}
+                        className="rounded px-3 py-1 text-xs font-semibold text-white bg-neutral-600 hover:bg-neutral-700 transition whitespace-nowrap"
+                        title="Gruppe bearbeiten"
+                      >
+                        ⚙️ Einstellungen
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-center text-neutral-600 py-4 text-sm">
+                  Noch keine Gruppen beigetreten. Teile den Gruppen-PIN!
+                </p>
               )}
             </div>
           </div>
-
-          <div className="space-y-2">
-            {groups.length > 0 ? (
-              groups.map((group, index) => (
-                <div
-                  key={group.id}
-                  className={`flex items-center justify-between rounded-lg border px-3 py-2 transition ${
-                    group.status === "ready"
-                      ? "border-neutral-300 bg-neutral-50"
-                      : "border-red-300 bg-red-50"
-                  }`}
-                >
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm text-neutral-900">
-                      {group.name || `Gruppe ${index + 1}`}
-                    </p>
-                    <div className="flex gap-3 text-xs">
-                      <span className={
-                        group.status === "ready"
-                          ? "text-neutral-700"
-                          : "text-red-700"
-                      }>
-                        {group.status === "ready" ? "✓ Bereit" : "⏳ Wartend"}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => {
-                        setEditingGroup(group);
-                        setEditGroupName(group.name || "");
-                        setShowGroupEditModal(true);
-                      }}
-                      className="rounded px-2 py-1 text-xs font-semibold text-neutral-700 hover:bg-neutral-200 transition whitespace-nowrap"
-                      title="Gruppe bearbeiten"
-                    >
-                      ✏️ Bearbeiten
-                    </button>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-center text-neutral-600 py-4 text-sm">
-                Noch keine Gruppen beigetreten. Teile den Gruppen-PIN!
-              </p>
-            )}
-          </div>
-
-          {/* Session Management Panel removed - using group edit modal instead */}
-        </div>
         )}
 
         {/* Settings & Actions - Vertical Layout (Only for Lobby) */}
@@ -1558,14 +1549,59 @@ export default function GameDashboardPage() {
         {/* Group Edit Modal */}
         {showGroupEditModal && editingGroup && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto">
               <h3 className="mb-4 text-lg font-bold text-neutral-900">
-                👥 {editingGroup.name || "Gruppe"} bearbeiten
+                👥 {editingGroup.name || "Gruppe"} - Verwaltung
               </h3>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
+                {/* Unternehmenskennzahlen */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="text-sm font-bold text-blue-900 mb-3">📊 Unternehmenskennzahlen</h4>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p className="text-neutral-600">Kapital</p>
+                      <p className="font-bold text-neutral-900">€ {editingGroup.capital?.toLocaleString("de-DE") || 0}</p>
+                    </div>
+                    <div>
+                      <p className="text-neutral-600">Gewinn (kumulativ)</p>
+                      <p className="font-bold text-neutral-900">€ {editingGroup.cumulativeProfit?.toLocaleString("de-DE") || 0}</p>
+                    </div>
+                    <div>
+                      <p className="text-neutral-600">Lager</p>
+                      <p className="font-bold text-neutral-900">{editingGroup.inventory || 0} E.</p>
+                    </div>
+                    <div>
+                      <p className="text-neutral-600">Maschinen</p>
+                      <p className="font-bold text-neutral-900">{editingGroup.machines?.length || 0}</p>
+                    </div>
+                    <div>
+                      <p className="text-neutral-600">R&D Investition</p>
+                      <p className="font-bold text-neutral-900">€ {editingGroup.cumulativeRndInvestment?.toLocaleString("de-DE") || 0}</p>
+                    </div>
+                    <div>
+                      <p className="text-neutral-600">R&D Vorteil</p>
+                      <p className="font-bold text-neutral-900">{editingGroup.rndBenefitApplied ? "✓ Aktiv" : "✗ Inaktiv"}</p>
+                    </div>
+                  </div>
+
+                  {/* Machines List */}
+                  {editingGroup.machines && editingGroup.machines.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-blue-200">
+                      <p className="text-xs font-semibold text-blue-900 mb-2">🔧 Maschinen:</p>
+                      <div className="space-y-1">
+                        {editingGroup.machines.map((machine, idx) => (
+                          <div key={idx} className="text-xs text-neutral-700">
+                            • <strong>{machine.name}</strong> - Kapazität: {machine.capacity} E., Kosten: €{machine.cost}, Variable Kosten: €{machine.variableCostPerUnit}/E.
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 {/* Rename Group */}
-                <div>
+                <div className="border-t border-neutral-200 pt-4">
                   <label className="block text-sm font-semibold text-neutral-700 mb-2">
                     📝 Gruppenname ändern
                   </label>
@@ -1605,7 +1641,7 @@ export default function GameDashboardPage() {
                   </p>
                   <button
                     onClick={async () => {
-                      if (!editingGroup || !window.confirm(`Gruppe "${editingGroup.name}" wirklich löschen?`)) return;
+                      if (!editingGroup || !window.confirm(`Gruppe "${editingGroup.name}" wirklich aus dem Spiel entfernen?`)) return;
                       setEditLoading(true);
                       try {
                         // Delete group from database
@@ -1620,7 +1656,7 @@ export default function GameDashboardPage() {
                     disabled={editLoading}
                     className="w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:bg-neutral-300 disabled:cursor-not-allowed"
                   >
-                    {editLoading ? "Wird gelöscht..." : "🗑️ Gruppe löschen"}
+                    {editLoading ? "Wird entfernt..." : "🗑️ Aus Spiel entfernen"}
                   </button>
                 </div>
 
@@ -1630,7 +1666,7 @@ export default function GameDashboardPage() {
                   disabled={editLoading}
                   className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 disabled:opacity-50"
                 >
-                  Abbrechen
+                  Schließen
                 </button>
               </div>
             </div>
