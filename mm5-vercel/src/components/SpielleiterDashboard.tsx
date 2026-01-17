@@ -63,23 +63,23 @@ export function SpielleiterDashboard({
 
   return (
     <div className="space-y-6">
-      {/* Spielstand Box */}
-      <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg shadow-md border border-blue-200 p-6">
+      {/* Spielstand Box - Compact */}
+      <div className="bg-blue-50 rounded-lg shadow border border-blue-200 p-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-semibold text-blue-700 uppercase tracking-wide">Aktueller Spielstand</p>
-            <h2 className="text-4xl font-bold text-blue-900 mt-2">
+            <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide">Spielstand</p>
+            <h2 className="text-2xl font-bold text-blue-900 mt-1">
               Periode {game.period}
             </h2>
-            <p className="text-sm text-blue-700 mt-2">
-              {game.phase === "machine_selection" && "👥 Gruppenbildung & Maschinenwahl"}
-              {game.phase === "decisions" && "📝 Entscheidungsphase"}
-              {game.phase === "results" && "📊 Ergebnisanzeige"}
+            <p className="text-xs text-blue-700 mt-1">
+              {game.phase === "machine_selection" && "👥 Maschinenwahl"}
+              {game.phase === "decisions" && "📝 Entscheidungen"}
+              {game.phase === "results" && "📊 Ergebnisse"}
             </p>
           </div>
           <div className="text-right">
-            <div className="text-6xl font-bold text-blue-900">P{game.period}</div>
-            <p className="text-xs text-blue-600 mt-2">von 5 Perioden</p>
+            <div className="text-4xl font-bold text-blue-900">P{game.period}</div>
+            <p className="text-xs text-blue-600 mt-1">von 5</p>
           </div>
         </div>
       </div>
@@ -100,7 +100,7 @@ export function SpielleiterDashboard({
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="font-bold text-gray-900">{group.name}</h3>
+                      <h3 className="font-bold text-gray-900">Gruppe: {group.name}</h3>
                       <div className="flex items-center gap-2 mt-2">
                         <span
                           className={`inline-block w-3 h-3 rounded-full ${
@@ -273,41 +273,6 @@ export function SpielleiterDashboard({
               </div>
             )}
           </div>
-        </div>
-      </div>
-
-      {/* Periodenverlauf */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">Periodenverlauf</h3>
-        <div className="flex items-center justify-center gap-3 overflow-x-auto pb-2">
-          {Array.from({ length: 5 }, (_, i) => i + 1).map((period, idx) => {
-            const isComplete = period < game.period;
-            const isActive = period === game.period;
-            const isFuture = period > game.period;
-
-            return (
-              <div key={period} className="flex items-center gap-3">
-                <div className="text-center flex-shrink-0">
-                  <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center border-2 font-bold text-lg ${
-                      isComplete
-                        ? "bg-emerald-100 border-emerald-300 text-emerald-700"
-                        : isActive
-                          ? "bg-gray-200 border-gray-400 text-gray-700"
-                          : "bg-gray-100 border-gray-300 text-gray-400"
-                    }`}
-                  >
-                    {isComplete ? "✓" : isActive ? "→" : "□"}
-                  </div>
-                  <div className={`text-sm font-semibold mt-2 ${isActive ? "text-gray-900" : "text-gray-600"}`}>P{period}</div>
-                  <div className={`text-xs ${isComplete ? "text-emerald-600" : isActive ? "text-gray-600" : "text-gray-500"}`}>
-                    {isComplete ? "Fertig" : isActive ? "Aktiv" : "Offen"}
-                  </div>
-                </div>
-                {idx < 4 && <div className="text-gray-400 text-2xl">→</div>}
-              </div>
-            );
-          })}
         </div>
       </div>
     </div>
