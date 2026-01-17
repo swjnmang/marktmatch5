@@ -1591,7 +1591,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                             setPrice(e.target.value === "" ? 0 : Number(e.target.value))
                           }
                           min={0.01}
-                          step={0.5}
+                          step="any"
                           placeholder="z.B. 50"
                           className={`rounded-lg border px-3 py-2 text-base shadow-sm focus:outline-none focus:ring-2 ${
                             price === 0 && price.toString().length === 0
