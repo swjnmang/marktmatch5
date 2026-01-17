@@ -4,7 +4,7 @@
 export const VERSION = {
   number: '1.2.0',
   date: '17.01.2026',
-  time: '11:24',
-  commit: 'a24fbea',
-  buildDate: new Date('2026-01-17T10:24:49.970Z'),
+  time: '11:31',
+  commit: '0cfbfb6',
+  buildDate: new Date('2026-01-17T10:31:59.834Z'),
 };

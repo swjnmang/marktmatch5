@@ -211,10 +211,18 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
         const tempName = `Team ${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
         setGroupName(tempName);
         
+        // Fetch game to get current starting capital
+        const gameDoc = await getDoc(doc(db, "games", gameId));
+        if (!gameDoc.exists()) {
+          throw new Error("Spiel nicht gefunden");
+        }
+        const gameData = gameDoc.data() as GameDocument;
+        const startingCapital = gameData.parameters?.startingCapital || 50000;
+        
         const groupsRef = collection(db, "games", gameId, "groups");
         const newGroup: Omit<GroupState, "id"> = {
           name: tempName,
-          capital: 50000,
+          capital: startingCapital,
           inventory: 0,
           cumulativeProfit: 0,
           machines: [],
@@ -403,10 +411,18 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
     setLoading(true);
     setError("");
     try {
+      // Fetch game to get current starting capital
+      const gameDoc = await getDoc(doc(db, "games", gameId));
+      if (!gameDoc.exists()) {
+        throw new Error("Spiel nicht gefunden");
+      }
+      const gameData = gameDoc.data() as GameDocument;
+      const startingCapital = gameData.parameters?.startingCapital || 50000;
+      
       const groupsRef = collection(db, "games", gameId, "groups");
       const newGroup: Omit<GroupState, "id"> = {
         name: "", // Wird später beim Name-Input gesetzt
-        capital: 50000,
+        capital: startingCapital,
         inventory: 0,
         cumulativeProfit: 0,
         machines: [],

@@ -1652,9 +1652,26 @@ export default function GameDashboardPage() {
                           if (value >= 10000) {
                             setSettingsLoading(true);
                             try {
+                              // Update game parameters
                               await updateDoc(doc(db, "games", gameId), {
                                 "parameters.startingCapital": value
                               });
+                              
+                              // IMPORTANT: Also update all existing groups that haven't started yet
+                              // (i.e., groups with capital still at the old starting value or haven't made decisions)
+                              const groupsRef = collection(db, "games", gameId, "groups");
+                              const groupsSnapshot = await getDocs(groupsRef);
+                              const batch = writeBatch(db);
+                              
+                              groupsSnapshot.docs.forEach((groupDoc) => {
+                                const groupData = groupDoc.data() as GroupState;
+                                // Update capital if group hasn't made any decisions yet (status is "waiting" or "ready")
+                                if (groupData.status === "waiting" || groupData.status === "ready") {
+                                  batch.update(groupDoc.ref, { capital: value });
+                                }
+                              });
+                              
+                              await batch.commit();
                             } catch (err: any) {
                               alert(`Fehler: ${err.message}`);
                             } finally {
