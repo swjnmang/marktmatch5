@@ -1543,7 +1543,6 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                               ? "border-red-300 focus:border-red-400 focus:ring-red-200"
                               : "border-neutral-200 focus:border-neutral-400 focus:ring-neutral-200"
                           }`}
-                          required
                         />
                         <span className="text-xs text-neutral-500">
                           Max: {groupData?.machines?.reduce((sum, m) => sum + m.capacity, 0) || 0}{" "}
@@ -1568,7 +1567,6 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                               ? "border-red-300 focus:border-red-400 focus:ring-red-200"
                               : "border-neutral-200 focus:border-neutral-400 focus:ring-neutral-200"
                           }`}
-                          required
                         />
                         <span className="text-xs text-neutral-500">
                           Lagerbestand: {groupData?.inventory || 0}. 0 möglich.
