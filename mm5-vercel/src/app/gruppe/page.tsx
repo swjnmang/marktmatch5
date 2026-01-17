@@ -3,7 +3,7 @@
 
 import { Suspense, useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { ui } from "@/lib/ui";
@@ -13,7 +13,6 @@ export const dynamic = "force-dynamic";
 
 function GruppeContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [pin, setPin] = useState("");
   const [gameId, setGameId] = useState("");
   const [resumeGameId, setResumeGameId] = useState<string | null>(null);
@@ -26,29 +25,9 @@ function GruppeContent() {
   const [loading, setLoading] = useState(false);
   const [deviceConflict, setDeviceConflict] = useState(false);
 
-  // Auto-load gameId from URL params if present
+  // Check for valid session and auto-redirect to active game
+  // IMPORTANT: Check this IMMEDIATELY on mount, BEFORE any other useEffect
   useEffect(() => {
-    const urlGameId = searchParams.get("gameId");
-    const urlPin = searchParams.get("pin");
-    
-    if (urlGameId && urlPin) {
-      // Direct link with PIN - auto-join and go directly to welcome screen
-      setPin(urlPin);
-      setGameId(urlGameId);
-      // Auto-navigate to the game with PIN prefilled (skip join-form)
-      router.push(`/gruppe/${urlGameId}?pin=${urlPin}`);
-      return;
-    }
-
-    if (urlGameId) {
-      setGameId(urlGameId);
-      // Auto-navigate to the game (skip join-form)
-      router.push(`/gruppe/${urlGameId}`);
-      return;
-    }
-
-    // Check for valid session and auto-redirect to active game
-    // IMPORTANT: Check this IMMEDIATELY on mount, even before searchParams
     const checkSessions = () => {
       const allKeys = Object.keys(localStorage || {});
       const sessionKeys = allKeys.filter((k) => k.startsWith("session_") && !k.includes("device") && !k.includes("activity"));
