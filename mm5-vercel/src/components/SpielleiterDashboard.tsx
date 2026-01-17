@@ -116,9 +116,6 @@ export function SpielleiterDashboard({
                     <span className="text-xs font-semibold text-gray-700">
                       {getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).label}
                     </span>
-                    <span className="text-xs font-semibold text-gray-900">
-                      €{group.capital.toLocaleString("de-DE", { maximumFractionDigits: 0 })}
-                    </span>
                     <button
                       onClick={() => onEditGroup(group)}
                       className="px-2 py-1 text-xs font-semibold text-white bg-gray-600 hover:bg-gray-700 rounded transition whitespace-nowrap"
