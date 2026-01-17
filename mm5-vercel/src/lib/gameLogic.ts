@@ -46,7 +46,10 @@ export function calculateMarket(
   const demandBoostMultiplier = actions?.demandBoost ? 1.3 : 1;
   const baseDemand = parameters.initialMarketSaturationFactor * totalOffered * demandBoostMultiplier;
 
-  // 3. Berechne Durchschnittspreis
+  // 3. Berechne Mindestpreis und Durchschnittspreis (für Analysen)
+  const minPrice = inputs.length > 0 
+    ? Math.min(...inputs.map(i => i.decision.price)) 
+    : parameters.demandReferencePrice;
 
   const weightedPriceSum = inputs.reduce((sum, input) => {
     const offered = input.decision.production + input.decision.sellFromInventory;
@@ -55,15 +58,18 @@ export function calculateMarket(
 
   const avgPrice = totalOffered > 0 ? weightedPriceSum / totalOffered : parameters.demandReferencePrice;
 
-  // 4. Preiselastizität - Nachfrage wird durch höhere Preise reduziert
-  const priceRatio = avgPrice / parameters.demandReferencePrice;
+  // 4. Preiselastizität - Nachfrage wird durch MINIMUMPREIS-Verhältnis berechnet
+  // WICHTIG: Wir nutzen den MINIMUMPREIS nicht den Durchschnitt!
+  // Grund: Mit Inverse Price Allocation ist der Markt noch offen für günstige Gruppen.
+  // Nur wenn ALLE Preise über Referenz sind, reduzieren wir Nachfrage.
+  const priceRatio = minPrice / parameters.demandReferencePrice;
   const priceElasticityMultiplier = Math.max(
-    0.01,  // Allow demand to drop to 1% at extreme prices (realistic competition)
+    0.2,  // Minimum 20% demand even at extreme prices (allows cheap groups to win)
     Math.min(1.0, 1 - parameters.priceElasticityFactor * (priceRatio - 1))
   );
 
   // Nachfrage wird durch Preiselastizität und Marktsättigung bestimmt
-  // NICHT durch Angebot (Angebot und Nachfrage sind getrennt!)
+  // Mit Inverse Price Allocation wird diese Nachfrage dann korrekt zu günstigen Gruppen verteilt!
   const adjustedDemand = Math.floor(baseDemand * priceElasticityMultiplier);
 
   // 5. Berechne Marketing-Scores (ab Periode 5)
