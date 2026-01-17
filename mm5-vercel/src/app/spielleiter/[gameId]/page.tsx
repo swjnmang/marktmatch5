@@ -51,6 +51,7 @@ export default function GameDashboardPage() {
   const [endGameLoading, setEndGameLoading] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [settingsLoading, setSettingsLoading] = useState(false);
+  const [showActionsModalForNextPeriod, setShowActionsModalForNextPeriod] = useState(false);
   const [showSpecialSection, setShowSpecialSection] = useState(false);
   const [showActionsSection, setShowActionsSection] = useState(false);
   const [showGroupEditModal, setShowGroupEditModal] = useState(false);
@@ -657,7 +658,7 @@ export default function GameDashboardPage() {
             onShowSettings={() => setShowSettingsModal(true)}
             onShowRanking={() => setShowRankingModal(true)}
             onShowSpecialTasks={() => setShowTaskModal(true)}
-            onShowActions={() => setShowSettingsModal(true)}
+            onShowActions={() => setShowActionsModalForNextPeriod(true)}
             onEndGame={() => setShowConfirmEndModal(true)}
             startLoading={startLoading}
           />
@@ -1422,6 +1423,136 @@ export default function GameDashboardPage() {
           </div>
         )}
         </>
+        )}
+
+        {/* Actions for Next Period Modal */}
+        {showActionsModalForNextPeriod && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+              <h3 className="mb-4 text-lg font-bold text-neutral-900">⚡ Aktionen für nächste Periode konfigurieren</h3>
+
+              <div className="space-y-4">
+                {/* Maschinenkauf */}
+                <div className="flex items-start gap-3 border border-neutral-200 rounded-lg p-4">
+                  <input
+                    type="checkbox"
+                    checked={allowMachinePurchaseNext}
+                    onChange={(e) => setAllowMachinePurchaseNext(e.target.checked)}
+                    className="mt-1 accent-neutral-600"
+                  />
+                  <div className="flex-1">
+                    <label className="text-sm font-semibold text-neutral-900 cursor-pointer">🏭 Maschinenkauf erlauben</label>
+                    <p className="text-xs text-neutral-600 mt-1">Gruppen dürfen in der nächsten Periode eine zusätzliche Maschine kaufen</p>
+                  </div>
+                </div>
+
+                {/* Demand Boost */}
+                <div className="flex items-start gap-3 border border-neutral-200 rounded-lg p-4">
+                  <input
+                    type="checkbox"
+                    checked={demandBoostNext}
+                    onChange={(e) => setDemandBoostNext(e.target.checked)}
+                    className="mt-1 accent-neutral-600"
+                  />
+                  <div className="flex-1">
+                    <label className="text-sm font-semibold text-neutral-900 cursor-pointer">📈 Nachfrage-Boost</label>
+                    <p className="text-xs text-neutral-600 mt-1">Erhöht die Marktnachfrage in der nächsten Periode um 30%</p>
+                  </div>
+                </div>
+
+                {/* Free Market Analysis */}
+                <div className="flex items-start gap-3 border border-neutral-200 rounded-lg p-4">
+                  <input
+                    type="checkbox"
+                    checked={freeMarketAnalysisNext}
+                    onChange={(e) => setFreeMarketAnalysisNext(e.target.checked)}
+                    className="mt-1 accent-neutral-600"
+                  />
+                  <div className="flex-1">
+                    <label className="text-sm font-semibold text-neutral-900 cursor-pointer">📊 Kostenlose Marktanalyse</label>
+                    <p className="text-xs text-neutral-600 mt-1">Alle Gruppen erhalten kostenlos Konkurrenz- und Marktdaten</p>
+                  </div>
+                </div>
+
+                {/* No Inventory Costs */}
+                <div className="flex items-start gap-3 border border-neutral-200 rounded-lg p-4">
+                  <input
+                    type="checkbox"
+                    checked={noInventoryCostsNext}
+                    onChange={(e) => setNoInventoryCostsNext(e.target.checked)}
+                    className="mt-1 accent-neutral-600"
+                  />
+                  <div className="flex-1">
+                    <label className="text-sm font-semibold text-neutral-900 cursor-pointer">📦 Keine Lagerkosten</label>
+                    <p className="text-xs text-neutral-600 mt-1">Lagergebühren fallen in dieser Periode nicht an</p>
+                  </div>
+                </div>
+
+                {/* Allow R&D */}
+                <div className="flex items-start gap-3 border border-neutral-200 rounded-lg p-4">
+                  <input
+                    type="checkbox"
+                    checked={allowRnDNext}
+                    onChange={(e) => setAllowRnDNext(e.target.checked)}
+                    className="mt-1 accent-neutral-600"
+                  />
+                  <div className="flex-1">
+                    <label className="text-sm font-semibold text-neutral-900 cursor-pointer">🔬 F&E aktivieren</label>
+                    <p className="text-xs text-neutral-600 mt-1">Gruppen können in F&E investieren</p>
+                    {allowRnDNext && (
+                      <div className="mt-2">
+                        <label className="text-xs font-semibold text-neutral-700">F&E Schwellwert: €{rndThresholdNext.toLocaleString("de-DE")}</label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="1000"
+                          value={rndThresholdNext}
+                          onChange={(e) => setRndThresholdNext(parseInt(e.target.value))}
+                          className="w-full mt-1 px-2 py-1 border border-neutral-300 rounded text-sm"
+                        />
+                        <p className="text-xs text-neutral-600 mt-1">Gruppen erhalten 10% Kostenreduktion wenn F&E-Investition {'>='} Schwellwert</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Custom Event */}
+                <div className="border border-neutral-200 rounded-lg p-4">
+                  <label className="text-sm font-semibold text-neutral-900 block mb-2">📢 Custom Event Nachricht</label>
+                  <textarea
+                    value={customEventNext}
+                    onChange={(e) => setCustomEventNext(e.target.value)}
+                    placeholder="z.B. 'Neue Konkurrenz tritt in den Markt ein' oder leer lassen für kein Event"
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-600 text-sm"
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4 mt-6 border-t">
+                <button
+                  onClick={() => setShowActionsModalForNextPeriod(false)}
+                  className="flex-1 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 transition"
+                >
+                  ✓ Speichern & Schließen
+                </button>
+                <button
+                  onClick={() => {
+                    setAllowMachinePurchaseNext(false);
+                    setDemandBoostNext(false);
+                    setFreeMarketAnalysisNext(false);
+                    setNoInventoryCostsNext(false);
+                    setAllowRnDNext(false);
+                    setRndThresholdNext(10000);
+                    setCustomEventNext("");
+                  }}
+                  className="px-4 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-100 rounded-lg transition border border-neutral-300"
+                >
+                  🔄 Zurücksetzen
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Group Edit Modal */}
