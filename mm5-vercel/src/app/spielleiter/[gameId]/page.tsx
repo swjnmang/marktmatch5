@@ -710,7 +710,9 @@ export default function GameDashboardPage() {
                 ) : (
                   <button
                     onClick={() => {
-                      setSelectedTaskId((prev) => prev || "presentation-poster");
+                      setSelectedTaskId("");
+                      setCustomTaskTitle("");
+                      setCustomTaskDesc("");
                       setShowTaskModal(true);
                     }}
                     className="w-full rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-50 px-4 py-3 text-sm font-semibold text-neutral-700 transition hover:border-neutral-400 hover:bg-neutral-100"
@@ -926,7 +928,6 @@ export default function GameDashboardPage() {
           )}
         </div>
 
-        {/* Ranking & End Game Buttons - Only show after period 1 */}
         {/* Special Task Modal */}
         {showTaskModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
