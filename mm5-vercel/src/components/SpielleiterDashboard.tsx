@@ -86,67 +86,46 @@ export function SpielleiterDashboard({
 
       {/* Hauptinhalt 2-spaltig */}
       <div className="grid grid-cols-3 gap-6">
-        {/* Linke Spalte: Spielstand */}
+        {/* Linke Spalte: Spielstand - Kompakt */}
         <div className="col-span-2">
           <div className="bg-white rounded-lg shadow">
             <div className="px-6 py-4 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-900">Spielstand</h2>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-6 space-y-2">
               {groups.map((group) => (
                 <div
                   key={group.id}
-                  className="border border-gray-200 bg-white rounded-lg p-4 hover:shadow-md transition hover:border-gray-300"
+                  className="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 hover:bg-neutral-100 transition"
                 >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-bold text-gray-900">Gruppe: {group.name}</h3>
-                      <div className="flex items-center gap-2 mt-2">
-                        <span
-                          className={`inline-block w-3 h-3 rounded-full ${
-                            getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).color === "emerald" ? "bg-emerald-500" : 
-                            getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).color === "blue" ? "bg-blue-500" :
-                            "bg-orange-500"
-                          }`}
-                        ></span>
-                        <span
-                          className={`text-sm font-semibold ${
-                            getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).color === "emerald" ? "text-emerald-700" : 
-                            getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).color === "blue" ? "text-blue-700" :
-                            "text-orange-700"
-                          }`}
-                        >
-                          {getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).label}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-gray-900">€{group.capital.toLocaleString("de-DE", { maximumFractionDigits: 0 })}</div>
-                      <div className="text-xs text-gray-600">Kapital</div>
+                  <div className="flex items-center gap-3 flex-1">
+                    <span
+                      className={`inline-block w-2.5 h-2.5 rounded-full ${
+                        getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).color === "emerald" ? "bg-emerald-500" : 
+                        getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).color === "blue" ? "bg-blue-500" :
+                        getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).color === "amber" ? "bg-amber-500" :
+                        "bg-orange-500"
+                      }`}
+                    ></span>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-sm text-gray-900">Gruppe: {group.name}</h3>
                     </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-3 mt-4 text-sm border-t border-gray-200 pt-3">
-                    <div>
-                      <div className="text-gray-600 text-xs font-semibold">Marktanteil</div>
-                      <div className="font-bold text-gray-900 text-lg">
-                        {totalSupply > 0 ? ((((group.lastResult?.soldUnits || 0) / totalSupply) * 100) || 0).toFixed(1) : "0.0"}%
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-gray-600 text-xs font-semibold">Ranking</div>
-                      <div className="font-bold text-gray-900 text-lg">Platz {getRanking().find(r => r.group.id === group.id)?.rank || "-"}</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-600 text-xs font-semibold">Lager</div>
-                      <div className="font-bold text-gray-900 text-lg">{group.inventory} E.</div>
-                    </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-semibold text-gray-700">
+                      {getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).label}
+                    </span>
+                    <span className="text-xs font-semibold text-gray-900">
+                      €{group.capital.toLocaleString("de-DE", { maximumFractionDigits: 0 })}
+                    </span>
+                    <button
+                      onClick={() => onEditGroup(group)}
+                      className="px-2 py-1 text-xs font-semibold text-white bg-gray-600 hover:bg-gray-700 rounded transition whitespace-nowrap"
+                    >
+                      ⚙️ Einstellungen
+                    </button>
                   </div>
-                  <button
-                    onClick={() => onEditGroup(group)}
-                    className="w-full mt-3 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded font-semibold transition"
-                  >
-                    🖊 Bearbeiten
-                  </button>
                 </div>
               ))}
             </div>
