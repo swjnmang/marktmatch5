@@ -638,22 +638,9 @@ export default function GameDashboardPage() {
                   }`}
                 >
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="font-semibold text-sm text-neutral-900">
-                        {group.name || `Gruppe ${index + 1}`}
-                      </p>
-                      <button
-                        onClick={() => {
-                          setEditingGroup(group);
-                          setEditGroupName(group.name || "");
-                          setShowGroupEditModal(true);
-                        }}
-                        className="rounded px-2 py-1 text-xs font-semibold text-neutral-700 hover:bg-neutral-200 transition"
-                        title="Gruppe bearbeiten"
-                      >
-                        ✏️ Bearbeiten
-                      </button>
-                    </div>
+                    <p className="font-semibold text-sm text-neutral-900">
+                      {group.name || `Gruppe ${index + 1}`}
+                    </p>
                     <div className="flex gap-3 text-xs">
                       <span className={
                         group.status === "submitted"
@@ -674,12 +661,25 @@ export default function GameDashboardPage() {
                       )}
                     </div>
                   </div>
-                  {game.status !== "lobby" && (
-                    <div className="text-right text-xs text-neutral-600">
-                      <p>€{group.capital.toLocaleString("de-DE")}</p>
-                      <p className="text-neutral-500">Lager: {group.inventory}</p>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-3">
+                    {game.status !== "lobby" && (
+                      <div className="text-right text-xs text-neutral-600">
+                        <p>€{group.capital.toLocaleString("de-DE")}</p>
+                        <p className="text-neutral-500">Lager: {group.inventory}</p>
+                      </div>
+                    )}
+                    <button
+                      onClick={() => {
+                        setEditingGroup(group);
+                        setEditGroupName(group.name || "");
+                        setShowGroupEditModal(true);
+                      }}
+                      className="rounded px-2 py-1 text-xs font-semibold text-neutral-700 hover:bg-neutral-200 transition whitespace-nowrap"
+                      title="Gruppe bearbeiten"
+                    >
+                      ✏️ Bearbeiten
+                    </button>
+                  </div>
                 </div>
               ))
             ) : (
