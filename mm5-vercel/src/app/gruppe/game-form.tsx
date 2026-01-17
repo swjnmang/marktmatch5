@@ -1517,10 +1517,13 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                         <p className="text-sm text-neutral-600 leading-relaxed">
                           Trefft eure strategischen Entscheidungen für diese Periode. Bestimmt die <strong>Produktionsmenge</strong>, die <strong>Verkaufsmengen aus dem Lager</strong> und den <strong>Verkaufspreis</strong>. Optional könnt ihr auch eine <strong>Marktanalyse</strong> kaufen, um mehr über die Konkurrenz zu erfahren.
                         </p>
+                        <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2 mt-2">
+                          ⚠️ <strong>Pflichtfelder:</strong> Die drei Felder Produktionsmenge, Verkauf aus Lagerbestand und Verkaufspreis müssen alle ausgefüllt sein. Wenn ihr nicht produzieren/verkaufen möchtet, gebt <strong>0</strong> ein.
+                        </p>
                       </div>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <label className="flex flex-col gap-1 text-sm text-neutral-700">
-                        Produktionsmenge
+                        <span>Produktionsmenge <span className="text-red-600">*</span></span>
                         <input
                           type="number"
                           value={production === 0 ? "" : production}
@@ -1535,15 +1538,20 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                             0
                           }
                           placeholder="0"
-                          className="rounded-lg border border-neutral-200 px-3 py-2 text-base shadow-sm focus:border-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-200"
+                          className={`rounded-lg border px-3 py-2 text-base shadow-sm focus:outline-none focus:ring-2 ${
+                            production === 0 && production.toString().length === 0
+                              ? "border-red-300 focus:border-red-400 focus:ring-red-200"
+                              : "border-neutral-200 focus:border-neutral-400 focus:ring-neutral-200"
+                          }`}
+                          required
                         />
                         <span className="text-xs text-neutral-500">
                           Max: {groupData?.machines?.reduce((sum, m) => sum + m.capacity, 0) || 0}{" "}
-                          (Kapazität)
+                          (Kapazität). 0 möglich.
                         </span>
                       </label>
                       <label className="flex flex-col gap-1 text-sm text-neutral-700">
-                        Verkauf aus Lagerbestand
+                        <span>Verkauf aus Lagerbestand <span className="text-red-600">*</span></span>
                         <input
                           type="number"
                           value={sellFromInventory === 0 ? "" : sellFromInventory}
@@ -1555,14 +1563,19 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                           min={0}
                           max={groupData?.inventory || 0}
                           placeholder="0"
-                          className="rounded-lg border border-neutral-200 px-3 py-2 text-base shadow-sm focus:border-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-200"
+                          className={`rounded-lg border px-3 py-2 text-base shadow-sm focus:outline-none focus:ring-2 ${
+                            sellFromInventory === 0 && sellFromInventory.toString().length === 0
+                              ? "border-red-300 focus:border-red-400 focus:ring-red-200"
+                              : "border-neutral-200 focus:border-neutral-400 focus:ring-neutral-200"
+                          }`}
+                          required
                         />
                         <span className="text-xs text-neutral-500">
-                          Lagerbestand: {groupData?.inventory || 0}
+                          Lagerbestand: {groupData?.inventory || 0}. 0 möglich.
                         </span>
                       </label>
                       <label className="flex flex-col gap-1 text-sm text-neutral-700">
-                        Verkaufspreis (€)
+                        <span>Verkaufspreis (€) <span className="text-red-600">*</span></span>
                         <input
                           type="number"
                           value={price === 0 ? "" : price}
@@ -1571,8 +1584,15 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                           }
                           min={0}
                           step={0.5}
-                          className="rounded-lg border border-neutral-200 px-3 py-2 text-base shadow-sm focus:border-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-200"
+                          placeholder="0"
+                          className={`rounded-lg border px-3 py-2 text-base shadow-sm focus:outline-none focus:ring-2 ${
+                            price === 0 && price.toString().length === 0
+                              ? "border-red-300 focus:border-red-400 focus:ring-red-200"
+                              : "border-neutral-200 focus:border-neutral-400 focus:ring-neutral-200"
+                          }`}
+                          required
                         />
+                        <span className="text-xs text-neutral-500">0 möglich.</span>
                       </label>
                     </div>
                     <label className="flex items-center gap-2 text-sm text-neutral-700">
@@ -1628,8 +1648,9 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                     )}
                     <button
                       type="submit"
-                      disabled={decisionLoading}
+                      disabled={decisionLoading || production === 0 && String(production) === "" || sellFromInventory === 0 && String(sellFromInventory) === "" || price === 0 && String(price) === ""}
                       className="inline-flex w-fit items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                      title={decisionLoading ? "Wird eingereicht..." : "Alle Felder müssen ausgefüllt sein (auch 0 ist erlaubt)"}
                     >
                       {decisionLoading ? "Wird eingereicht..." : "Entscheidungen einreichen"}
                     </button>
