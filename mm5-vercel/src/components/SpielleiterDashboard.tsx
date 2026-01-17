@@ -44,29 +44,43 @@ export function SpielleiterDashboard({
       .map((g, idx) => ({ group: g, rank: idx + 1 }));
   };
 
+  // Helper: Get human-readable status for a group
+  const getGroupStatusLabel = (groupStatus: string, phaseAcknowledged: boolean) => {
+    if (game.phase === "machine_selection" && !phaseAcknowledged) {
+      return { label: "Liest Anleitung", icon: "📖", color: "blue" };
+    }
+    if (groupStatus === "submitted") {
+      return { label: "✓ Entschieden", icon: "✓", color: "emerald" };
+    }
+    if (groupStatus === "ready") {
+      return { label: "✓ Bereit", icon: "✓", color: "emerald" };
+    }
+    if (groupStatus === "calculating") {
+      return { label: "⏳ Berechnet...", icon: "⏳", color: "amber" };
+    }
+    return { label: "⏳ Wartend", icon: "⏳", color: "orange" };
+  };
+
   return (
     <div className="space-y-6">
-      {/* KPI Übersicht */}
-      <div className="grid grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg shadow p-4 border-l-4 border-gray-400">
-          <div className="text-sm text-gray-600 font-semibold">Spielstand</div>
-          <div className="text-2xl font-bold text-gray-900">Periode {game.period}</div>
-          <div className="text-xs text-gray-500 mt-1">Laufendes Spiel</div>
-        </div>
-        <div className="bg-white rounded-lg shadow p-4 border-l-4 border-orange-400">
-          <div className="text-sm text-gray-600 font-semibold">Gruppen Status</div>
-          <div className="text-2xl font-bold text-orange-600">⚠ {groups.filter(g => g.status !== "submitted").length} wartend</div>
-          <div className="text-xs text-gray-500 mt-1">von {groups.length} Gruppen</div>
-        </div>
-        <div className="bg-white rounded-lg shadow p-4 border-l-4 border-emerald-400">
-          <div className="text-sm text-gray-600 font-semibold">Gesamt-Umsatz</div>
-          <div className="text-2xl font-bold text-emerald-700">€{totalUmsatz.toLocaleString("de-DE")}</div>
-          <div className="text-xs text-gray-500 mt-1">Alle Perioden</div>
-        </div>
-        <div className="bg-white rounded-lg shadow p-4 border-l-4 border-gray-400">
-          <div className="text-sm text-gray-600 font-semibold">Ø Kapital</div>
-          <div className="text-2xl font-bold text-gray-900">€{avgKapital.toLocaleString("de-DE", { maximumFractionDigits: 0 })}</div>
-          <div className="text-xs text-gray-500 mt-1">Pro Gruppe</div>
+      {/* Spielstand Box */}
+      <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg shadow-md border border-blue-200 p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold text-blue-700 uppercase tracking-wide">Aktueller Spielstand</p>
+            <h2 className="text-4xl font-bold text-blue-900 mt-2">
+              Periode {game.period}
+            </h2>
+            <p className="text-sm text-blue-700 mt-2">
+              {game.phase === "machine_selection" && "👥 Gruppenbildung & Maschinenwahl"}
+              {game.phase === "decisions" && "📝 Entscheidungsphase"}
+              {game.phase === "results" && "📊 Ergebnisanzeige"}
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="text-6xl font-bold text-blue-900">P{game.period}</div>
+            <p className="text-xs text-blue-600 mt-2">von 5 Perioden</p>
+          </div>
         </div>
       </div>
 
@@ -90,15 +104,19 @@ export function SpielleiterDashboard({
                       <div className="flex items-center gap-2 mt-2">
                         <span
                           className={`inline-block w-3 h-3 rounded-full ${
-                            group.status === "submitted" ? "bg-emerald-500" : "bg-orange-500"
+                            getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).color === "emerald" ? "bg-emerald-500" : 
+                            getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).color === "blue" ? "bg-blue-500" :
+                            "bg-orange-500"
                           }`}
                         ></span>
                         <span
                           className={`text-sm font-semibold ${
-                            group.status === "submitted" ? "text-emerald-700" : "text-orange-700"
+                            getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).color === "emerald" ? "text-emerald-700" : 
+                            getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).color === "blue" ? "text-blue-700" :
+                            "text-orange-700"
                           }`}
                         >
-                          {group.status === "submitted" ? "✓ Entschieden" : "⚠ Wartend"}
+                          {getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).label}
                         </span>
                       </div>
                     </div>
