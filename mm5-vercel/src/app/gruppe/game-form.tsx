@@ -10,7 +10,7 @@ import { checkPinFromLocalStorage } from "@/lib/auth";
 import type { GameDocument, GroupState, Machine, PeriodDecision, SpecialTask } from "@/lib/types";
 import { PeriodTimer } from "@/components/PeriodTimer";
 import GameAnalytics from "@/components/GameAnalytics";
-import { saveSession, updateSessionActivity, getSession, isDeviceAuthorized, clearSession } from "@/lib/session-utils";
+import { saveSession, updateSessionActivity, getSession, isDeviceAuthorized, isSessionValid, clearSession } from "@/lib/session-utils";
 
 const MACHINE_OPTIONS: Machine[] = [
   { name: "SmartMini-Fertiger", cost: 5000, capacity: 100, variableCostPerUnit: 6 },
@@ -164,6 +164,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
 
     // Check if session is valid and on same device
     if (session && isDeviceAuthorized(gameId)) {
+      console.log(`[SessionResume] Loading existing session for group ${session.groupId}`);
       if (isSoloMode) {
         setIsSolo(true);
       }
@@ -172,23 +173,26 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
         try {
           const groupDoc = await getDoc(doc(db, "games", gameId, "groups", session.groupId));
           if (groupDoc.exists()) {
+            console.log(`[SessionResume] ✓ Group found in Firestore, joining automatically`);
             setGroupId(session.groupId);
             setGroupData({ id: groupDoc.id, ...groupDoc.data() } as GroupState);
-            setJoined(true);
+            setJoined(true); // ← CRITICAL: Must set joined=true to skip welcome phase!
             // Update activity timestamp
             updateSessionActivity(gameId);
           } else {
             // If not found, fall back to manual resume option
+            console.warn(`[SessionResume] ✗ Group not found in Firestore`);
             setStoredGroupId(session.groupId);
           }
         } catch (err) {
-          console.error("Error loading group:", err);
+          console.error("[SessionResume] Error loading group:", err);
           setStoredGroupId(session.groupId);
         }
       };
       loadGroup();
     } else if (session && !isDeviceAuthorized(gameId)) {
       // Session exists but from different device - show stored option
+      console.log(`[SessionResume] Session from different device`);
       setStoredGroupId(session.groupId);
     }
 
@@ -219,10 +223,19 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
 
   // Auto-join with prefilled PIN (from QR code or direct link)
   useEffect(() => {
+    // Skip if: already attempted, no PIN, already joined, no gameId, or has valid session
     if (autoJoinAttempted || !prefilledPin || joined || !gameId) return;
+    
+    // Also skip if there's already a valid session (from browser refresh)
+    const session = getSession(gameId);
+    if (session && isSessionValid(gameId) && isDeviceAuthorized(gameId)) {
+      console.log(`[AutoJoin] ✓ Skipping auto-join - valid session already exists`);
+      return;
+    }
     
     const autoJoin = async (e?: React.FormEvent) => {
       if (e) e.preventDefault();
+      console.log(`[AutoJoin] Starting auto-join with PIN`);
       setAutoJoinAttempted(true);
       setLoading(true);
       setError("");
@@ -254,6 +267,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
         };
         const docRef = await addDoc(groupsRef, newGroup);
         // Use new session utilities
+        console.log(`[AutoJoin] Created new group ${docRef.id}`);
         saveSession(docRef.id, gameId);
         setGroupId(docRef.id);
         setGroupData({ id: docRef.id, ...newGroup });
