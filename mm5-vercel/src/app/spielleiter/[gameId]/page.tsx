@@ -621,7 +621,7 @@ export default function GameDashboardPage() {
                     period: game.period + 1,
                     phase: nextPhase,
                     phaseEndsAt: endsAt,
-                    allowMachinePurchase: allowMachinePurchaseNext,
+                    allowMachinePurchase: (game.period === 1 || allowMachinePurchaseNext),
                     activePeriodActions: actionsForNextPeriod,
                     "parameters.allowMachinePurchaseNextPeriod": false,
                     "parameters.demandBoostNextPeriod": false,
