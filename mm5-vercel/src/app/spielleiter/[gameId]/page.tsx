@@ -548,13 +548,11 @@ export default function GameDashboardPage() {
                 // Intelligente Phase-Verwaltung basierend auf aktuellem Status
                 if (game.phase === "machine_selection") {
                   // Nach Maschinenwahl → Entscheidungsphase starten
+                  // WICHTIG: Status der Gruppen NICHT ändern! Sie bleiben "ready"
                   batch.update(doc(db, "games", gameId), {
                     phase: "decisions",
                     phaseEndsAt: endsAt,
                     periodDeadline: endsAt,
-                  });
-                  groups.forEach((g) => {
-                    batch.update(doc(db, "games", gameId, "groups", g.id), { status: "waiting" });
                   });
                 } else if (game.phase === "decisions") {
                   // Wenn alle Gruppen entschieden haben → Auswertung starten (phase: "results")
