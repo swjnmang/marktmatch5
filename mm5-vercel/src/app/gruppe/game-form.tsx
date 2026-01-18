@@ -1303,6 +1303,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                   {/* Machine Selection / Zusatzkauf */}
                   {(game?.phase === "machine_selection" || game?.allowMachinePurchase) &&
                     groupData &&
+                    !groupData.selectedMachine &&
                     groupData.status !== "submitted" && (
                       <div className="flex flex-col gap-4 rounded-lg border border-neutral-200 bg-white p-6">
                         <div>
