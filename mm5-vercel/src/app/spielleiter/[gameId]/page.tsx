@@ -628,7 +628,7 @@ export default function GameDashboardPage() {
                       status: "selecting",
                       selectedMachine: "",
                       machines: [],
-                      instructionsAcknowledged: false,
+                      // DO NOT reset instructionsAcknowledged! Groups should skip welcome screen in next periods
                     });
                   });
                   setAllowMachinePurchaseNext(false);
