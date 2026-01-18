@@ -502,8 +502,16 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       }
 
       setGroupId(storedGroupId);
-      setGroupData({ id: groupDoc.id, ...groupDoc.data() } as GroupState);
-      setWelcomePhase("welcome");
+      const groupDataFromDb = { id: groupDoc.id, ...groupDoc.data() } as GroupState;
+      setGroupData(groupDataFromDb);
+      
+      // If instructions were already acknowledged, skip welcome screen
+      if (groupDataFromDb.instructionsAcknowledged) {
+        setWelcomePhase("none");
+      } else {
+        setWelcomePhase("welcome");
+      }
+      
       setJoined(true);
       setIsAdmin(checkPinFromLocalStorage(gameId));
       // Update session activity
