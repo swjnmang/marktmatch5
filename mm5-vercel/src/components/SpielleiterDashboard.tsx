@@ -33,7 +33,14 @@ export function SpielleiterDashboard({
 
   const allGroupsSubmitted = groups.length > 0 && groups.every((g) => g.status === "submitted");
   const allGroupsReady = groups.length > 0 && groups.every((g) => g.status === "ready");
-  const canStartPeriod = (allGroupsSubmitted || allGroupsReady) && groups.length > 0;
+  
+  // canStartPeriod logic depends on current phase
+  const canStartPeriod = groups.length > 0 && (
+    (game.phase === "machine_selection" && allGroupsReady) ||
+    (game.phase === "decisions" && allGroupsSubmitted) ||
+    (game.phase === "results") // In results phase, always allow starting next period
+  );
+  
   const totalSupply = groups.reduce((sum, g) => sum + (g.lastResult?.soldUnits || 0), 0);
   const totalUmsatz = groups.reduce((sum, g) => sum + (g.lastResult?.revenue || 0), 0);
   const avgKapital = groups.length > 0 ? groups.reduce((sum, g) => sum + g.capital, 0) / groups.length : 0;
