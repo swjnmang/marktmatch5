@@ -614,14 +614,14 @@ export default function GameDashboardPage() {
                   // Determine next phase:
                   // - Period 1 OR allowMachinePurchaseNext: go to machine_selection
                   // - Period 2+ without machine purchase: skip to decisions
-                  const nextPhase = (game.period === 1 || allowMachinePurchaseNext) ? "machine_selection" : "decisions";
-                  const nextStatus = (game.period === 1 || allowMachinePurchaseNext) ? "selecting" : "waiting";
+                  const nextPhase = allowMachinePurchaseNext ? "machine_selection" : "decisions";
+                  const nextStatus = allowMachinePurchaseNext ? "selecting" : "waiting";
 
                   batch.update(doc(db, "games", gameId), {
                     period: game.period + 1,
                     phase: nextPhase,
                     phaseEndsAt: endsAt,
-                    allowMachinePurchase: (game.period === 1 || allowMachinePurchaseNext),
+                    allowMachinePurchase: allowMachinePurchaseNext,
                     activePeriodActions: actionsForNextPeriod,
                     "parameters.allowMachinePurchaseNextPeriod": false,
                     "parameters.demandBoostNextPeriod": false,
