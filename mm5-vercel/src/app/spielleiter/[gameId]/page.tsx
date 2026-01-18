@@ -632,8 +632,7 @@ export default function GameDashboardPage() {
                   groups.forEach((g) => {
                     batch.update(doc(db, "games", gameId, "groups", g.id), { 
                       status: nextStatus,
-                      selectedMachine: "",
-                      machines: [],
+                      // NOTE: Do NOT reset selectedMachine or machines - groups need to keep their decision history
                       // DO NOT reset instructionsAcknowledged! Groups should skip welcome screen in next periods
                     });
                   });
