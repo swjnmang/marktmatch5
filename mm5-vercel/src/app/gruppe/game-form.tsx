@@ -868,6 +868,8 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                   await updateDoc(doc(db, "games", gameId, "groups", groupId), {
                     instructionsAcknowledged: true,
                   });
+                  // Immediately hide welcome screen after acknowledging instructions
+                  setWelcomePhase("none");
                 } catch (err) {
                   console.error("Error acknowledging instructions:", err);
                 }
