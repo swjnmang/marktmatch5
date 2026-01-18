@@ -52,6 +52,9 @@ export function SpielleiterDashboard({
     if (game.phase === "machine_selection" && groupStatus === "selecting") {
       return { label: "⚙️ Wählt Maschine", icon: "⚙️", color: "amber" };
     }
+    if (game.phase === "decisions" && groupStatus === "waiting") {
+      return { label: "📝 Trifft Entscheidung", icon: "📝", color: "amber" };
+    }
     if (groupStatus === "submitted") {
       return { label: "✓ Entschieden", icon: "✓", color: "emerald" };
     }
@@ -148,7 +151,7 @@ export function SpielleiterDashboard({
                     : "bg-emerald-600 hover:bg-emerald-700"
                 }`}
               >
-                {startLoading ? "⏳ Lädt..." : "▶ Start Periode"}
+                {startLoading ? "⏳ Lädt..." : game.phase === "machine_selection" ? `▶ Start Periode ${game.period}` : game.phase === "decisions" ? `📊 Auswertung Periode ${game.period}` : `▶ Start Periode ${game.period + 1}`}
               </button>
               <button
                 onClick={onShowSettings}
