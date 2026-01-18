@@ -3,8 +3,8 @@
 
 export const VERSION = {
   number: '1.2.0',
-  date: '17.01.2026',
-  time: '21:09',
-  commit: 'e453f06',
-  buildDate: new Date('2026-01-17T20:09:41.250Z'),
+  date: '18.01.2026',
+  time: '10:15',
+  commit: 'edf7074',
+  buildDate: new Date('2026-01-18T09:15:41.429Z'),
 };

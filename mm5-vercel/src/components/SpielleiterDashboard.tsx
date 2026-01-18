@@ -47,7 +47,10 @@ export function SpielleiterDashboard({
   // Helper: Get human-readable status for a group
   const getGroupStatusLabel = (groupStatus: string, phaseAcknowledged: boolean) => {
     if (game.phase === "machine_selection" && !phaseAcknowledged) {
-      return { label: "Liest Anleitung", icon: "📖", color: "blue" };
+      return { label: "📖 Liest Anleitung", icon: "📖", color: "blue" };
+    }
+    if (game.phase === "machine_selection" && groupStatus === "selecting") {
+      return { label: "⚙️ Wählt Maschine", icon: "⚙️", color: "amber" };
     }
     if (groupStatus === "submitted") {
       return { label: "✓ Entschieden", icon: "✓", color: "emerald" };
