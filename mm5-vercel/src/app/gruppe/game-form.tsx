@@ -1041,37 +1041,31 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
             )}
 
         <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-neutral-200">
-          {error && (
-            <div className="mb-4 rounded-lg bg-red-50 p-4 text-red-700 text-sm">{error}</div>
-          )}
-
           {groupRemoved && (
-            <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-4">
-              <div className="flex gap-3">
-                <div className="text-2xl">🚫</div>
+            <div className="rounded-lg bg-red-50 border border-red-200 p-6">
+              <div className="flex gap-4 items-start">
+                <div className="text-4xl">🚫</div>
                 <div className="flex-1">
-                  <p className="font-semibold text-red-900">Deine Gruppe wurde aus dem Spiel entfernt</p>
-                  <p className="text-sm text-red-800 mt-1">
+                  <p className="font-semibold text-red-900 text-lg">Deine Gruppe wurde aus dem Spiel entfernt</p>
+                  <p className="text-sm text-red-800 mt-2">
                     Der Spielleiter hat deine Gruppe gelöscht. Du kannst nicht mehr an diesem Spiel teilnehmen.
                   </p>
                   <button
-                    onClick={() => {
-                      setGroupRemoved(false);
-                      setJoined(false);
-                      setGroupId(null);
-                      setGroupData(null);
-                      router.push("/gruppe");
-                    }}
-                    className="mt-3 inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 transition"
+                    onClick={() => router.push("/")}
+                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-red-600 px-6 py-3 text-base font-semibold text-white hover:bg-red-700 transition"
                   >
-                    ← Zurück zur Lobby
+                    ← Zurück zur Startseite
                   </button>
                 </div>
               </div>
             </div>
           )}
 
-          {!joined && storedGroupId && (
+          {!groupRemoved && error && (
+            <div className="mb-4 rounded-lg bg-red-50 p-4 text-red-700 text-sm">{error}</div>
+          )}
+
+          {!groupRemoved && !joined && storedGroupId && (
             <div className="mb-4 space-y-3">
               {/* Resume Session Card */}
               <div className="flex items-start justify-between rounded-lg border border-emerald-200 bg-emerald-50 p-4">
@@ -1158,8 +1152,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
               </button>
             </form>
           )}
-
-          {joined && (
+          {!groupRemoved && joined && (
             <div className="flex flex-col gap-4">
               {/* Welcome Screen - show right after joining */}
               {welcomePhase === "welcome" && (
