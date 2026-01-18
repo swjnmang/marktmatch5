@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, react/no-unescaped-entities */
 
 import { useEffect, useMemo, useState, useRef } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, addDoc, serverTimestamp, updateDoc, onSnapshot, setDoc, getDocs } from "firebase/firestore";
@@ -21,6 +21,7 @@ const MACHINE_OPTIONS: Machine[] = [
 
 export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string }) {
   const params = useParams();
+  const router = useRouter();
   const gameId = params.gameId as string;
   const [pin, setPin] = useState(prefilledPin);
   const [groupName, setGroupName] = useState("");
@@ -32,6 +33,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   const [tempGroupName, setTempGroupName] = useState("");
   const [groupId, setGroupId] = useState<string | null>(null);
   const [groupData, setGroupData] = useState<GroupState | null>(null);
+  const [groupRemoved, setGroupRemoved] = useState(false);
   const [game, setGame] = useState<GameDocument | null>(null);
   const [currentTask, setCurrentTask] = useState<SpecialTask | null>(null);
   const [storedGroupId, setStoredGroupId] = useState<string | null>(null);
@@ -409,17 +411,29 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
         const newData = { id: snapshot.id, ...snapshot.data() } as unknown as GroupState;
         console.log(`[Listener] Group data updated: period=${newData.lastResult?.period}, capital=${newData.capital}`);
         
+        // Group exists again (was previously removed)
+        if (groupRemoved) {
+          console.log(`[Listener] Group was restored, clearing removed flag`);
+          setGroupRemoved(false);
+        }
+        
         // Don't override during calculation to prevent race conditions
         if (!calculating) {
           setGroupData(newData);
         } else {
           console.log(`[Listener] Skipping update during calculation`);
         }
+      } else {
+        // Group no longer exists - it was deleted by the lobby host
+        if (groupData) {
+          console.warn(`[Listener] ✗ Group was removed from the game!`);
+          setGroupRemoved(true);
+        }
       }
     });
 
     return () => unsubscribe();
-  }, [gameId, groupId, calculating]);
+  }, [gameId, groupId, calculating, groupData, groupRemoved]);
 
   // Lade aktuelle Spezialaufgabe
   useEffect(() => {
@@ -1029,6 +1043,32 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
         <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-neutral-200">
           {error && (
             <div className="mb-4 rounded-lg bg-red-50 p-4 text-red-700 text-sm">{error}</div>
+          )}
+
+          {groupRemoved && (
+            <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-4">
+              <div className="flex gap-3">
+                <div className="text-2xl">🚫</div>
+                <div className="flex-1">
+                  <p className="font-semibold text-red-900">Deine Gruppe wurde aus dem Spiel entfernt</p>
+                  <p className="text-sm text-red-800 mt-1">
+                    Der Spielleiter hat deine Gruppe gelöscht. Du kannst nicht mehr an diesem Spiel teilnehmen.
+                  </p>
+                  <button
+                    onClick={() => {
+                      setGroupRemoved(false);
+                      setJoined(false);
+                      setGroupId(null);
+                      setGroupData(null);
+                      router.push("/gruppe");
+                    }}
+                    className="mt-3 inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 transition"
+                  >
+                    ← Zurück zur Lobby
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
 
           {!joined && storedGroupId && (
