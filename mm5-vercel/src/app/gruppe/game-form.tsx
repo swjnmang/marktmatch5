@@ -163,6 +163,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   useEffect(() => {
     const session = getSession(gameId);
     const isSoloMode = localStorage.getItem(`solo_mode_${gameId}`);
+    const storedGroupIdFromSolo = localStorage.getItem(`group_${gameId}`);
 
     // Check if session is valid and on same device
     if (session && isDeviceAuthorized(gameId)) {
@@ -189,6 +190,30 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
         } catch (err) {
           console.error("[SessionResume] Error loading group:", err);
           setStoredGroupId(session.groupId);
+        }
+      };
+      loadGroup();
+    } else if (isSoloMode && storedGroupIdFromSolo) {
+      // Solo mode detected - auto-join without PIN
+      console.log(`[Solo] Auto-joining solo game with group ${storedGroupIdFromSolo}`);
+      setIsSolo(true);
+      const loadGroup = async () => {
+        try {
+          const groupDoc = await getDoc(doc(db, "games", gameId, "groups", storedGroupIdFromSolo));
+          if (groupDoc.exists()) {
+            console.log(`[Solo] ✓ Group found in Firestore`);
+            setGroupId(storedGroupIdFromSolo);
+            setGroupData({ id: groupDoc.id, ...groupDoc.data() } as GroupState);
+            setJoined(true);
+            // Save session for next time
+            saveSession(storedGroupIdFromSolo, gameId);
+            updateSessionActivity(gameId);
+          } else {
+            throw new Error("Gruppe nicht gefunden");
+          }
+        } catch (err: any) {
+          console.error("[Solo] Error loading group:", err);
+          setError(`Solo-Modus Fehler: ${err.message}`);
         }
       };
       loadGroup();
