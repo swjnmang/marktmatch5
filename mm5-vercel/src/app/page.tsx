@@ -28,7 +28,7 @@ export default function Home() {
             <p className="mb-4 text-sm text-neutral-600">
               Gründe dein Unternehmen und führe es zum Erfolg. Allein oder mit deinem Team.
             </p>
-            <button className="inline-block rounded-lg bg-neutral-400 px-5 py-1.5 text-sm font-semibold text-white transition hover:bg-neutral-600">
+            <button className="inline-block rounded-lg bg-orange-500 px-5 py-1.5 text-sm font-semibold text-white transition hover:bg-orange-600">
               Spiel erstellen
             </button>
           </Link>
@@ -42,7 +42,7 @@ export default function Home() {
             <p className="mb-4 text-sm text-neutral-600">
               Tritt einem laufenden Spiel bei und treffe strategische Entscheidungen.
             </p>
-            <button className="inline-block rounded-lg bg-neutral-400 px-5 py-1.5 text-sm font-semibold text-white transition hover:bg-neutral-600">
+            <button className="inline-block rounded-lg bg-orange-500 px-5 py-1.5 text-sm font-semibold text-white transition hover:bg-orange-600">
               Code eingeben
             </button>
           </Link>
