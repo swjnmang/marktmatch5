@@ -1,0 +1,14 @@
+<svg viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="192" height="192" fill="white" rx="48"/>
+  
+  <!-- Orange square background with MM -->
+  <rect x="30" y="25" width="132" height="105" fill="#ff8c42" rx="20"/>
+  
+  <!-- MM Text -->
+  <text x="96" y="92" font-family="Arial, sans-serif" font-size="70" font-weight="bold" text-anchor="middle" fill="white">MM</text>
+  
+  <!-- 5 with gray circle background -->
+  <circle cx="96" cy="150" r="32" fill="#b0b0b0"/>
+  <text x="96" y="162" font-family="Arial, sans-serif" font-size="48" font-weight="bold" text-anchor="middle" fill="white">5</text>
+</svg>
