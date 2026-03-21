@@ -629,8 +629,10 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       const selectedMachine = MACHINE_OPTIONS.find(m => m.name === machineChoice);
       if (!selectedMachine) throw new Error("Maschine nicht gefunden");
 
-      // Zusätzlicher Kauf in laufender Periode
-      const isAdditionalPurchase = game?.phase !== "machine_selection";
+      // Initial machine selection: Periode 1 + phase machine_selection
+      // Alle anderen Käufe sind "additional purchases"
+      const isInitialMachineSelection = game?.period === 1 && game?.phase === "machine_selection";
+      const isAdditionalPurchase = !isInitialMachineSelection;
 
       if (isAdditionalPurchase) {
         // Check if the game allows machine purchase this period
@@ -657,7 +659,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
         });
         return;
       } else {
-        // Initial machine selection - group must have exactly 1 machine
+        // Initial machine selection (Periode 1) - group must have exactly 1 machine
         if (groupData.machines.length > 0) {
           throw new Error("Jede Gruppe kann nur EINE Produktionsmaschine beim Start wählen.");
         }
