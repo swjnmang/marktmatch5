@@ -707,6 +707,15 @@ export default function GameDashboardPage() {
             onEndSpecialTask={handleDeleteTask}
             onEndGame={() => setShowConfirmEndModal(true)}
             currentTask={currentTask}
+            plannedActions={{
+              allowMachinePurchase: allowMachinePurchaseNext,
+              demandBoost: demandBoostNext,
+              freeMarketAnalysis: freeMarketAnalysisNext,
+              noInventoryCosts: noInventoryCostsNext,
+              allowRnD: allowRnDNext,
+              rndThreshold: rndThresholdNext,
+              customEvent: customEventNext
+            }}
             startLoading={startLoading}
           />
         )}

@@ -633,6 +633,13 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       const isAdditionalPurchase = game?.phase !== "machine_selection";
 
       if (isAdditionalPurchase) {
+        // Check if the game allows machine purchase this period
+        const allowMachinePurchase = game?.activePeriodActions?.period === game?.period && 
+                                     game?.activePeriodActions?.allowMachinePurchase;
+        if (!allowMachinePurchase) {
+          throw new Error("Der Spielleiter hat Maschinenkauf für diese Periode noch nicht aktiviert.");
+        }
+        
         // Check if group already bought a machine in a previous additional purchase phase
         const alreadyBoughtAdditionalMachine = groupData.machines.length > 1;
         if (alreadyBoughtAdditionalMachine) {

@@ -16,6 +16,7 @@ interface SpielleiterDashboardProps {
   onShowActions?: () => void;
   onEndSpecialTask?: () => Promise<void>;
   currentTask?: any; // SpecialTask
+  plannedActions?: any; // Planned actions for next period
   startLoading: boolean;
 }
 
@@ -31,6 +32,7 @@ export function SpielleiterDashboard({
   onShowActions,
   onEndSpecialTask,
   currentTask,
+  plannedActions,
   startLoading,
 }: SpielleiterDashboardProps) {
   const [activeTab, setActiveTab] = useState<"special" | "actions" | "market">("special");
@@ -323,19 +325,79 @@ export function SpielleiterDashboard({
               </div>
             )}
             {activeTab === "actions" && (
-              <div>
-                <p className="mb-3 font-semibold text-gray-700">Aktionen für nächste Periode konfigurieren</p>
-                <button
-                  onClick={onShowActions}
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold transition"
-                >
-                  ⚡ Hinzufügen / Bearbeiten
-                </button>
+              <div className="w-full">
+                {plannedActions && (plannedActions.allowMachinePurchase || plannedActions.demandBoost || plannedActions.freeMarketAnalysis || plannedActions.noInventoryCosts || plannedActions.allowRnD || plannedActions.customEvent) ? (
+                  <div className="text-left space-y-4">
+                    <div className="rounded-lg border-2 border-purple-300 bg-purple-50 p-4">
+                      <h4 className="font-semibold text-purple-900 mb-3">🔮 Geplante Aktionen für Periode {game.period + 1}:</h4>
+                      <div className="space-y-2 text-sm text-purple-800">
+                        {plannedActions.allowMachinePurchase && <p>✓ Maschinenkauf erlaubt</p>}
+                        {plannedActions.demandBoost && <p>✓ Nachfrage-Boost aktiviert</p>}
+                        {plannedActions.freeMarketAnalysis && <p>✓ Kostenlose Marktanalyse</p>}
+                        {plannedActions.noInventoryCosts && <p>✓ Keine Lagerkosten</p>}
+                        {plannedActions.allowRnD && <p>✓ F&E erlaubt (Schwelle: €{plannedActions.rndThreshold?.toLocaleString('de-DE') || '10000'})</p>}
+                        {plannedActions.customEvent && <p>✓ Custom Event: {plannedActions.customEvent}</p>}
+                      </div>
+                      <p className="text-xs text-purple-700 mt-3">💡 Diese Aktionen werden aktiv, sobald du die nächste Periode startest.</p>
+                      <div className="mt-4 flex gap-2">
+                        <button
+                          onClick={onShowActions}
+                          className="flex-1 rounded bg-purple-600 px-3 py-2 text-xs font-semibold text-white hover:bg-purple-700 transition"
+                        >
+                          ⚙️ Bearbeiten
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="mb-3 font-semibold text-gray-700">Aktionen für nächste Periode konfigurieren</p>
+                    <button
+                      onClick={onShowActions}
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold transition"
+                    >
+                      ⚡ Hinzufügen / Bearbeiten
+                    </button>
+                  </div>
+                )}
               </div>
             )}
             {activeTab === "market" && (
-              <div>
-                <p className="text-gray-700">Marktinformationen werden hier angezeigt.</p>
+              <div className="w-full">
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="rounded-lg bg-blue-50 p-3 border border-blue-200">
+                      <p className="text-xs font-semibold text-blue-700">Startkapital</p>
+                      <p className="text-lg font-bold text-blue-900">€{game.parameters?.startingCapital?.toLocaleString('de-DE') || '50.000'}</p>
+                    </div>
+                    <div className="rounded-lg bg-blue-50 p-3 border border-blue-200">
+                      <p className="text-xs font-semibold text-blue-700">Periodendauer</p>
+                      <p className="text-lg font-bold text-blue-900">{game.parameters?.periodDurationMinutes || 10} Min</p>
+                    </div>
+                    <div className="rounded-lg bg-blue-50 p-3 border border-blue-200">
+                      <p className="text-xs font-semibold text-blue-700">Marktanalyse-Kosten</p>
+                      <p className="text-lg font-bold text-blue-900">€{game.parameters?.marketAnalysisCost?.toLocaleString('de-DE') || '0'}</p>
+                    </div>
+                    <div className="rounded-lg bg-blue-50 p-3 border border-blue-200">
+                      <p className="text-xs font-semibold text-blue-700">Lagerkosten pro Einheit</p>
+                      <p className="text-lg font-bold text-blue-900">€{game.parameters?.inventoryCostPerUnit?.toLocaleString('de-DE') || '0'}</p>
+                    </div>
+                    <div className="rounded-lg bg-blue-50 p-3 border border-blue-200">
+                      <p className="text-xs font-semibold text-blue-700">Negativzins-Satz</p>
+                      <p className="text-lg font-bold text-blue-900">{((game.parameters?.negativeCashInterestRate || 0) * 100).toFixed(2)}%</p>
+                    </div>
+                    <div className="rounded-lg bg-blue-50 p-3 border border-blue-200">
+                      <p className="text-xs font-semibold text-blue-700">Markt Sättigung</p>
+                      <p className="text-lg font-bold text-blue-900">{((game.parameters?.initialMarketSaturationFactor || 1) * 100).toFixed(0)}%</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={onShowSettings}
+                    className="w-full rounded-lg bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 font-semibold transition"
+                  >
+                    ⚙️ Parameter bearbeiten
+                  </button>
+                </div>
               </div>
             )}
           </div>
