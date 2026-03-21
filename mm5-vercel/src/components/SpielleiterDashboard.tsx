@@ -110,7 +110,6 @@ export function SpielleiterDashboard({
           </div>
           <div className="text-right">
             <div className="text-4xl font-bold text-blue-900">P{game.period}</div>
-            <p className="text-xs text-blue-600 mt-1">von 5</p>
           </div>
         </div>
       </div>
