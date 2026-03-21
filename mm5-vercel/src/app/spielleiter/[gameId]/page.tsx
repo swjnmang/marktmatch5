@@ -144,9 +144,10 @@ export default function GameDashboardPage() {
       collection(db, "games", gameId, "specialTasks"),
       (snapshot) => {
         const tasks = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as SpecialTask));
-        // Nur die neueste Task anzeigen
-        if (tasks.length > 0) {
-          setCurrentTask(tasks[0]);
+        // Nur die neuste AKTIVE Task anzeigen
+        const activeTask = tasks.find((t) => t.isActive === true);
+        if (activeTask) {
+          setCurrentTask(activeTask);
         } else {
           setCurrentTask(null);
         }
@@ -225,6 +226,7 @@ export default function GameDashboardPage() {
         period: game.period,
         title,
         description,
+        isActive: true,
         createdAt: new Date() as unknown as Timestamp
       };
       
@@ -250,14 +252,30 @@ export default function GameDashboardPage() {
 
   // Lösche Spezialauftrag
   const handleDeleteTask = async () => {
-    if (!gameId || !currentTask) return;
+    if (!gameId || !currentTask || !confirm("Spezialauftrag wirklich beenden? Gruppen sehen ihn dann nicht mehr.")) return;
     
     setTaskLoading(true);
     try {
-      await deleteDoc(doc(db, "games", gameId, "specialTasks", currentTask.id));
+      const batch = writeBatch(db);
+      
+      // Mark task as inactive instead of deleting - better for auditing
+      batch.update(doc(db, "games", gameId, "specialTasks", currentTask.id), {
+        isActive: false
+      });
+      
+      // Reset specialTaskCompleted flag for all groups
+      const groupsSnapshot = await getDocs(collection(db, "games", gameId, "groups"));
+      groupsSnapshot.docs.forEach((groupDoc) => {
+        batch.update(groupDoc.ref, {
+          specialTaskCompleted: false
+        });
+      });
+      
+      await batch.commit();
+      setCurrentTask(null);
     } catch (err: any) {
-      console.error("Error deleting task:", err);
-      setStartError(`Fehler beim Löschen: ${err.message}`);
+      console.error("Error ending task:", err);
+      setStartError(`Fehler beim Beenden: ${err.message}`);
     } finally {
       setTaskLoading(false);
     }
@@ -393,6 +411,7 @@ export default function GameDashboardPage() {
                           rndBenefitApplied: false,
                           lastResult: null,
                           instructionsAcknowledged: false,
+                          specialTaskCompleted: false,
                         });
                       });
                       
@@ -542,8 +561,30 @@ export default function GameDashboardPage() {
               setStartLoading(true);
               setStartError("");
               try {
+                // FIRST: Check if there's an active special task - if so, ALL groups must have completed it
+                if (currentTask && currentTask.isActive) {
+                  const allCompleted = groups.every((g) => g.specialTaskCompleted === true);
+                  if (!allCompleted) {
+                    throw new Error("Nicht alle Gruppen haben den Spezialauftrag erledigt!");
+                  }
+                }
+                
                 const endsAt = Date.now() + (game.parameters?.periodDurationMinutes || 10) * 60 * 1000;
                 const batch = writeBatch(db);
+
+                // If there's an active special task and all completed → close it automatically
+                if (currentTask && currentTask.isActive) {
+                  batch.update(doc(db, "games", gameId, "specialTasks", currentTask.id), {
+                    isActive: false
+                  });
+                  
+                  // Reset specialTaskCompleted for all groups for next period
+                  groups.forEach((g) => {
+                    batch.update(doc(db, "games", gameId, "groups", g.id), {
+                      specialTaskCompleted: false
+                    });
+                  });
+                }
 
                 // Intelligente Phase-Verwaltung basierend auf aktuellem Status
                 if (game.phase === "machine_selection") {
@@ -632,6 +673,7 @@ export default function GameDashboardPage() {
                   groups.forEach((g) => {
                     batch.update(doc(db, "games", gameId, "groups", g.id), { 
                       status: nextStatus,
+                      specialTaskCompleted: false,
                       // NOTE: Do NOT reset selectedMachine or machines - groups need to keep their decision history
                       // DO NOT reset instructionsAcknowledged! Groups should skip welcome screen in next periods
                     });
@@ -662,7 +704,9 @@ export default function GameDashboardPage() {
             onShowRanking={() => setShowRankingModal(true)}
             onShowSpecialTasks={() => setShowTaskModal(true)}
             onShowActions={() => setShowActionsModalForNextPeriod(true)}
+            onEndSpecialTask={handleDeleteTask}
             onEndGame={() => setShowConfirmEndModal(true)}
+            currentTask={currentTask}
             startLoading={startLoading}
           />
         )}
@@ -838,6 +882,7 @@ export default function GameDashboardPage() {
                       status: "selecting",
                       machines: [],
                       selectedMachine: "",
+                      specialTaskCompleted: false,
                     });
                   });
                   await batch.commit();

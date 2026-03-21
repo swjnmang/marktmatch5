@@ -468,9 +468,10 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       collection(db, "games", gameId, "specialTasks"),
       (snapshot) => {
         const tasks = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as SpecialTask));
-        // Nur die neueste Task anzeigen
-        if (tasks.length > 0) {
-          setCurrentTask(tasks[0]);
+        // Nur die neuste AKTIVE Task anzeigen
+        const activeTask = tasks.find((t) => t.isActive === true);
+        if (activeTask) {
+          setCurrentTask(activeTask);
         } else {
           setCurrentTask(null);
         }
@@ -774,8 +775,8 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
 
   return (
     <>
-      {/* Full-screen Task Modal when Special Task exists */}
-      {currentTask && joined && (
+      {/* Full-screen Task Modal when Special Task exists and not completed yet */}
+      {currentTask && joined && !groupData?.specialTaskCompleted && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm p-4 overflow-y-auto">
           <div className="w-full max-w-2xl rounded-2xl bg-white p-8 shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
             <div className="flex gap-4">
@@ -788,10 +789,41 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                     {currentTask.description}
                   </p>
                 </div>
-                <div className="rounded-lg bg-amber-50 p-4 border border-amber-200">
-                  <p className="text-sm font-semibold text-amber-900">
-                    ⏰ Bitte bearbeitet diesen Auftrag zwischen den Perioden und kehrt dann zur Spielleitung zurück.
-                  </p>
+                
+                {/* Checkbox zum Abhaken */}
+                <div className="rounded-lg bg-amber-50 p-4 border border-amber-200 mb-6">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={groupData?.specialTaskCompleted || false}
+                      onChange={async (e) => {
+                        if (!groupId || !gameId) return;
+                        try {
+                          await updateDoc(doc(db, "games", gameId, "groups", groupId), {
+                            specialTaskCompleted: e.target.checked
+                          });
+                        } catch (err: any) {
+                          setError(`Fehler: ${err.message}`);
+                        }
+                      }}
+                      disabled={loading}
+                      className="w-5 h-5 rounded border-2 border-amber-400 accent-emerald-600 cursor-pointer"
+                    />
+                    <span className="text-sm font-semibold text-amber-900">
+                      Ich habe diesen Auftrag erledigt
+                    </span>
+                  </label>
+                </div>
+                
+                {/* Status-Nachricht */}
+                <div className={`rounded-lg p-4 text-sm font-semibold ${
+                  groupData?.specialTaskCompleted
+                    ? "bg-emerald-50 border border-emerald-300 text-emerald-900"
+                    : "bg-neutral-50 border border-neutral-300 text-neutral-700"
+                }`}>
+                  {groupData?.specialTaskCompleted
+                    ? "✓ Erledigt! Der Spielleiter startet jetzt die nächste Phase, sobald alle Gruppen fertig sind."
+                    : "⏳ Nachdem du den Haken setzt, wartet der Spielleiter bis alle Gruppen fertig sind."}
                 </div>
               </div>
             </div>

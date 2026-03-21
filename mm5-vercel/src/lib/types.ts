@@ -64,6 +64,7 @@ export interface GroupState {
   isAI?: boolean; // Flag for AI-controlled groups in Solo mode
   aiStrategy?: "aggressive" | "conservative" | "balanced" | "innovative";
   instructionsAcknowledged?: boolean; // Flag for acknowledging game instructions
+  specialTaskCompleted?: boolean; // Flag for completing current special task
 }
 
 export interface PeriodDecision {
@@ -125,4 +126,5 @@ export interface SpecialTask {
   title: string;
   description: string;
   createdAt?: Timestamp; // Firestore Timestamp
+  isActive?: boolean; // Whether task is currently active for groups
 }
