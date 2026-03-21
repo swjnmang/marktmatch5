@@ -656,7 +656,12 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
         await updateDoc(doc(db, "games", gameId, "groups", groupId), {
           machines: [...groupData.machines, selectedMachine],
           capital: newCapital,
+          status: "ready", // Set to ready so group can proceed with gameplay
         });
+        
+        // Reset machine choice and return to gameplay flow
+        setMachineChoice("");
+        setError(""); // Clear any previous errors
         return;
       } else {
         // Initial machine selection (Periode 1) - group must have exactly 1 machine
