@@ -18,6 +18,8 @@ export interface GameParameters {
   demandBoostNextPeriod?: boolean;
   freeMarketAnalysisNextPeriod?: boolean;
   noInventoryCostsNextPeriod?: boolean;
+  allowRnDNextPeriod?: boolean;
+  rndThresholdNextPeriod?: number;
   customEventNextPeriod?: string;
   // Machine Depreciation
   machineDepreciationEnabled?: boolean; // Enable/disable machine capacity depreciation

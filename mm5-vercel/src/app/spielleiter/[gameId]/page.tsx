@@ -103,8 +103,8 @@ export default function GameDashboardPage() {
           setDemandBoostNext(!!next.parameters?.demandBoostNextPeriod);
           setFreeMarketAnalysisNext(!!next.parameters?.freeMarketAnalysisNextPeriod);
           setNoInventoryCostsNext(!!next.parameters?.noInventoryCostsNextPeriod);
-          setAllowRnDNext(!!next.activePeriodActions?.allowRnD);
-          setRndThresholdNext(next.activePeriodActions?.rndThreshold || 10000);
+          setAllowRnDNext(!!next.parameters?.allowRnDNextPeriod);
+          setRndThresholdNext(next.parameters?.rndThresholdNextPeriod || 10000);
           setCustomEventNext(next.parameters?.customEventNextPeriod || "");
         } else {
           setError("Spiel nicht gefunden");
@@ -773,6 +773,8 @@ export default function GameDashboardPage() {
                     "parameters.demandBoostNextPeriod": false,
                     "parameters.freeMarketAnalysisNextPeriod": false,
                     "parameters.noInventoryCostsNextPeriod": false,
+                    "parameters.allowRnDNextPeriod": false,
+                    "parameters.rndThresholdNextPeriod": 10000,
                     "parameters.customEventNextPeriod": "",
                   });
                   groups.forEach((g) => {
@@ -1698,6 +1700,8 @@ export default function GameDashboardPage() {
                         "parameters.demandBoostNextPeriod": demandBoostNext,
                         "parameters.freeMarketAnalysisNextPeriod": freeMarketAnalysisNext,
                         "parameters.noInventoryCostsNextPeriod": noInventoryCostsNext,
+                        "parameters.allowRnDNextPeriod": allowRnDNext,
+                        "parameters.rndThresholdNextPeriod": rndThresholdNext,
                         "parameters.customEventNextPeriod": customEventNext.trim(),
                       });
                       setShowActionsModalForNextPeriod(false);

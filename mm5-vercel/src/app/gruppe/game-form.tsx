@@ -2163,6 +2163,66 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                     </details>
                   )}
 
+                  {/* Vorschau der von der Spielleitung für die nächste Periode konfigurierten
+                      Aktionen - sichtbar, sobald sie gespeichert wurden, auch bevor die
+                      nächste Periode tatsächlich gestartet wird. */}
+                  {(() => {
+                    const p = game?.parameters;
+                    const hasPreview = !!(
+                      p?.allowMachinePurchaseNextPeriod ||
+                      p?.demandBoostNextPeriod ||
+                      p?.freeMarketAnalysisNextPeriod ||
+                      p?.noInventoryCostsNextPeriod ||
+                      p?.allowRnDNextPeriod ||
+                      p?.customEventNextPeriod?.trim()
+                    );
+                    if (!hasPreview) return null;
+                    return (
+                      <div className="rounded-xl border border-sky-200 bg-sky-50 p-4 shadow-sm">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-sky-700">Vorschau</p>
+                        <h3 className="text-lg font-semibold text-sky-900 mb-2">🔮 In der nächsten Periode</h3>
+                        <div className="grid gap-2 text-sm text-sky-900">
+                          {p?.allowMachinePurchaseNextPeriod && (
+                            <div className="flex items-start gap-2">
+                              <span>🏭</span>
+                              <span>Maschinenkauf wird erlaubt sein - ihr könnt eine zusätzliche Maschine kaufen.</span>
+                            </div>
+                          )}
+                          {p?.demandBoostNextPeriod && (
+                            <div className="flex items-start gap-2">
+                              <span>📈</span>
+                              <span>Nachfrage +30% (Sonderimpuls von der Spielleitung).</span>
+                            </div>
+                          )}
+                          {p?.freeMarketAnalysisNextPeriod && (
+                            <div className="flex items-start gap-2">
+                              <span>📊</span>
+                              <span>Marktanalyse ist kostenlos und automatisch für alle freigeschaltet.</span>
+                            </div>
+                          )}
+                          {p?.noInventoryCostsNextPeriod && (
+                            <div className="flex items-start gap-2">
+                              <span>📦</span>
+                              <span>Keine Lagerkosten.</span>
+                            </div>
+                          )}
+                          {p?.allowRnDNextPeriod && (
+                            <div className="flex items-start gap-2">
+                              <span>🔬</span>
+                              <span>Forschung & Entwicklung wird möglich sein (Schwelle: €{(p?.rndThresholdNextPeriod || 10000).toLocaleString("de-DE")}).</span>
+                            </div>
+                          )}
+                          {p?.customEventNextPeriod?.trim() && (
+                            <div className="flex items-start gap-2">
+                              <span>💬</span>
+                              <span className="whitespace-pre-wrap">{p.customEventNextPeriod}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
                   {/* Action Buttons - Periodensteuerung ist exklusiv Sache der Spielleitung.
                       Nur im Solo-Modus steuert die Gruppe selbst, weil es keine separate
                       Spielleitung gibt. */}
