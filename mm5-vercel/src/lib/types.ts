@@ -10,7 +10,6 @@ export interface GameParameters {
   initialMarketSaturationFactor: number;
   priceElasticityFactor: number;
   demandReferencePrice: number;
-  minPriceElasticityDemandMultiplier: number;
   inventoryCostPerUnit: number;
   rndBenefitThreshold: number;
   rndVariableCostReduction: number;
@@ -20,9 +19,6 @@ export interface GameParameters {
   freeMarketAnalysisNextPeriod?: boolean;
   noInventoryCostsNextPeriod?: boolean;
   customEventNextPeriod?: string;
-  // Inverse Preisverteilung Steuerung
-  priceExponent?: number; // α: Preissensitivität (z. B. 2)
-  maxMarketShareCap?: number; // s_max: Anteilscap pro Anbieter (z. B. 0.5)
   // Machine Depreciation
   machineDepreciationEnabled?: boolean; // Enable/disable machine capacity depreciation
   machineDepreciationRate?: number; // Percentage per period (e.g., 0.10 for 10%)

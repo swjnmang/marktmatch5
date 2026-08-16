@@ -16,7 +16,6 @@ const DEFAULT_PARAMETERS = {
   initialMarketSaturationFactor: 0.7,
   priceElasticityFactor: 0.5,
   demandReferencePrice: 50,
-  minPriceElasticityDemandMultiplier: 0.5,
   inventoryCostPerUnit: 2,
   rndBenefitThreshold: 10000,
   rndVariableCostReduction: 0.5,
