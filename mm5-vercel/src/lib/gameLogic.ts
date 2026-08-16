@@ -189,8 +189,10 @@ export function calculateMarket(
       endingInventory,
       endingCapital,
       marketShare: adjustedDemand > 0 ? Math.round((soldUnits / adjustedDemand) * 100 * 100) / 100 : 0,
-      averageMarketPrice: hasMarketAnalysis ? Math.round(avgPrice * 100) / 100 : 0,
-      totalMarketDemand: hasMarketAnalysis ? Math.floor(adjustedDemand) : 0,
+      // Durchschnittspreis & Gesamtnachfrage sind Basis-Infos für alle Gruppen (kostenlos).
+      // Nur die Aufschlüsselung nach einzelnen Konkurrenten (Marktanalyse) ist kostenpflichtig.
+      averageMarketPrice: Math.round(avgPrice * 100) / 100,
+      totalMarketDemand: Math.floor(adjustedDemand),
       machineDepreciationCapacityLost: capacityLostToDepreciation || 0,
     };
 

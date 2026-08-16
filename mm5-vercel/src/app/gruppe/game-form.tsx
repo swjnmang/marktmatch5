@@ -6,7 +6,6 @@ import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, addDoc, serverTimestamp, updateDoc, onSnapshot, setDoc, getDocs } from "firebase/firestore";
-import { checkPinFromLocalStorage } from "@/lib/auth";
 import type { GameDocument, GroupState, Machine, PeriodDecision, SpecialTask } from "@/lib/types";
 import { PeriodTimer } from "@/components/PeriodTimer";
 import GameAnalytics from "@/components/GameAnalytics";
@@ -37,7 +36,6 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   const [game, setGame] = useState<GameDocument | null>(null);
   const [currentTask, setCurrentTask] = useState<SpecialTask | null>(null);
   const [storedGroupId, setStoredGroupId] = useState<string | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [isSolo, setIsSolo] = useState(false);
   const [competitorInsights, setCompetitorInsights] = useState<Array<{name: string; price: number; soldUnits: number; production: number; endingInventory: number}>>([]);
   const [insightsLoading, setInsightsLoading] = useState(false);
@@ -225,9 +223,6 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       console.log(`[SessionResume] Session from different device`);
       setStoredGroupId(session.groupId);
     }
-
-    // Admin PIN might already be stored
-    setIsAdmin(checkPinFromLocalStorage(gameId));
   }, [gameId]);
 
   // Keep session alive while game is active - update activity every 30 seconds
@@ -561,7 +556,6 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       }
       
       setJoined(true);
-      setIsAdmin(checkPinFromLocalStorage(gameId));
       // Update session activity
       updateSessionActivity(gameId);
     } catch (err: any) {
@@ -2128,18 +2122,19 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                     </div>
                   </details>
 
-                  {/* 3. Box: Competitor Analysis (Collapsible) */}
-                  <details className="rounded-lg border border-amber-200 bg-amber-50 shadow-sm">
-                    <summary className="cursor-pointer p-4 font-semibold text-amber-900 hover:bg-amber-100 transition rounded-lg flex items-center justify-between">
-                      <span className="flex items-center gap-2">
-                        <span>🔎</span>
-                        <span>Marktanalyse der Konkurrenz</span>
-                      </span>
-                      <span className="text-xs font-normal text-amber-700">▼ ausklappen</span>
-                    </summary>
-                    <div className="p-4 pt-2">
-                      {(groupData.lastResult.marketAnalysisCost > 0 || (game?.activePeriodActions?.period === game?.period && game?.activePeriodActions?.freeMarketAnalysis)) ? (
-                        insightsLoading ? (
+                  {/* 3. Box: Competitor Analysis (Collapsible) - nur sichtbar, wenn die Gruppe
+                      diese Periode tatsächlich eine Marktanalyse gekauft hat (oder sie kostenlos war) */}
+                  {(groupData.lastResult.marketAnalysisCost > 0 || (game?.activePeriodActions?.period === game?.period && game?.activePeriodActions?.freeMarketAnalysis)) && (
+                    <details className="rounded-lg border border-amber-200 bg-amber-50 shadow-sm">
+                      <summary className="cursor-pointer p-4 font-semibold text-amber-900 hover:bg-amber-100 transition rounded-lg flex items-center justify-between">
+                        <span className="flex items-center gap-2">
+                          <span>🔎</span>
+                          <span>Marktanalyse der Konkurrenz</span>
+                        </span>
+                        <span className="text-xs font-normal text-amber-700">▼ ausklappen</span>
+                      </summary>
+                      <div className="p-4 pt-2">
+                        {insightsLoading ? (
                           <p className="text-sm text-amber-800">Analyse wird geladen...</p>
                         ) : competitorInsights.length > 0 ? (
                           <div className="space-y-2">
@@ -2169,15 +2164,15 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                           </div>
                         ) : (
                           <p className="text-sm text-amber-800">Keine Konkurrenzdaten verfügbar.</p>
-                        )
-                      ) : (
-                        <p className="text-sm text-amber-700 italic">Es wurde keine Analyse von Ihrer Gruppe gekauft.</p>
-                      )}
-                    </div>
-                  </details>
+                        )}
+                      </div>
+                    </details>
+                  )}
 
-                  {/* Action Buttons */}
-                  {(isAdmin || isSolo) && (
+                  {/* Action Buttons - Periodensteuerung ist exklusiv Sache der Spielleitung.
+                      Nur im Solo-Modus steuert die Gruppe selbst, weil es keine separate
+                      Spielleitung gibt. */}
+                  {isSolo && (
                     <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:gap-4">
                       <button
                         onClick={handleNextPeriod}
@@ -2196,7 +2191,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                     </div>
                   )}
                   
-                  {!(isAdmin || isSolo) && (
+                  {!isSolo && (
                     <div className="rounded-lg border border-dashed border-amber-200 bg-amber-50 px-4 py-4 text-sm font-medium text-amber-800">
                       ⏳ Du wartest auf die Spielleitung, um die nächste Periode zu starten.
                     </div>
