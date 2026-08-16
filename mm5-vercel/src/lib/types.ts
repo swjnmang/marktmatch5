@@ -88,6 +88,7 @@ export interface PeriodResult {
   inventoryCost: number;
   rndCost: number;
   machineCost: number;
+  marketingCost: number;
   marketAnalysisCost: number;
   interest: number;
   totalCosts: number;

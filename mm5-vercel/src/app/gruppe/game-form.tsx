@@ -46,6 +46,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
   const [price, setPrice] = useState(0);
   const [buyMarketAnalysis, setBuyMarketAnalysis] = useState(false);
   const [rndInvestment, setRndInvestment] = useState(0);
+  const [marketingEffort, setMarketingEffort] = useState(0);
   const [decisionLoading, setDecisionLoading] = useState(false);
   const [machineChoice, setMachineChoice] = useState("");
   const [machineLoading, setMachineLoading] = useState(false);
@@ -577,7 +578,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
         production,
         sellFromInventory,
         price,
-        marketingEffort: 0,
+        marketingEffort: game.period >= 5 ? marketingEffort : 0,
         buyMarketAnalysis,
         rndInvestment,
         submittedAt: serverTimestamp() as any,
@@ -752,6 +753,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       setSellFromInventory(0);
       setPrice(0);
       setBuyMarketAnalysis(false);
+      setMarketingEffort(0);
     } catch (err: any) {
       setError(`Fehler: ${err.message}`);
     } finally {
@@ -1739,6 +1741,35 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                       />
                       Marktanalyse kaufen (€{game.parameters.marketAnalysisCost})
                     </label>
+
+                    {/* Marketing-Investition (ab Periode 5 verfügbar) */}
+                    {game.period >= 5 && (
+                      <div className="rounded-lg border border-purple-200 bg-purple-50 p-4">
+                        <label className="flex flex-col gap-2">
+                          <span className="text-sm font-semibold text-purple-900">
+                            📣 Marketing-Investition
+                          </span>
+                          <input
+                            type="number"
+                            value={marketingEffort === 0 ? "" : marketingEffort}
+                            onChange={(e) =>
+                              setMarketingEffort(
+                                e.target.value === "" ? 0 : Number(e.target.value)
+                              )
+                            }
+                            min={0}
+                            step={100}
+                            placeholder="€0 (optional)"
+                            className="rounded-lg border border-purple-300 px-3 py-2 text-base shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200"
+                          />
+                          <p className="text-xs text-purple-800 leading-relaxed">
+                            💡 Marketing erhöht euren Marktanteil relativ zum Marketing-Budget aller Gruppen
+                            dieser Periode - unabhängig vom Preis. Wer mehr investiert als die Konkurrenz,
+                            gewinnt zusätzliche Kunden.
+                          </p>
+                        </label>
+                      </div>
+                    )}
 
                     {/* F&E-Investitionen (nur wenn aktiviert über Aktionen) */}
                     {game.activePeriodActions?.allowRnD && (

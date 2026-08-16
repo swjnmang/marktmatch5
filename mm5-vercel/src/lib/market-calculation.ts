@@ -99,13 +99,25 @@ export async function calculateMarketResults(
   const groupDataForAlloc = entries.map(entry => ({
     ...entry,
     inverse: 1 / Math.max(0.01, entry.price),
+    marketingEffort: Math.max(0, decisions[entry.id]?.marketingEffort || 0),
   }));
-  
-  const inverseSum = groupDataForAlloc.reduce((sum, g) => sum + g.inverse, 0);
-  
-  const marketShares = groupDataForAlloc.map(g => ({
+
+  // Ab Periode 5: Marketing-Budget verschiebt die Attraktivität zusätzlich zum Preis
+  const totalMarketingEffort = groupDataForAlloc.reduce((sum, g) => sum + g.marketingEffort, 0);
+  const isMarketingActive = game.period >= 5 && totalMarketingEffort > 0;
+
+  const attractivenessData = groupDataForAlloc.map(g => ({
     ...g,
-    marketShare: inverseSum > 0 ? g.inverse / inverseSum : 0,
+    attractiveness: isMarketingActive
+      ? g.inverse * (1 + (g.marketingEffort / totalMarketingEffort) * params.marketingEffectivenessFactor)
+      : g.inverse,
+  }));
+
+  const attractivenessSum = attractivenessData.reduce((sum, g) => sum + g.attractiveness, 0);
+
+  const marketShares = attractivenessData.map(g => ({
+    ...g,
+    marketShare: attractivenessSum > 0 ? g.attractiveness / attractivenessSum : 0,
   }));
 
   // First pass: allocate based on market share
@@ -181,12 +193,13 @@ export async function calculateMarketResults(
     
     // Explicit costs
     const rndCost = Math.round((decision.rndInvestment || 0) * 100) / 100;
+    const marketingCost = game.period >= 5 ? Math.round((decision.marketingEffort || 0) * 100) / 100 : 0;
     const hasMarketAnalysis = freeMarketAnalysis || decision.buyMarketAnalysis;
     const marketAnalysisCost = hasMarketAnalysis ? (freeMarketAnalysis ? 0 : Math.round(params.marketAnalysisCost * 100) / 100) : 0;
     const machineCost = 0;  // Machine costs not included in this simplified version
-    
+
     // Total costs
-    const totalCosts = Math.round((productionCosts + inventoryCost + rndCost + marketAnalysisCost + machineCost) * 100) / 100;
+    const totalCosts = Math.round((productionCosts + inventoryCost + rndCost + marketingCost + marketAnalysisCost + machineCost) * 100) / 100;
     
     // Profit and capital
     const profitBeforeInterest = Math.round((revenue - totalCosts) * 100) / 100;
@@ -225,6 +238,7 @@ export async function calculateMarketResults(
         variableCosts: productionCosts,
         inventoryCost,
         rndCost,
+        marketingCost,
         marketAnalysisCost,
         machineCost,
         interest,

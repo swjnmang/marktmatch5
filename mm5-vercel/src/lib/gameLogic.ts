@@ -67,7 +67,8 @@ export function calculateMarket(
 
   // 5. Inverse Preis-Nachfrageverteilung: Je günstiger der Preis, desto höher der Marktanteil
   // Das ist realistisch: Kunden kaufen das Günstigste. Der Markt crasht nicht durch extreme Preise.
-  const soldUnitsMap = calculateInversePriceAllocation(inputs, adjustedDemand, parameters);
+  // Ab Periode 5 verschiebt Marketing-Investition den Marktanteil zusätzlich zugunsten der Gruppe.
+  const soldUnitsMap = calculateInversePriceAllocation(inputs, adjustedDemand, parameters, period);
 
   // 7. Berechne Ergebnisse für jede Gruppe
   const results: MarketCalculationResult[] = inputs.map((input) => {
@@ -102,6 +103,9 @@ export function calculateMarket(
     // F&E-Kosten
     const rndCost = Math.round((decision.rndInvestment || 0) * 100) / 100;
 
+    // Marketing-Kosten (nur ab Periode 5 wirksam - siehe calculateInversePriceAllocation)
+    const marketingCost = period >= 5 ? Math.round((decision.marketingEffort || 0) * 100) / 100 : 0;
+
     // Maschinenkauf erfolgt über den separaten Maschinenauswahl-Screen (game-form.tsx),
     // nicht über die Periodenentscheidung - hier fallen daher keine Maschinenkosten an.
     const machineCost = 0;
@@ -133,7 +137,7 @@ export function calculateMarket(
     const marketAnalysisCost = hasMarketAnalysis ? (actions?.freeMarketAnalysis ? 0 : Math.round(parameters.marketAnalysisCost * 100) / 100) : 0;
 
     // Gesamtkosten
-    const totalCosts = Math.round((productionCosts + inventoryCost + rndCost + machineCost + marketAnalysisCost) * 100) / 100;
+    const totalCosts = Math.round((productionCosts + inventoryCost + rndCost + machineCost + marketingCost + marketAnalysisCost) * 100) / 100;
 
     // Gewinn vor Zinsen
     const profitBeforeInterest = Math.round((revenue - totalCosts) * 100) / 100;
@@ -170,6 +174,7 @@ export function calculateMarket(
       inventoryCost,
       rndCost,
       machineCost,
+      marketingCost,
       marketAnalysisCost,
       interest,
       totalCosts,
@@ -224,14 +229,18 @@ export function calculateMarket(
  * 
  * Algorithmus:
  * 1. Berechne inverse Preise: 1/price für jede Gruppe
- * 2. Marktanteil = (1/price) / sum(1/allPrices)
- * 3. Allokiere: min(marktanteil * demand, produktion)
- * 4. Wenn Gruppe weniger produziert als ihr Marktanteil: Rest an nächstbilligere Gruppe
+ * 2. Ab Periode 5: gewichte die Attraktivität zusätzlich mit dem relativen
+ *    Marketing-Anteil der Gruppe (marketingEffort / Summe aller marketingEffort),
+ *    skaliert über parameters.marketingEffectivenessFactor
+ * 3. Marktanteil = eigene Attraktivität / Summe aller Attraktivitäten
+ * 4. Allokiere: min(marktanteil * demand, produktion)
+ * 5. Wenn Gruppe weniger produziert als ihr Marktanteil: Rest an nächstbilligere Gruppe
  */
 function calculateInversePriceAllocation(
   inputs: MarketCalculationInput[],
   totalDemand: number,
-  parameters: GameParameters
+  parameters: GameParameters,
+  period: number
 ): { [groupId: string]: number } {
   // Schritt 1: Berechne Inverse für alle Gruppen
   const groupData = inputs.map(input => ({
@@ -239,24 +248,38 @@ function calculateInversePriceAllocation(
     price: Math.max(0.01, input.decision.price),
     supply: Math.max(0, input.decision.production + input.decision.sellFromInventory),
     inverse: 1 / Math.max(0.01, input.decision.price),  // Inverse des Preises
+    marketingEffort: Math.max(0, input.decision.marketingEffort || 0),
   }));
 
-  // Schritt 2: Summe der Inversen
-  const inverseSum = groupData.reduce((sum, g) => sum + g.inverse, 0);
-  
-  // Schritt 3: Berechne Marktanteile
-  const marketShares = groupData.map(g => ({
+  // Schritt 2: Marketing-Bonus (nur ab Periode 5) - Anteil am gesamten Marketing-Budget,
+  // skaliert über marketingEffectivenessFactor. Ohne Marketing-Ausgaben: Bonus = 0.
+  const totalMarketingEffort = groupData.reduce((sum, g) => sum + g.marketingEffort, 0);
+  const isMarketingActive = period >= 5 && totalMarketingEffort > 0;
+
+  // Schritt 3: Attraktivität = Preis-Inverse * (1 + Marketing-Bonus)
+  const attractivenessData = groupData.map(g => ({
     ...g,
-    marketShare: inverseSum > 0 ? g.inverse / inverseSum : 0,
+    attractiveness: isMarketingActive
+      ? g.inverse * (1 + (g.marketingEffort / totalMarketingEffort) * parameters.marketingEffectivenessFactor)
+      : g.inverse,
   }));
 
-  // Schritt 4: Erste Allokation (kann Überbieter sein)
+  // Schritt 4: Summe der Attraktivitäten
+  const attractivenessSum = attractivenessData.reduce((sum, g) => sum + g.attractiveness, 0);
+
+  // Schritt 5: Berechne Marktanteile
+  const marketShares = attractivenessData.map(g => ({
+    ...g,
+    marketShare: attractivenessSum > 0 ? g.attractiveness / attractivenessSum : 0,
+  }));
+
+  // Schritt 6: Erste Allokation (kann Überbieter sein)
   const firstAllocation = marketShares.map(g => ({
     ...g,
     targetDemand: Math.floor(g.marketShare * totalDemand),
   }));
 
-  // Schritt 5: Begrenzen durch verfügbare Produktion
+  // Schritt 7: Begrenzen durch verfügbare Produktion
   const soldUnits: { [groupId: string]: number } = {};
   let totalSoldUnits = 0;
 
@@ -314,6 +337,11 @@ export function validateDecision(
 
   // F&E wird nicht mehr automatisch validiert - nur wenn über Aktionen aktiviert
   // Die Validierung erfolgt in der Berechnung basierend auf activePeriodActions
+
+  // Marketing-Investition (erst ab Periode 5 wirksam, siehe calculateInversePriceAllocation)
+  if (decision.marketingEffort !== undefined && decision.marketingEffort < 0) {
+    errors.push("Marketing-Investition darf nicht negativ sein.");
+  }
 
   // Maschinenkauf erfolgt über den separaten Maschinenauswahl-Screen, nicht über die
   // Periodenentscheidung - daher hier keine Validierung nötig.
