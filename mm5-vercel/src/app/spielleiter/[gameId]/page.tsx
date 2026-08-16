@@ -45,6 +45,7 @@ export default function GameDashboardPage() {
   const [allowRnDNext, setAllowRnDNext] = useState(false);
   const [rndThresholdNext, setRndThresholdNext] = useState(10000);
   const [customEventNext, setCustomEventNext] = useState("");
+  const [actionsSaveLoading, setActionsSaveLoading] = useState(false);
   const [showEndGameModal, setShowEndGameModal] = useState(false);
   const [showRankingModal, setShowRankingModal] = useState(false);
   const [showConfirmEndModal, setShowConfirmEndModal] = useState(false);
@@ -454,8 +455,112 @@ export default function GameDashboardPage() {
         {game.status === "lobby" && (
           <div className="rounded-xl bg-white p-4 shadow-md ring-2 border-2 border-neutral-300">
             <h2 className="text-lg font-bold text-neutral-900 mb-3">Lobby-Verbindung</h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4 items-center">
+              {/* Gruppen-PIN mit QR */}
+              <div className="flex justify-center">
+                <div className="bg-white p-2 rounded-lg border-2 border-neutral-300">
+                  <QRCodeSVG
+                    value={`${typeof window !== 'undefined' ? window.location.origin : 'https://marktmatch5.vercel.app'}/gruppe/${gameId}?pin=${game.joinPin}`}
+                    size={140}
+                    level="H"
+                    includeMargin={false}
+                  />
+                </div>
+              </div>
+
+              {/* PIN zum Eingeben */}
+              <div className="flex flex-col gap-3">
+                <div>
+                  <p className="text-xs font-semibold text-neutral-600 mb-2">👥 Beitrittscode für Gruppen:</p>
+                  <div className="flex gap-2 items-center">
+                    <div className="font-mono text-3xl font-bold text-neutral-800 bg-white px-4 py-2 rounded-lg border-2 border-neutral-300">
+                      {game.joinPin}
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(game.joinPin);
+                        alert("✅ PIN kopiert!");
+                      }}
+                      className="rounded-lg bg-neutral-400 px-3 py-2 text-sm text-white font-semibold hover:bg-neutral-600 transition whitespace-nowrap"
+                    >
+                      📋
+                    </button>
+                  </div>
+                  <p className="text-xs text-neutral-500 mt-1">
+                    QR-Code scannen oder PIN eingeben
+                  </p>
+                </div>
+
+                {/* Share Link */}
+                <div>
+                  <p className="text-xs font-semibold text-neutral-600 mb-2">🔗 Direkt-Link zum Beitreten:</p>
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="text"
+                      readOnly
+                      value={`${typeof window !== 'undefined' ? window.location.origin : 'https://marktmatch5.vercel.app'}/gruppe/${gameId}?pin=${game.joinPin}`}
+                      className="flex-1 text-xs bg-white px-3 py-2 rounded-lg border border-neutral-300 text-neutral-700 font-mono"
+                    />
+                    <button
+                      onClick={() => {
+                        const link = `${typeof window !== 'undefined' ? window.location.origin : 'https://marktmatch5.vercel.app'}/gruppe/${gameId}?pin=${game.joinPin}`;
+                        navigator.clipboard.writeText(link);
+                        alert("✅ Link kopiert!");
+                      }}
+                      className="rounded-lg bg-emerald-600 px-3 py-2 text-sm text-white font-semibold hover:bg-emerald-700 transition whitespace-nowrap"
+                    >
+                      📋
+                    </button>
+                  </div>
+                  <p className="text-xs text-neutral-500 mt-1">
+                    Link direkt teilen - PIN ist automatisch eingefügt
+                  </p>
+                </div>
+
+                {/* Admin-PIN Bereich inline */}
+                <div className="border-t pt-3">
+                  <button
+                    onClick={() => setShowAdminPin(!showAdminPin)}
+                    className="text-xs font-semibold text-neutral-700 hover:text-neutral-900 flex items-center gap-2"
+                  >
+                    {showAdminPin ? "▼" : "▶"} 🔑 Admin-PIN
+                  </button>
+
+                  {showAdminPin && game.adminPin && (
+                    <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="flex gap-2 items-center">
+                        <div className="font-mono text-lg font-bold text-red-700 bg-white px-3 py-1 rounded border border-red-300">
+                          {game.adminPin}
+                        </div>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(game.adminPin);
+                            alert("✅ Admin-PIN kopiert!");
+                          }}
+                          className="rounded bg-red-600 px-2 py-1 text-xs text-white font-semibold hover:bg-red-700 transition"
+                        >
+                          📋
+                        </button>
+                      </div>
+                      <p className="text-xs text-red-700 mt-1">⚠️ Nur für Spielleitung</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Beitritts-Link bleibt auch während des laufenden Spiels abrufbar, damit die
+            Spielleitung Späteinsteigern jederzeit den Link geben kann - eingeklappt,
+            um das Dashboard nicht zu überladen. */}
+        {game.status === "in_progress" && (
+          <details className="rounded-xl bg-white p-4 shadow-sm ring-1 border border-neutral-200">
+            <summary className="cursor-pointer text-sm font-bold text-neutral-800">
+              🔗 Weitere Gruppen einladen (PIN & Link)
+            </summary>
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4 items-center">
               {/* Gruppen-PIN mit QR */}
               <div className="flex justify-center">
                 <div className="bg-white p-2 rounded-lg border-2 border-neutral-300">
@@ -548,7 +653,7 @@ export default function GameDashboardPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </details>
         )}
 
         {/* NEW Modern Dashboard for In-Progress Games */}
@@ -1579,10 +1684,33 @@ export default function GameDashboardPage() {
 
               <div className="flex gap-3 pt-4 mt-6 border-t">
                 <button
-                  onClick={() => setShowActionsModalForNextPeriod(false)}
-                  className="flex-1 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 transition"
+                  onClick={async () => {
+                    setActionsSaveLoading(true);
+                    try {
+                      // Sofort in Firestore schreiben, nicht nur im lokalen State halten:
+                      // sonst überschreibt der Echtzeit-Listener (onSnapshot auf games/{gameId})
+                      // diese Auswahl wieder mit dem alten Firestore-Stand, sobald sich das
+                      // Spieldokument aus irgendeinem anderen Grund ändert, bevor die nächste
+                      // Periode gestartet wird - die Checkbox wirkte dann "aktiviert", war es
+                      // beim Periodenstart aber tatsächlich nicht mehr.
+                      await updateDoc(doc(db, "games", gameId), {
+                        "parameters.allowMachinePurchaseNextPeriod": allowMachinePurchaseNext,
+                        "parameters.demandBoostNextPeriod": demandBoostNext,
+                        "parameters.freeMarketAnalysisNextPeriod": freeMarketAnalysisNext,
+                        "parameters.noInventoryCostsNextPeriod": noInventoryCostsNext,
+                        "parameters.customEventNextPeriod": customEventNext.trim(),
+                      });
+                      setShowActionsModalForNextPeriod(false);
+                    } catch (err: any) {
+                      alert(`Fehler beim Speichern: ${err.message}`);
+                    } finally {
+                      setActionsSaveLoading(false);
+                    }
+                  }}
+                  disabled={actionsSaveLoading}
+                  className="flex-1 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  ✓ Speichern & Schließen
+                  {actionsSaveLoading ? "Speichert..." : "✓ Speichern & Schließen"}
                 </button>
                 <button
                   onClick={() => {

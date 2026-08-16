@@ -2091,80 +2091,74 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                     </div>
                   </details>
 
-                  {/* 2. Box: Market Report (Collapsible) */}
-                  <details className="rounded-lg border border-neutral-200 bg-neutral-50 shadow-sm">
-                    <summary className="cursor-pointer p-4 font-semibold text-neutral-900 hover:bg-neutral-100 transition rounded-lg flex items-center justify-between">
-                      <span className="flex items-center gap-2">
-                        <span>📊</span>
-                        <span>Marktbericht</span>
-                      </span>
-                      <span className="text-xs font-normal text-neutral-700">▼ ausklappen</span>
-                    </summary>
-                    <div className="p-4 pt-2 space-y-3">
-                      <div className="flex items-center justify-between rounded bg-white p-3 shadow-sm">
-                        <span className="text-sm text-neutral-600">Durchschnittspreis</span>
-                        <span className="text-lg font-bold text-neutral-900">
-                          €{groupData.lastResult.averageMarketPrice?.toFixed(2) || "0.00"}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between rounded bg-white p-3 shadow-sm">
-                        <span className="text-sm text-neutral-600">Gesamtnachfrage</span>
-                        <span className="text-lg font-bold text-neutral-900">
-                          {groupData.lastResult.totalMarketDemand || 0} Einheiten
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between rounded bg-white p-3 shadow-sm">
-                        <span className="text-sm text-neutral-600">Mein Marktanteil</span>
-                        <span className="text-lg font-bold text-neutral-700">
-                          {groupData.lastResult.marketShare?.toFixed(1) || "0.0"}%
-                        </span>
-                      </div>
-                    </div>
-                  </details>
-
-                  {/* 3. Box: Competitor Analysis (Collapsible) - nur sichtbar, wenn die Gruppe
-                      diese Periode tatsächlich eine Marktanalyse gekauft hat (oder sie kostenlos war) */}
+                  {/* 2. Box: Marktbericht + Konkurrenzanalyse (kombiniert, Collapsible) -
+                      komplett ausgeblendet, wenn die Gruppe diese Periode keine Marktanalyse
+                      gekauft hat (oder sie kostenlos war) - inkl. Marktanteil */}
                   {(groupData.lastResult.marketAnalysisCost > 0 || (game?.activePeriodActions?.period === game?.period && game?.activePeriodActions?.freeMarketAnalysis)) && (
                     <details className="rounded-lg border border-amber-200 bg-amber-50 shadow-sm">
                       <summary className="cursor-pointer p-4 font-semibold text-amber-900 hover:bg-amber-100 transition rounded-lg flex items-center justify-between">
                         <span className="flex items-center gap-2">
                           <span>🔎</span>
-                          <span>Marktanalyse der Konkurrenz</span>
+                          <span>Marktanalyse</span>
                         </span>
                         <span className="text-xs font-normal text-amber-700">▼ ausklappen</span>
                       </summary>
-                      <div className="p-4 pt-2">
-                        {insightsLoading ? (
-                          <p className="text-sm text-amber-800">Analyse wird geladen...</p>
-                        ) : competitorInsights.length > 0 ? (
-                          <div className="space-y-2">
-                            {competitorInsights.map((c) => (
-                              <div key={c.name} className="rounded bg-white p-3 shadow-sm">
-                                <p className="text-xs font-semibold text-neutral-600">{c.name}</p>
-                                <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
-                                  <div>
-                                    <p className="text-xs text-neutral-500">Preis</p>
-                                    <p className="font-semibold text-neutral-900">€{c.price.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs text-neutral-500">Verkauft</p>
-                                    <p className="font-semibold text-neutral-900">{Math.floor(c.soldUnits).toLocaleString("de-DE")} Einh.</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs text-neutral-500">Produziert</p>
-                                    <p className="font-semibold text-neutral-900">{Math.floor(c.production).toLocaleString("de-DE")} Einh.</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs text-neutral-500">Lagerbestand</p>
-                                    <p className="font-semibold text-neutral-900">{Math.floor(c.endingInventory).toLocaleString("de-DE")} Einh.</p>
+                      <div className="p-4 pt-2 space-y-4">
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between rounded bg-white p-3 shadow-sm">
+                            <span className="text-sm text-neutral-600">Durchschnittspreis</span>
+                            <span className="text-lg font-bold text-neutral-900">
+                              €{groupData.lastResult.averageMarketPrice?.toFixed(2) || "0.00"}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between rounded bg-white p-3 shadow-sm">
+                            <span className="text-sm text-neutral-600">Gesamtnachfrage</span>
+                            <span className="text-lg font-bold text-neutral-900">
+                              {groupData.lastResult.totalMarketDemand || 0} Einheiten
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between rounded bg-white p-3 shadow-sm">
+                            <span className="text-sm text-neutral-600">Mein Marktanteil</span>
+                            <span className="text-lg font-bold text-neutral-700">
+                              {groupData.lastResult.marketShare?.toFixed(1) || "0.0"}%
+                            </span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <p className="text-xs font-semibold text-amber-900 mb-2">Konkurrenz</p>
+                          {insightsLoading ? (
+                            <p className="text-sm text-amber-800">Analyse wird geladen...</p>
+                          ) : competitorInsights.length > 0 ? (
+                            <div className="space-y-2">
+                              {competitorInsights.map((c) => (
+                                <div key={c.name} className="rounded bg-white p-3 shadow-sm">
+                                  <p className="text-xs font-semibold text-neutral-600">{c.name}</p>
+                                  <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+                                    <div>
+                                      <p className="text-xs text-neutral-500">Preis</p>
+                                      <p className="font-semibold text-neutral-900">€{c.price.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs text-neutral-500">Verkauft</p>
+                                      <p className="font-semibold text-neutral-900">{Math.floor(c.soldUnits).toLocaleString("de-DE")} Einh.</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs text-neutral-500">Produziert</p>
+                                      <p className="font-semibold text-neutral-900">{Math.floor(c.production).toLocaleString("de-DE")} Einh.</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs text-neutral-500">Lagerbestand</p>
+                                      <p className="font-semibold text-neutral-900">{Math.floor(c.endingInventory).toLocaleString("de-DE")} Einh.</p>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-sm text-amber-800">Keine Konkurrenzdaten verfügbar.</p>
-                        )}
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-amber-800">Keine Konkurrenzdaten verfügbar.</p>
+                          )}
+                        </div>
                       </div>
                     </details>
                   )}

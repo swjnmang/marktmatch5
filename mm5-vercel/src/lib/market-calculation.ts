@@ -246,10 +246,11 @@ export async function calculateMarketResults(
         profit: finalProfit,
         endingInventory: Math.max(0, newInventory),
         endingCapital,
-        marketShare: totalDemand > 0 ? Math.round((soldUnits / totalDemand) * 100 * 100) / 100 : 0,
-        // Durchschnittspreis & Gesamtnachfrage sind Basis-Infos für alle Gruppen (kostenlos).
-        averageMarketPrice: Math.round(avgMarketPrice * 100) / 100,
-        totalMarketDemand: totalDemand,
+        // Marktbericht (Marktanteil, Durchschnittspreis, Gesamtnachfrage) und die
+        // Konkurrenzanalyse sind beide an den Kauf der Marktanalyse gekoppelt.
+        marketShare: hasMarketAnalysis && totalDemand > 0 ? Math.round((soldUnits / totalDemand) * 100 * 100) / 100 : 0,
+        averageMarketPrice: hasMarketAnalysis ? Math.round(avgMarketPrice * 100) / 100 : 0,
+        totalMarketDemand: hasMarketAnalysis ? totalDemand : 0,
         machineDepreciationCapacityLost: capacityLostToDepreciation,
       },
     };
