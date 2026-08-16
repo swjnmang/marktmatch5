@@ -361,12 +361,21 @@ export function validateDecision(
     errors.push("Verkaufspreis muss größer als 0 sein.");
   }
 
-  // F&E wird nicht mehr automatisch validiert - nur wenn über Aktionen aktiviert
-  // Die Validierung erfolgt in der Berechnung basierend auf activePeriodActions
+  // F&E-Investition: gegen verfügbares Kapital gedeckelt, damit ein Zahlendreher
+  // (z. B. 999999 statt 9999) nicht die ganze restliche Session ruiniert. Verschuldung
+  // bleibt über Produktion/Preis weiterhin möglich - hier geht es nur um Eingaben, die
+  // keinerlei natürliche Obergrenze wie Maschinenkapazität haben.
+  if (decision.rndInvestment !== undefined && decision.rndInvestment < 0) {
+    errors.push("F&E-Investition darf nicht negativ sein.");
+  } else if (decision.rndInvestment !== undefined && decision.rndInvestment > groupState.capital) {
+    errors.push(`F&E-Investition (${decision.rndInvestment}) übersteigt das verfügbare Kapital (${groupState.capital}).`);
+  }
 
   // Marketing-Investition (erst ab Periode 5 wirksam, siehe calculateInversePriceAllocation)
   if (decision.marketingEffort !== undefined && decision.marketingEffort < 0) {
     errors.push("Marketing-Investition darf nicht negativ sein.");
+  } else if (decision.marketingEffort !== undefined && decision.marketingEffort > groupState.capital) {
+    errors.push(`Marketing-Investition (${decision.marketingEffort}) übersteigt das verfügbare Kapital (${groupState.capital}).`);
   }
 
   // Maschinenkauf erfolgt über den separaten Maschinenauswahl-Screen, nicht über die

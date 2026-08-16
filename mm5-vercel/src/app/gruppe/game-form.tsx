@@ -1768,10 +1768,14 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                               )
                             }
                             min={0}
+                            max={groupData?.capital || 0}
                             step={100}
                             placeholder="€0 (optional)"
                             className="rounded-lg border border-purple-300 px-3 py-2 text-base shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200"
                           />
+                          <p className="text-xs text-purple-700">
+                            Max: €{(groupData?.capital || 0).toLocaleString("de-DE")} (verfügbares Kapital).
+                          </p>
                           <p className="text-xs text-purple-800 leading-relaxed">
                             💡 Marketing erhöht euren Marktanteil relativ zum Marketing-Budget aller Gruppen
                             dieser Periode - unabhängig vom Preis. Wer mehr investiert als die Konkurrenz,
@@ -1804,12 +1808,16 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                               )
                             }
                             min={0}
+                            max={groupData?.capital || 0}
                             step={100}
                             placeholder="€0 (optional)"
                             className="rounded-lg border border-blue-300 px-3 py-2 text-base shadow-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
                           />
+                          <p className="text-xs text-blue-700">
+                            Max: €{(groupData?.capital || 0).toLocaleString("de-DE")} (verfügbares Kapital).
+                          </p>
                           <p className="text-xs text-blue-800">
-                            <strong>Schwelle:</strong> €{game.parameters.rndBenefitThreshold.toLocaleString("de-DE")} 
+                            <strong>Schwelle:</strong> €{game.parameters.rndBenefitThreshold.toLocaleString("de-DE")}
                             {groupData && (
                               <>
                                 {" - "}<strong>Bisher investiert:</strong> €{groupData.cumulativeRndInvestment.toLocaleString("de-DE")} ({Math.round((groupData.cumulativeRndInvestment / game.parameters.rndBenefitThreshold) * 100)}%)
