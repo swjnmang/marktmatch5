@@ -56,9 +56,16 @@ export function calculateMarket(
   // Grund: Mit Inverse Price Allocation ist der Markt noch offen für günstige Gruppen.
   // Nur wenn ALLE Preise über Referenz sind, reduzieren wir Nachfrage.
   const priceRatio = minPrice / parameters.demandReferencePrice;
+  const linearElasticity = 1 - parameters.priceElasticityFactor * (priceRatio - 1);
+  // Bis zum 2-fachen Referenzpreis: normale lineare Elastizität (unverändertes Verhalten).
+  // Darüber hinaus: der Nachfrage-Boden fällt selbst exponentiell weiter ab, statt bei 20%
+  // hart einzurasten. So bestraft der Markt auch Fantasiepreise, bei denen ALLE Gruppen weit
+  // über dem Referenzpreis liegen (z. B. die ganze Klasse einigt sich unbeabsichtigt auf
+  // überteuerte Preise) - statt trotzdem für alle satten Gewinn zu garantieren.
+  const decayingFloor = 0.005 + 0.2 * Math.exp(-0.15 * Math.max(0, priceRatio - 2));
   const priceElasticityMultiplier = Math.max(
-    0.2,  // Minimum 20% demand even at extreme prices (allows cheap groups to win)
-    Math.min(1.0, 1 - parameters.priceElasticityFactor * (priceRatio - 1))
+    decayingFloor,
+    Math.min(1.0, linearElasticity)
   );
 
   // Nachfrage wird durch Preiselastizität und Marktsättigung bestimmt
@@ -293,13 +300,32 @@ function calculateInversePriceAllocation(
     console.log(`[Inverse Model] Group €${item.price.toFixed(2)}: Inverse=${item.inverse.toFixed(6)}, Share=${(item.marketShare*100).toFixed(2)}%, Target=${item.targetDemand}, Capacity=${item.supply}, Sold=${canSell}`);
   });
 
-  // Unverkaufte Nachfrage bleibt verloren (der Markt kann sie nicht befriedigen)
-  const unmetDemand = totalDemand - totalSoldUnits;
-  if (unmetDemand > 0) {
-    console.log(`[Inverse Model] ⚠️ Unmet Demand: ${unmetDemand} units - No group can supply it (realistic market constraint)`);
+  // Schritt 8: Überschüssige Nachfrage, die die günstigste Gruppe wegen fehlender Kapazität
+  // nicht bedienen kann, wandert zur nächstgünstigeren Gruppe mit freier Kapazität - genau wie
+  // im Solo-Modus (market-calculation.ts). Ohne diesen Schritt verpufft die Nachfrage einfach,
+  // selbst wenn andere Gruppen problemlos hätten liefern können.
+  let unallocatedDemand = totalDemand - totalSoldUnits;
+  if (unallocatedDemand > 0) {
+    const sortedByPrice = [...marketShares].sort((a, b) => a.price - b.price);
+    for (const item of sortedByPrice) {
+      if (unallocatedDemand <= 0) break;
+      const alreadySold = soldUnits[item.id] || 0;
+      const remainingCapacity = item.supply - alreadySold;
+      const canTake = Math.min(remainingCapacity, unallocatedDemand);
+      if (canTake > 0) {
+        soldUnits[item.id] = alreadySold + canTake;
+        totalSoldUnits += canTake;
+        unallocatedDemand -= canTake;
+        console.log(`[Inverse Model] Group €${item.price.toFixed(2)}: Taking ${canTake} from overflow → ${soldUnits[item.id]} total`);
+      }
+    }
   }
 
-  console.log(`[Market Calc - Inverse Model] Total Demand: ${totalDemand}, Total Sold: ${totalSoldUnits}, Unmet: ${unmetDemand}`);
+  if (unallocatedDemand > 0) {
+    console.log(`[Inverse Model] ⚠️ Unmet Demand: ${unallocatedDemand} units - no group has remaining capacity`);
+  }
+
+  console.log(`[Market Calc - Inverse Model] Total Demand: ${totalDemand}, Total Sold: ${totalSoldUnits}, Unmet: ${unallocatedDemand}`);
 
   return soldUnits;
 }
