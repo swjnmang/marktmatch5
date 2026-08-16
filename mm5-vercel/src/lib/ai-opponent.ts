@@ -137,7 +137,6 @@ export function generateAIDecision(
     marketingEffort,
     buyMarketAnalysis,
     rndInvestment,
-    newMachine: "",
   };
 }
 

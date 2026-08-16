@@ -113,8 +113,9 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
 
         // Update each group with results
         for (const group of allGroups) {
-          const result = results[group.id];
-          if (!result) continue;
+          const entry = results[group.id];
+          if (!entry) continue;
+          const { result, newMachines } = entry;
 
           const newCumulativeRnd = group.cumulativeRndInvestment + (allDecisions[group.id]?.rndInvestment || 0);
           const rndBenefitApplied = newCumulativeRnd >= game.parameters.rndBenefitThreshold;
@@ -127,6 +128,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
             cumulativeProfit: group.cumulativeProfit + result.profit,
             cumulativeRndInvestment: newCumulativeRnd,
             rndBenefitApplied,
+            machines: newMachines,
             lastResult: result,
             status: "waiting"
           });
@@ -578,9 +580,15 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
         marketingEffort: 0,
         buyMarketAnalysis,
         rndInvestment,
-        newMachine: "",
         submittedAt: serverTimestamp() as any,
       };
+
+      const { validateDecision } = await import("@/lib/gameLogic");
+      const validation = validateDecision(decision, groupData, game.parameters, game.period);
+      if (!validation.valid) {
+        throw new Error(validation.errors.join(" "));
+      }
+
       await setDoc(doc(db, "games", gameId, "decisions", groupId), decision);
       await updateDoc(doc(db, "games", gameId, "groups", groupId), { 
         status: "submitted",
@@ -1407,19 +1415,18 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                   {/* Machine Selection / Zusatzkauf */}
                   {(game?.phase === "machine_selection" || game?.allowMachinePurchase) &&
                     groupData &&
-                    !groupData.selectedMachine &&
-                    groupData.status !== "submitted" && (
+                    groupData.status === "selecting" && (
                       <div className="flex flex-col gap-4 rounded-lg border border-neutral-200 bg-white p-6">
                         <div>
                           <h3 className="text-lg font-semibold text-neutral-900 mb-2">
-                            {game?.phase === "machine_selection" ? "Produktionsmaschine beim Start wählen" : "Produktionsmaschine auswählen"}
+                            {game?.period === 1 ? "Produktionsmaschine beim Start wählen" : "Produktionsmaschine auswählen"}
                           </h3>
                           <p className="text-sm text-neutral-600">
-                            {game?.phase === "machine_selection" 
+                            {game?.period === 1
                               ? "Wähle EINE Produktionsmaschine für dein Unternehmen. Diese Entscheidung beeinflusst deine Produktionskapazität und Kostenstruktur und kann später nur begrenzt erweitert werden."
                               : "Wähle eine zusätzliche Produktionsmaschine für dein Unternehmen. Diese Entscheidung beeinflusst deine Produktionskapazität und Kostenstruktur."}
                           </p>
-                          {game?.phase !== "machine_selection" && (
+                          {game?.period !== 1 && (
                             <div className="mt-2 rounded-lg bg-amber-50 border border-amber-200 p-3">
                               <p className="text-sm font-semibold text-amber-900">
                                 ⚠️ Zusätzlicher Maschinenkauf
@@ -1498,7 +1505,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                     >
                       {machineLoading
                         ? "Maschine wird gekauft..."
-                        : game?.phase === "machine_selection"
+                        : game?.period === 1
                         ? "Maschine kaufen & starten"
                         : "Maschine kaufen"}
                     </button>
@@ -1521,11 +1528,17 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                     </div>
                     {groupData.machines && groupData.machines.length > 0 && (
                       <div className="rounded-lg bg-white p-4 text-sm text-neutral-800 shadow-sm">
-                        <p className="font-semibold">Deine Maschine</p>
-                        <p className="mt-1">{groupData.machines[0].name}</p>
-                        <p className="text-neutral-600">
-                          Kapazität: {groupData.machines[0].capacity} Einheiten/Periode · Variable Kosten: €{groupData.machines[0].variableCostPerUnit.toLocaleString("de-DE")}
+                        <p className="font-semibold">
+                          {groupData.machines.length > 1 ? "Deine Maschinen" : "Deine Maschine"}
                         </p>
+                        {groupData.machines.map((m, i) => (
+                          <div key={i} className={i > 0 ? "mt-2 border-t border-neutral-100 pt-2" : "mt-1"}>
+                            <p>{m.name}</p>
+                            <p className="text-neutral-600">
+                              Kapazität: {m.capacity} Einheiten/Periode · Variable Kosten: €{m.variableCostPerUnit.toLocaleString("de-DE")}
+                            </p>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>

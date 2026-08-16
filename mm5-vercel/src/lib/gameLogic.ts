@@ -17,13 +17,6 @@ export interface MarketCalculationResult {
   newMachines: Machine[];
 }
 
-const MACHINE_OPTIONS: Machine[] = [
-  { name: "SmartMini-Fertiger", cost: 5000, capacity: 100, variableCostPerUnit: 6 },
-  { name: "KompaktPro-Produzent", cost: 12000, capacity: 250, variableCostPerUnit: 5 },
-  { name: "FlexiTech-Assembler", cost: 18000, capacity: 350, variableCostPerUnit: 4.5 },
-  { name: "MegaFlow-Manufaktur", cost: 25000, capacity: 500, variableCostPerUnit: 4 },
-];
-
 /**
  * Berechnet die Ergebnisse für alle Gruppen einer Periode
  */
@@ -121,16 +114,10 @@ export function calculateMarket(
     // F&E-Kosten
     const rndCost = Math.round((decision.rndInvestment || 0) * 100) / 100;
 
-    // Maschinenkauf
-    let machineCost = 0;
+    // Maschinenkauf erfolgt über den separaten Maschinenauswahl-Screen (game-form.tsx),
+    // nicht über die Periodenentscheidung - hier fallen daher keine Maschinenkosten an.
+    const machineCost = 0;
     const newMachines = [...groupState.machines];
-    if (decision.newMachine) {
-      const machine = MACHINE_OPTIONS.find((m) => m.name === decision.newMachine);
-      if (machine) {
-        machineCost = Math.round(machine.cost * 100) / 100;
-        newMachines.push(machine);
-      }
-    }
 
     // Machine Depreciation: Reduce capacity if enabled
     // Calculate capacity lost due to depreciation
@@ -373,29 +360,11 @@ export function validateDecision(
     errors.push("Verkaufspreis muss größer als 0 sein.");
   }
 
-  // Marketing (nur Periode 5)
-  if (period === 5) {
-    if (decision.marketingEffort === undefined || decision.marketingEffort < 1 || decision.marketingEffort > 10) {
-      errors.push("Marketing-Bemühung muss zwischen 1 und 10 liegen (nur in Periode 5).");
-    }
-  }
-
   // F&E wird nicht mehr automatisch validiert - nur wenn über Aktionen aktiviert
   // Die Validierung erfolgt in der Berechnung basierend auf activePeriodActions
 
-  // Maschinenkauf (ab Periode 3, alle 3 Perioden: 3, 6, 9...)
-  const canBuyMachine = period >= 3 && (period - 3) % 3 === 0;
-  if (decision.newMachine && !canBuyMachine) {
-    errors.push(`Maschinenkauf ist nur in Perioden 3, 6, 9, ... erlaubt (aktuell: ${period}).`);
-  }
-  if (decision.newMachine) {
-    const machine = MACHINE_OPTIONS.find((m) => m.name === decision.newMachine);
-    if (!machine) {
-      errors.push("Unbekannte Maschine ausgewählt.");
-    } else if (machine.cost > groupState.capital) {
-      errors.push(`Kapital (€${groupState.capital}) reicht für Maschine nicht aus (€${machine.cost}).`);
-    }
-  }
+  // Maschinenkauf erfolgt über den separaten Maschinenauswahl-Screen, nicht über die
+  // Periodenentscheidung - daher hier keine Validierung nötig.
 
   return { valid: errors.length === 0, errors };
 }

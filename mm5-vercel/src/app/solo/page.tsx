@@ -20,7 +20,6 @@ const DEFAULT_PARAMETERS = {
   inventoryCostPerUnit: 2,
   rndBenefitThreshold: 10000,
   rndVariableCostReduction: 0.5,
-  machineDegradationRate: 0.02,
   marketingEffectivenessFactor: 0.3,
   allowMachinePurchaseNextPeriod: false,
   demandBoostNextPeriod: false,
@@ -52,7 +51,7 @@ export default function SoloModePage() {
         adminPin: "SOLO0",
         joinPin: "SOLO0",
         parameters: DEFAULT_PARAMETERS,
-        period: 0,
+        period: 1,
         status: "in_progress",
         phase: "machine_selection",
         phaseEndsAt: Date.now() + 300000, // 5 minutes
@@ -74,7 +73,7 @@ export default function SoloModePage() {
         machines: [],
         cumulativeRndInvestment: 0,
         rndBenefitApplied: false,
-        status: "waiting",
+        status: "selecting",
         isAI: false,
       };
       

@@ -1,4 +1,9 @@
-import type { GameDocument, GroupState, PeriodDecision, PeriodResult } from "./types";
+import type { GameDocument, GroupState, Machine, PeriodDecision, PeriodResult } from "./types";
+
+export interface MarketResultEntry {
+  result: PeriodResult;
+  newMachines: Machine[];
+}
 
 /**
  * Calculate market results for all groups in a period
@@ -8,7 +13,7 @@ export async function calculateMarketResults(
   game: GameDocument,
   groups: GroupState[],
   decisions: Record<string, PeriodDecision>
-): Promise<Record<string, PeriodResult>> {
+): Promise<Record<string, MarketResultEntry>> {
   const params = game.parameters;
   const activeActions = game.activePeriodActions && game.activePeriodActions.period === game.period
     ? game.activePeriodActions
@@ -16,7 +21,10 @@ export async function calculateMarketResults(
   const demandBoostMultiplier = activeActions?.demandBoost ? 1.3 : 1;
   const inventoryCostPerUnit = activeActions?.noInventoryCosts ? 0 : params.inventoryCostPerUnit;
   const freeMarketAnalysis = !!activeActions?.freeMarketAnalysis;
-  const results: Record<string, PeriodResult> = {};
+  const results: Record<string, MarketResultEntry> = {};
+  const depreciationRate = params.machineDepreciationEnabled && params.machineDepreciationRate
+    ? params.machineDepreciationRate
+    : 0;
 
   // Validate decisions
   for (const [groupId, decision] of Object.entries(decisions)) {
@@ -149,13 +157,17 @@ export async function calculateMarketResults(
     }
     
     const revenue = Math.round(soldUnits * decision.price * 100) / 100;
-    
-    // Variable cost per unit: from machine
+
+    // Variable cost per unit: capacity-weighted average across all machines
+    // (matches gameLogic.ts, so a group's cheaper additional machine actually lowers costs)
     let varCostPerUnit = 5;
     if (group.machines && group.machines.length > 0) {
-      varCostPerUnit = group.machines[0].variableCostPerUnit;
+      const totalCapacity = group.machines.reduce((sum, m) => sum + m.capacity, 0);
+      varCostPerUnit = totalCapacity > 0
+        ? group.machines.reduce((sum, m) => sum + m.variableCostPerUnit * m.capacity, 0) / totalCapacity
+        : group.machines[0].variableCostPerUnit;
     }
-    
+
     // Apply R&D benefit if applicable
     const rndBenefit = group.rndBenefitApplied ? params.rndVariableCostReduction * varCostPerUnit : 0;
     const effectiveVarCost = Math.max(0, varCostPerUnit - rndBenefit);
@@ -189,26 +201,42 @@ export async function calculateMarketResults(
     
     const finalProfit = Math.round((profitBeforeInterest - interest) * 100) / 100;
 
+    // Machine Depreciation: reduce capacity for next period if enabled
+    // (matches gameLogic.ts - applied after this period's costs, affects the next period)
+    let capacityLostToDepreciation = 0;
+    const newMachines: Machine[] = group.machines ? group.machines.map((m) => ({ ...m })) : [];
+    if (depreciationRate > 0 && newMachines.length > 0) {
+      const capacityBefore = newMachines.reduce((sum, m) => sum + m.capacity, 0);
+      for (const machine of newMachines) {
+        machine.capacity = Math.max(0, Math.floor(machine.capacity * (1 - depreciationRate)));
+      }
+      const capacityAfter = newMachines.reduce((sum, m) => sum + m.capacity, 0);
+      capacityLostToDepreciation = capacityBefore - capacityAfter;
+    }
+
     results[group.id] = {
-      period: game.period,
-      price: Math.round(decision.price * 100) / 100,
-      soldUnits,
-      revenue,
-      productionCosts,
-      variableCosts: productionCosts,
-      inventoryCost,
-      rndCost,
-      marketAnalysisCost,
-      machineCost,
-      interest,
-      totalCosts: Math.round((totalCosts + interest) * 100) / 100,
-      profit: finalProfit,
-      endingInventory: Math.max(0, newInventory),
-      endingCapital,
-      marketShare: totalDemand > 0 ? Math.round((soldUnits / totalDemand) * 100 * 100) / 100 : 0,
-      averageMarketPrice: hasMarketAnalysis ? Math.round(avgMarketPrice * 100) / 100 : 0,
-      totalMarketDemand: hasMarketAnalysis ? totalDemand : 0,
-      machineDepreciationCapacityLost: 0,
+      newMachines,
+      result: {
+        period: game.period,
+        price: Math.round(decision.price * 100) / 100,
+        soldUnits,
+        revenue,
+        productionCosts,
+        variableCosts: productionCosts,
+        inventoryCost,
+        rndCost,
+        marketAnalysisCost,
+        machineCost,
+        interest,
+        totalCosts: Math.round((totalCosts + interest) * 100) / 100,
+        profit: finalProfit,
+        endingInventory: Math.max(0, newInventory),
+        endingCapital,
+        marketShare: totalDemand > 0 ? Math.round((soldUnits / totalDemand) * 100 * 100) / 100 : 0,
+        averageMarketPrice: hasMarketAnalysis ? Math.round(avgMarketPrice * 100) / 100 : 0,
+        totalMarketDemand: hasMarketAnalysis ? totalDemand : 0,
+        machineDepreciationCapacityLost: capacityLostToDepreciation,
+      },
     };
   }
 

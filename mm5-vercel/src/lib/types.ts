@@ -14,7 +14,6 @@ export interface GameParameters {
   inventoryCostPerUnit: number;
   rndBenefitThreshold: number;
   rndVariableCostReduction: number;
-  machineDegradationRate: number;
   marketingEffectivenessFactor: number;
   allowMachinePurchaseNextPeriod?: boolean;
   demandBoostNextPeriod?: boolean;
@@ -76,7 +75,6 @@ export interface PeriodDecision {
   marketingEffort: number;
   buyMarketAnalysis: boolean;
   rndInvestment: number;
-  newMachine: string;
   submittedAt?: Timestamp; // Firestore Timestamp
 }
 
