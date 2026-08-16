@@ -503,7 +503,12 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
       }
       const gameData = gameDoc.data() as GameDocument;
       const startingCapital = gameData.parameters?.startingCapital || 50000;
-      
+
+      // Späteinsteiger (Spiel läuft bereits): direkt in den Maschinenauswahl-Status
+      // versetzen, sonst bleibt die Gruppe für immer bei "waiting" hängen, weil der
+      // Batch-Übergang "waiting" -> "selecting" beim Spielstart bereits gelaufen ist.
+      const isLateJoin = gameData.status === "in_progress";
+
       const groupsRef = collection(db, "games", gameId, "groups");
       const newGroup: Omit<GroupState, "id"> = {
         name: "", // Wird später beim Name-Input gesetzt
@@ -513,7 +518,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
         machines: [],
         cumulativeRndInvestment: 0,
         rndBenefitApplied: false,
-        status: "waiting",
+        status: isLateJoin ? "selecting" : "waiting",
         lastActivityTime: Date.now(),
       };
       const docRef = await addDoc(groupsRef, newGroup);
@@ -1307,9 +1312,14 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
                         try {
                           setLoading(true);
                           if (groupId) {
+                            // Späteinsteiger (Spiel läuft schon): Status muss "selecting" bleiben,
+                            // sonst wird die Maschinenauswahl übersprungen und die Gruppe hängt
+                            // mit 0 Maschinen fest, weil "ready" fälschlich "bereit fürs Spiel"
+                            // statt "bereit in der Lobby" bedeutet.
+                            const lateJoinStatus = game?.status === "in_progress" ? "selecting" : "ready";
                             await updateDoc(doc(db, "games", gameId, "groups", groupId), {
                               name: tempGroupName.trim(),
-                              status: "ready",
+                              status: lateJoinStatus,
                               updatedAt: serverTimestamp(),
                             });
                             setGroupName(tempGroupName.trim());
