@@ -207,7 +207,7 @@ export function SpielleiterDashboard({
                 ? hasActiveSpecialTask 
                   ? "✓ Alle Gruppen haben den Spezialauftrag erledigt! Du kannst jetzt die nächste Phase starten."
                   : "Alle Gruppen sind bereit. Du kannst die nächste Phase starten!"
-                : `${groups.filter(g => g.status !== "ready" && g.status !== "submitted").length} Gruppe(n) müssen noch reagieren.`}
+                : `${groups.filter(g => game.phase === "machine_selection" ? g.status !== "ready" : g.status !== "submitted").length} Gruppe(n) müssen noch reagieren.`}
             </div>
           </div>
         </div>

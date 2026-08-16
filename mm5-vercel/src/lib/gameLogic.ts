@@ -65,19 +65,7 @@ export function calculateMarket(
   // Mit Inverse Price Allocation wird diese Nachfrage dann korrekt zu günstigen Gruppen verteilt!
   const adjustedDemand = Math.floor(baseDemand * priceElasticityMultiplier);
 
-  // 5. Berechne Marketing-Scores (ab Periode 5)
-  const marketingScores: { [groupId: string]: number } = {};
-  const isMarketingPeriod = period >= 5;
-
-  if (isMarketingPeriod) {
-    const totalMarketing = inputs.reduce((sum, input) => sum + (input.decision.marketingEffort || 0), 0);
-    inputs.forEach((input) => {
-      const effort = input.decision.marketingEffort || 0;
-      marketingScores[input.groupId] = totalMarketing > 0 ? effort / totalMarketing : 0;
-    });
-  }
-
-  // 6. Inverse Preis-Nachfrageverteilung: Je günstiger der Preis, desto höher der Marktanteil
+  // 5. Inverse Preis-Nachfrageverteilung: Je günstiger der Preis, desto höher der Marktanteil
   // Das ist realistisch: Kunden kaufen das Günstigste. Der Markt crasht nicht durch extreme Preise.
   const soldUnitsMap = calculateInversePriceAllocation(inputs, adjustedDemand, parameters);
 
@@ -291,42 +279,6 @@ function calculateInversePriceAllocation(
   console.log(`[Market Calc - Inverse Model] Total Demand: ${totalDemand}, Total Sold: ${totalSoldUnits}, Unmet: ${unmetDemand}`);
 
   return soldUnits;
-}
-
-/**
- * Berechnet Verkaufsanteile basierend auf Preis und Marketing (VERALTET - nur für Referenz)
- */
-function calculateSalesShares(
-  inputs: MarketCalculationInput[],
-  marketingScores: { [groupId: string]: number },
-  parameters: GameParameters
-): { [groupId: string]: number } {
-  // Berechne Attraktivität jeder Gruppe (niedriger Preis = höhere Attraktivität)
-  const attractiveness: { [groupId: string]: number } = {};
-  
-  inputs.forEach((input) => {
-    // Preis-Attraktivität (inverse Beziehung: niedriger Preis = höher)
-    const priceAttractiveness = 1 / input.decision.price;
-    
-    // Marketing-Bonus (ab Periode 5)
-    const marketingBonus = marketingScores[input.groupId] 
-      ? marketingScores[input.groupId] * parameters.marketingEffectivenessFactor 
-      : 0;
-    
-    attractiveness[input.groupId] = priceAttractiveness * (1 + marketingBonus);
-  });
-
-  // Normalisiere zu Anteilen
-  const totalAttractiveness = Object.values(attractiveness).reduce((sum, val) => sum + val, 0);
-  
-  const shares: { [groupId: string]: number } = {};
-  inputs.forEach((input) => {
-    shares[input.groupId] = totalAttractiveness > 0 
-      ? attractiveness[input.groupId] / totalAttractiveness 
-      : 1 / inputs.length;
-  });
-
-  return shares;
 }
 
 /**
