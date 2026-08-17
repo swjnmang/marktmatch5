@@ -4,9 +4,13 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 // Get current date and time
+// WICHTIG: Build-Server (z.B. Vercel) laufen in UTC, lokale Rechner in der jeweiligen
+// Systemzeitzone - ohne feste timeZone würde der angezeigte Zeitstempel je nachdem, wo
+// gebaut wurde, um mehrere Stunden abweichen. 'Europe/Berlin' berücksichtigt auch die
+// Sommerzeit automatisch.
 const now = new Date();
-const dateStr = now.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-const timeStr = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+const dateStr = now.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Europe/Berlin' });
+const timeStr = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin' });
 const isoDate = now.toISOString();
 
 // Get commit hash
