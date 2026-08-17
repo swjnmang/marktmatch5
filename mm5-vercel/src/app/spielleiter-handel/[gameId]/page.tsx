@@ -173,7 +173,12 @@ export default function GameDashboardHandelPage() {
           "parameters.customEventNextPeriod": "",
         });
         groups.forEach((g) => {
-          batch.update(doc(db, "games_handel", gameId, "groups", g.id), { status: "waiting" });
+          batch.update(doc(db, "games_handel", gameId, "groups", g.id), {
+            status: "waiting",
+            // Käufe sind pro Periode gültig - Gruppen müssen in der neuen Periode neu einkaufen.
+            currentPeriodPurchases: emptyTierRecord(),
+            currentPeriodPurchaseCosts: emptyTierRecord(),
+          });
         });
         setDemandBoostNext(false);
         setFreeMarketAnalysisNext(false);
@@ -308,6 +313,8 @@ export default function GameDashboardHandelPage() {
                           status: "waiting",
                           capital: game.parameters.startingCapital,
                           inventory: emptyTierRecord(),
+                          currentPeriodPurchases: emptyTierRecord(),
+                          currentPeriodPurchaseCosts: emptyTierRecord(),
                           cumulativeProfit: 0,
                           cumulativeNegotiationInvestment: 0,
                           negotiationBenefitApplied: false,

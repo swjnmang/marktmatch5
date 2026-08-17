@@ -87,7 +87,7 @@ export function calculateMarketHandel(
   for (const input of inputs) {
     for (const tier of TIER_IDS) {
       const offered =
-        Math.max(0, input.decision.purchaseQuantities[tier] || 0) +
+        Math.max(0, input.groupState.currentPeriodPurchases[tier] || 0) +
         Math.max(0, input.decision.sellFromInventoryByTier[tier] || 0);
       if (offered > 0) {
         posten.push({
@@ -140,10 +140,12 @@ export function calculateMarketHandel(
     const endingInventoryByTier = emptyTierRecord();
 
     for (const tier of TIER_IDS) {
-      const tierDef = findTierDef(tierDefinitions, tier);
-      const qty = Math.max(0, decision.purchaseQuantities[tier] || 0);
-      const unitPrice = effectivePurchaseUnitPrice(tierDef, qty, groupState.negotiationBenefitApplied, parameters);
-      purchaseCostsByTier[tier] = Math.round(qty * unitPrice * 100) / 100;
+      // Einkaufsmenge & -kosten stehen bereits fest: Der Kauf wurde während der Periode
+      // per "Einkaufen"-Button sofort bezahlt (siehe game-form.tsx). Hier NICHT neu
+      // berechnen, sonst würden nachträgliche Rabatt-Änderungen einen längst bezahlten
+      // Einkauf rückwirkend verändern.
+      const qty = Math.max(0, groupState.currentPeriodPurchases[tier] || 0);
+      purchaseCostsByTier[tier] = Math.round((groupState.currentPeriodPurchaseCosts[tier] || 0) * 100) / 100;
 
       const soldQty = soldUnitsByTier[tier];
       const endingInventory = Math.floor(groupState.inventory[tier] + qty - soldQty);
@@ -174,8 +176,14 @@ export function calculateMarketHandel(
     const totalCosts =
       Math.round((purchaseCosts + inventoryCost + negotiationCost + marketingCost + marketAnalysisCost) * 100) / 100;
 
+    // WICHTIG: Der Einkauf (purchaseCosts) wurde schon beim "Einkaufen"-Klick vom Kapital
+    // abgebucht (groupState.capital ist hier bereits NACH dem Einkauf). Für den "Gewinn"
+    // zählt er trotzdem als Kosten dieser Periode (echte Kostenrechnung), aber beim
+    // tatsächlichen Kapitalstand darf er nicht ein zweites Mal abgezogen werden.
     const profitBeforeInterest = Math.round((revenue - totalCosts) * 100) / 100;
-    const capitalBeforeInterest = Math.round((groupState.capital + profitBeforeInterest) * 100) / 100;
+    const nonPurchaseCosts =
+      Math.round((inventoryCost + negotiationCost + marketingCost + marketAnalysisCost) * 100) / 100;
+    const capitalBeforeInterest = Math.round((groupState.capital + revenue - nonPurchaseCosts) * 100) / 100;
     const interest =
       capitalBeforeInterest < 0
         ? Math.round(Math.abs(capitalBeforeInterest) * parameters.negativeCashInterestRate * 100) / 100
@@ -305,33 +313,25 @@ export function validateDecisionHandel(
   period: number
 ): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
-  const purchaseQuantities = decision.purchaseQuantities || emptyTierRecord();
   const sellFromInventoryByTier = decision.sellFromInventoryByTier || emptyTierRecord();
   const pricesByTier = decision.pricesByTier || emptyTierRecord();
 
-  let totalPurchaseCost = 0;
-  let totalPurchaseQuantity = 0;
-
   for (const tier of TIER_IDS) {
     const tierDef = findTierDef(tierDefinitions, tier);
-    const qty = purchaseQuantities[tier] ?? 0;
+    const purchasedThisPeriod = groupState.currentPeriodPurchases[tier] ?? 0;
     const sellFromInventory = sellFromInventoryByTier[tier] ?? 0;
     const price = pricesByTier[tier] ?? 0;
 
-    if (qty < 0) errors.push(`Einkaufsmenge (${tierDef.name}) darf nicht negativ sein.`);
     if (sellFromInventory < 0) errors.push(`Verkauf aus Lager (${tierDef.name}) darf nicht negativ sein.`);
     if (sellFromInventory > groupState.inventory[tier]) {
       errors.push(
         `Verkauf aus Lager (${tierDef.name}: ${sellFromInventory}) überschreitet Lagerbestand (${groupState.inventory[tier]}).`
       );
     }
-    const offered = Math.max(0, qty) + Math.max(0, sellFromInventory);
+    const offered = Math.max(0, purchasedThisPeriod) + Math.max(0, sellFromInventory);
     if (offered > 0 && price <= 0) {
       errors.push(`Verkaufspreis (${tierDef.name}) muss größer als 0 sein, sobald Ware angeboten wird.`);
     }
-
-    totalPurchaseQuantity += Math.max(0, qty);
-    totalPurchaseCost += Math.max(0, qty) * effectivePurchaseUnitPrice(tierDef, Math.max(0, qty), groupState.negotiationBenefitApplied, parameters);
   }
 
   const negotiationInvestment = decision.negotiationInvestment ?? 0;
@@ -339,17 +339,20 @@ export function validateDecisionHandel(
   if (negotiationInvestment < 0) errors.push("Einkaufsverhandlungs-Investition darf nicht negativ sein.");
   if (marketingEffort < 0) errors.push("Marketing-Investition darf nicht negativ sein.");
 
-  const totalCommitted = totalPurchaseCost + Math.max(0, negotiationInvestment) + Math.max(0, marketingEffort);
+  // Einkauf ist zu diesem Zeitpunkt schon bezahlt (siehe "Einkaufen"-Button) und daher
+  // schon im aktuellen Kapital berücksichtigt - hier zählt nur noch, was NEU dazukommt.
+  const totalCommitted = Math.max(0, negotiationInvestment) + Math.max(0, marketingEffort);
   if (totalCommitted > groupState.capital) {
     errors.push(
-      `Einkauf + Einkaufsverhandlung + Marketing (${Math.round(totalCommitted)}) übersteigt das verfügbare Kapital (${Math.round(groupState.capital)}).`
+      `Einkaufsverhandlung + Marketing (${Math.round(totalCommitted)}) übersteigt das verfügbare Kapital (${Math.round(groupState.capital)}).`
     );
   }
 
   // Periode 1 mit leerem Lager: ohne Einkauf gibt es nichts zu verkaufen.
   const inventoryEmpty = TIER_IDS.every((t) => groupState.inventory[t] === 0);
-  if (period === 1 && inventoryEmpty && totalPurchaseQuantity <= 0) {
-    errors.push("Bitte kaufen Sie in Periode 1 mindestens eine Qualitätsstufe ein - Ihr Lager ist leer.");
+  const totalPurchasedThisPeriod = TIER_IDS.reduce((sum, t) => sum + (groupState.currentPeriodPurchases[t] || 0), 0);
+  if (period === 1 && inventoryEmpty && totalPurchasedThisPeriod <= 0) {
+    errors.push("Bitte kauft zuerst mindestens eine Qualitätsstufe ein - euer Lager ist noch leer.");
   }
 
   return { valid: errors.length === 0, errors };

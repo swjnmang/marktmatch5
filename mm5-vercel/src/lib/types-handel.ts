@@ -62,6 +62,14 @@ export interface GroupStateHandel {
   name: string;
   capital: number;
   inventory: TierRecord;
+  // Bereits in dieser Periode gekaufte (und sofort bezahlte) Ware je Qualitätsstufe.
+  // Wird beim Klick auf "Einkaufen" befüllt und bei jedem Periodenwechsel geleert.
+  currentPeriodPurchases: TierRecord;
+  // Tatsächlich beim Einkauf abgebuchter Betrag je Stufe (inkl. Mengenrabatt/Verhandlung
+  // zum Kaufzeitpunkt) - wird für die Auswertung 1:1 übernommen, nicht neu berechnet,
+  // damit sich später geänderte Rabatte nicht rückwirkend auf einen bereits bezahlten
+  // Einkauf auswirken.
+  currentPeriodPurchaseCosts: TierRecord;
   cumulativeProfit: number;
   cumulativeNegotiationInvestment: number;
   negotiationBenefitApplied: boolean;
@@ -75,7 +83,6 @@ export interface GroupStateHandel {
 export interface PeriodDecisionHandel {
   groupId: string;
   period: number;
-  purchaseQuantities: TierRecord;
   sellFromInventoryByTier: TierRecord;
   pricesByTier: TierRecord;
   marketingEffort: number;
