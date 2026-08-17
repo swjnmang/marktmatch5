@@ -163,8 +163,18 @@ export default function SpielleiterHandelPage() {
                       Kopieren
                     </button>
                   </div>
+                  <button
+                    onClick={() => {
+                      const link = `${window.location.origin}/gruppe-handel/${gameId}?pin=${joinPin}`;
+                      navigator.clipboard.writeText(link);
+                      alert("Beitritts-Link kopiert!");
+                    }}
+                    className="mt-3 w-full sm:w-auto rounded-xl border-2 border-neutral-300 px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:border-neutral-500 hover:bg-neutral-50 transition"
+                  >
+                    Link kopieren (zum Teilen)
+                  </button>
                   <p className="text-xs text-neutral-600 mt-2">
-                    Gruppen scannen den QR-Code oder geben die PIN unter „Spiel beitreten" ein.
+                    Gruppen scannen den QR-Code, öffnen den geteilten Link oder geben die PIN unter „Spiel beitreten" ein.
                   </p>
                 </div>
               </div>

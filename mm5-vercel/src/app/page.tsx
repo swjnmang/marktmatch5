@@ -29,12 +29,12 @@ export default function Home() {
               Gründe dein Unternehmen und führe es zum Erfolg. Allein oder mit deinem Team.
             </p>
             <button className="inline-block rounded-lg bg-orange-500 px-5 py-1.5 text-sm font-semibold text-white transition hover:bg-orange-600">
-              Spiel erstellen
+              Spielleiter: Spiel erstellen
             </button>
           </Link>
 
           <Link
-            href="/gruppe"
+            href="/spiel-beitreten"
             className="group rounded-2xl bg-white p-6 shadow-md transition hover:-translate-y-2 hover:shadow-lg border-2 border-neutral-400 text-center flex flex-col items-center"
           >
             <div className="mb-4"><Gamepad2 className="w-12 h-12 text-neutral-700" /></div>
@@ -43,7 +43,7 @@ export default function Home() {
               Tritt einem laufenden Spiel bei und treffe strategische Entscheidungen.
             </p>
             <button className="inline-block rounded-lg bg-orange-500 px-5 py-1.5 text-sm font-semibold text-white transition hover:bg-orange-600">
-              Code eingeben
+              Spieler: Spiel beitreten
             </button>
           </Link>
         </div>

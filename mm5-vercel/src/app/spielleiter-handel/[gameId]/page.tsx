@@ -366,7 +366,16 @@ export default function GameDashboardHandelPage() {
                         Kopieren
                       </button>
                     </div>
-                    <p className="text-xs text-neutral-500 mt-2">Gruppen scannen den QR-Code oder geben die PIN ein.</p>
+                    <button
+                      onClick={() => {
+                        const link = `${window.location.origin}/gruppe-handel/${gameId}?pin=${game.joinPin}`;
+                        navigator.clipboard.writeText(link);
+                      }}
+                      className="mt-2 rounded-lg border border-neutral-300 px-3 py-2 text-xs font-semibold text-neutral-700 hover:border-neutral-500 hover:bg-neutral-50 transition"
+                    >
+                      Link kopieren (zum Teilen)
+                    </button>
+                    <p className="text-xs text-neutral-500 mt-2">Gruppen scannen den QR-Code, öffnen den Link oder geben die PIN ein.</p>
                   </div>
                   <div className="flex-1">
                     <button
