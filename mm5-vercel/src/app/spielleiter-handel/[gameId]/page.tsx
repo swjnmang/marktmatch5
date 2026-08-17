@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { QRCodeSVG } from "qrcode.react";
 import { db } from "@/lib/firebase";
 import { doc, collection, onSnapshot, updateDoc, writeBatch, getDocs, deleteDoc } from "firebase/firestore";
 import { checkPinFromLocalStorage } from "@/lib/auth";
@@ -342,6 +343,14 @@ export default function GameDashboardHandelPage() {
               <div className="rounded-2xl bg-white p-4 sm:p-5 border-2 border-neutral-300">
                 <h2 className="text-lg font-bold text-neutral-900 mb-3">Lobby-Verbindung</h2>
                 <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="bg-white p-2 rounded-xl border-2 border-neutral-300 flex-none self-center sm:self-start">
+                    <QRCodeSVG
+                      value={`${typeof window !== "undefined" ? window.location.origin : "https://marktmatch5.vercel.app"}/gruppe-handel/${gameId}?pin=${game.joinPin}`}
+                      size={120}
+                      level="H"
+                      includeMargin={false}
+                    />
+                  </div>
                   <div className="flex-1">
                     <p className="text-xs font-semibold text-neutral-600 mb-1">Gruppen-PIN</p>
                     <div className="flex items-center gap-2">
@@ -357,6 +366,7 @@ export default function GameDashboardHandelPage() {
                         Kopieren
                       </button>
                     </div>
+                    <p className="text-xs text-neutral-500 mt-2">Gruppen scannen den QR-Code oder geben die PIN ein.</p>
                   </div>
                   <div className="flex-1">
                     <button

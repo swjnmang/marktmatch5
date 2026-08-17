@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { QRCodeSVG } from "qrcode.react";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp, query, where, onSnapshot, getDocs } from "firebase/firestore";
 import { generateAdminPin, generateGroupCode, savePinToLocalStorage } from "@/lib/auth";
@@ -137,23 +138,35 @@ export default function SpielleiterHandelPage() {
             <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 mb-6">Lobby erstellt!</h2>
 
             <div className="space-y-4 mb-8">
-              <div>
-                <p className="text-sm font-semibold text-neutral-600 mb-2">Gruppen-PIN (zum Beitreten)</p>
-                <div className="flex flex-wrap gap-3 items-center">
-                  <div className="font-mono text-3xl sm:text-4xl font-bold text-neutral-700 bg-neutral-50 px-5 py-3 rounded-xl border-2 border-neutral-300">
-                    {joinPin}
-                  </div>
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(joinPin);
-                      alert("PIN kopiert!");
-                    }}
-                    className="rounded-xl bg-neutral-700 px-4 py-3 text-white font-semibold hover:bg-neutral-800 transition"
-                  >
-                    Kopieren
-                  </button>
+              <div className="flex flex-col sm:flex-row gap-5 items-center sm:items-start">
+                <div className="bg-white p-2 rounded-xl border-2 border-neutral-300 flex-none">
+                  <QRCodeSVG
+                    value={`${typeof window !== "undefined" ? window.location.origin : "https://marktmatch5.vercel.app"}/gruppe-handel/${gameId}?pin=${joinPin}`}
+                    size={140}
+                    level="H"
+                    includeMargin={false}
+                  />
                 </div>
-                <p className="text-xs text-neutral-600 mt-2">Teile diese PIN mit allen Gruppen.</p>
+                <div className="flex-1 w-full">
+                  <p className="text-sm font-semibold text-neutral-600 mb-2">Gruppen-PIN (zum Beitreten)</p>
+                  <div className="flex flex-wrap gap-3 items-center">
+                    <div className="font-mono text-3xl sm:text-4xl font-bold text-neutral-700 bg-neutral-50 px-5 py-3 rounded-xl border-2 border-neutral-300">
+                      {joinPin}
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(joinPin);
+                        alert("PIN kopiert!");
+                      }}
+                      className="rounded-xl bg-neutral-700 px-4 py-3 text-white font-semibold hover:bg-neutral-800 transition"
+                    >
+                      Kopieren
+                    </button>
+                  </div>
+                  <p className="text-xs text-neutral-600 mt-2">
+                    Gruppen scannen den QR-Code oder geben die PIN unter „Spiel beitreten" ein.
+                  </p>
+                </div>
               </div>
             </div>
 
