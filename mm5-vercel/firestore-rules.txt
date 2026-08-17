@@ -5,5 +5,10 @@ service cloud.firestore {
     match /games/{document=**} {
       allow read, write;
     }
+
+    // Handelsmodus (Handelsunternehmen) - eigene Collection, gleiche MVP-Regel
+    match /games_handel/{document=**} {
+      allow read, write;
+    }
   }
 }
