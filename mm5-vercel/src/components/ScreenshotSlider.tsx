@@ -1,99 +1,81 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 
-interface GameFeature {
+interface Screenshot {
   id: number;
-  icon: string;
+  src: string;
+  alt: string;
+  badge: string;
   title: string;
   description: string;
-  details: string[];
 }
 
-const gameFeatures: GameFeature[] = [
+const screenshots: Screenshot[] = [
   {
     id: 1,
-    icon: "🏭",
-    title: "Produktionsmanagement",
-    description: "Steuere deine Produktion strategisch",
-    details: [
-      "Wähle aus verschiedenen Maschinen mit unterschiedlichen Kapazitäten",
-      "Plane deine Produktionsmenge pro Periode",
-      "Verwalte dein Lager und vermeide Überproduktion",
-      "Investiere in Forschung & Entwicklung für Kostensenkung"
-    ]
+    src: "/screenshots/spielleiter-lobby.png",
+    alt: "Lobby-Dashboard mit QR-Code und Gruppen-PIN",
+    badge: "Spielleitung",
+    title: "Lobby mit QR-Code & Live-Status",
+    description: "Gruppen treten per PIN oder QR-Code bei - die Spielleitung sieht sofort, wer bereit ist.",
   },
   {
     id: 2,
-    icon: "💰",
-    title: "Preisgestaltung & Markt",
-    description: "Finde den optimalen Verkaufspreis",
-    details: [
-      "Setze deinen Verkaufspreis basierend auf Kosten und Konkurrenz",
-      "Beobachte die Marktreaktionen in Echtzeit",
-      "Kaufe Marktanalysen für detaillierte Einblicke",
-      "Passe deine Strategie an die Marktnachfrage an"
-    ]
+    src: "/screenshots/spielprinzip.png",
+    alt: "Einführungsbildschirm mit Erklärung des Marktszenarios",
+    badge: "Einstieg",
+    title: "Klar erklärtes Spielprinzip",
+    description: "Jede Gruppe startet mit einer verständlichen Einführung ins Marktszenario und Spielziel.",
   },
   {
     id: 3,
-    icon: "📊",
-    title: "Finanzplanung",
-    description: "Halte deine Finanzen im Gleichgewicht",
-    details: [
-      "Überwache dein Startkapital und laufende Kosten",
-      "Vermeide negative Kapitalstände (Zinsen!)",
-      "Analysiere Gewinne und Verluste jeder Periode",
-      "Plane langfristige Investitionen strategisch"
-    ]
+    src: "/screenshots/produktion-maschinenwahl.png",
+    alt: "Auswahl der Produktionsmaschine mit Kosten und Kapazität",
+    badge: "Produktionsunternehmen",
+    title: "Produktionsmaschine wählen",
+    description: "Kapazität gegen Stückkosten abwägen - die erste strategische Entscheidung jeder Gruppe.",
   },
   {
     id: 4,
-    icon: "🎯",
-    title: "Wettbewerb & Ranking",
-    description: "Tritt gegen andere Teams an",
-    details: [
-      "Konkurriere mit bis zu 10 Teams gleichzeitig",
-      "Beobachte die Live-Rangliste nach jeder Periode",
-      "Analysiere Konkurrenzstrategien (wenn Marktanalyse gekauft)",
-      "Sichere dir Bonuspunkte durch Spezialaufträge"
-    ]
+    src: "/screenshots/produktion-entscheidung.png",
+    alt: "Entscheidungsformular mit Produktionsmenge, Verkaufspreis und Timer",
+    badge: "Produktionsunternehmen",
+    title: "Menge, Preis & Timer",
+    description: "Jede Periode: Produktionsmenge und Verkaufspreis festlegen, bevor die Zeit abläuft.",
   },
   {
     id: 5,
-    icon: "🔬",
-    title: "Forschung & Entwicklung",
-    description: "Investiere in die Zukunft",
-    details: [
-      "Reduziere variable Stückkosten durch F&E-Investitionen",
-      "Erreiche Kostensenkungen ab einem Schwellenwert",
-      "Einmalige Effekte für langfristigen Vorteil",
-      "Plane F&E-Budget strategisch über mehrere Perioden"
-    ]
+    src: "/screenshots/ranking.png",
+    alt: "Ranking-Ansicht mit Kapital und kumuliertem Gewinn aller Teams",
+    badge: "Wettbewerb",
+    title: "Live-Ranking nach jeder Periode",
+    description: "Kapital und kumulierter Gewinn aller Teams auf einen Blick - direkt für die Spielleitung.",
   },
   {
     id: 6,
-    icon: "👨‍🏫",
-    title: "Spielleiter-Steuerung",
-    description: "Flexibles Spielmanagement",
-    details: [
-      "Spielleiter steuert Periodenstart und -ende",
-      "Vergabe von Spezialaufträgen möglich",
-      "Echtzeit-Überwachung aller Gruppenentscheidungen",
-      "Automatische Berechnung und Auswertung"
-    ]
+    src: "/screenshots/handel-einkauf-verkauf.png",
+    alt: "Einkaufs- und Verkaufsformular des Handelsmodus mit Mengenrabatt",
+    badge: "Neu: Handelsunternehmen",
+    title: "Einkauf & Verkauf in drei Qualitätsstufen",
+    description: "Mengenrabatte werden live berechnet - je mehr Standardware, desto günstiger der Einkaufspreis.",
   },
   {
     id: 7,
-    icon: "🤖",
-    title: "Solo-Modus mit KI",
-    description: "Übe gegen intelligente Gegner",
-    details: [
-      "Spiele allein ohne echte Teams",
-      "KI-Gegner mit verschiedenen Strategien",
-      "Automatische Periodenberechnung",
-      "Perfekt zum Lernen und Ausprobieren"
-    ]
+    src: "/screenshots/handel-dashboard.png",
+    alt: "Spielleiter-Dashboard des Handelsmodus",
+    badge: "Neu: Handelsunternehmen",
+    title: "Eigenes Spielleiter-Dashboard",
+    description: "Mobil optimiert, mit Großhandelspreisen und Ereignis-Steuerung für jede Periode.",
+  },
+  {
+    id: 8,
+    src: "/screenshots/handel-ergebnis.png",
+    alt: "Periodenergebnis des Handelsmodus je Qualitätsstufe",
+    badge: "Neu: Handelsunternehmen",
+    title: "Ergebnis je Qualitätsstufe",
+    description: "Verkaufte Menge, Umsatz und Lagerbestand aufgeschlüsselt nach Standard-, Marken- und Premiumware.",
   },
 ];
 
@@ -134,7 +116,7 @@ export default function ScreenshotSlider() {
 
   const updateCurrentIndex = (container: HTMLDivElement) => {
     const index = Math.round(container.scrollLeft / container.clientWidth);
-    setCurrentIndex(Math.min(index, gameFeatures.length - 1));
+    setCurrentIndex(Math.min(index, screenshots.length - 1));
   };
 
   const scroll = (direction: "left" | "right") => {
@@ -170,34 +152,30 @@ export default function ScreenshotSlider() {
             }
           }}
         >
-          {gameFeatures.map((feature) => (
-            <div
-              key={feature.id}
-              className="w-full flex-shrink-0 snap-center"
-            >
-              {/* Feature Card - Full Width */}
-              <div className="rounded-2xl overflow-hidden shadow-xl border-2 border-neutral-300 bg-white h-full flex flex-col mx-auto max-w-4xl">
-                {/* Icon & Header */}
-                <div className="bg-gradient-to-br from-sky-100 to-blue-50 p-10 text-center">
-                  <div className="text-6xl mb-4">{feature.icon}</div>
-                  <h4 className="font-bold text-neutral-900 text-2xl mb-2">
-                    {feature.title}
-                  </h4>
-                  <p className="text-neutral-600 text-base">
-                    {feature.description}
-                  </p>
+          {screenshots.map((shot) => (
+            <div key={shot.id} className="w-full flex-shrink-0 snap-center">
+              {/* Screenshot Card - Full Width */}
+              <div className="overflow-hidden rounded-2xl border-2 border-neutral-300 bg-white shadow-xl mx-auto max-w-4xl">
+                <div className="relative aspect-[8/5] w-full bg-neutral-100">
+                  <Image
+                    src={shot.src}
+                    alt={shot.alt}
+                    fill
+                    sizes="(max-width: 896px) 100vw, 896px"
+                    className="object-cover object-top"
+                    priority={shot.id === 1}
+                  />
                 </div>
-
-                {/* Details List */}
-                <div className="p-8 flex-grow">
-                  <ul className="space-y-4">
-                    {feature.details.map((detail, idx) => (
-                      <li key={idx} className="flex items-start gap-3">
-                        <span className="text-sky-600 font-bold text-xl mt-0.5">✓</span>
-                        <span className="text-neutral-700 text-base leading-relaxed">{detail}</span>
-                      </li>
-                    ))}
-                  </ul>
+                <div className="p-6 sm:p-8">
+                  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-sky-700">
+                    {shot.badge}
+                  </p>
+                  <h4 className="mb-2 text-xl sm:text-2xl font-bold text-neutral-900">
+                    {shot.title}
+                  </h4>
+                  <p className="text-sm sm:text-base leading-relaxed text-neutral-600">
+                    {shot.description}
+                  </p>
                 </div>
               </div>
             </div>
@@ -208,7 +186,7 @@ export default function ScreenshotSlider() {
         <button
           onClick={() => scroll("left")}
           disabled={currentIndex === 0}
-          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-8 sm:-translate-x-12 z-10 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow-lg border-2 border-neutral-300 hover:bg-neutral-100 transition disabled:opacity-30 disabled:cursor-not-allowed group"
+          className="absolute left-0 top-[38%] -translate-y-1/2 -translate-x-8 sm:-translate-x-12 z-10 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow-lg border-2 border-neutral-300 hover:bg-neutral-100 transition disabled:opacity-30 disabled:cursor-not-allowed group"
         >
           <span className="text-neutral-700 font-bold text-2xl">←</span>
         </button>
@@ -216,8 +194,8 @@ export default function ScreenshotSlider() {
         {/* Right Arrow Button */}
         <button
           onClick={() => scroll("right")}
-          disabled={currentIndex === gameFeatures.length - 1}
-          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-8 sm:translate-x-12 z-10 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow-lg border-2 border-neutral-300 hover:bg-neutral-100 transition disabled:opacity-30 disabled:cursor-not-allowed group"
+          disabled={currentIndex === screenshots.length - 1}
+          className="absolute right-0 top-[38%] -translate-y-1/2 translate-x-8 sm:translate-x-12 z-10 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow-lg border-2 border-neutral-300 hover:bg-neutral-100 transition disabled:opacity-30 disabled:cursor-not-allowed group"
         >
           <span className="text-neutral-700 font-bold text-2xl">→</span>
         </button>
@@ -225,7 +203,7 @@ export default function ScreenshotSlider() {
 
       {/* Progress Indicator */}
       <div className="flex justify-center gap-3 mt-8">
-        {gameFeatures.map((_, index) => (
+        {screenshots.map((_, index) => (
           <div
             key={index}
             className={`transition-all duration-300 ${
@@ -248,7 +226,7 @@ export default function ScreenshotSlider() {
 
       {/* Info Text */}
       <p className="text-center text-sm text-neutral-600 mt-6 font-medium">
-        {currentIndex + 1} / {gameFeatures.length} • Nutze die Pfeile oder klicke auf die Punkte
+        {currentIndex + 1} / {screenshots.length} • Nutze die Pfeile oder klicke auf die Punkte
       </p>
     </div>
   );

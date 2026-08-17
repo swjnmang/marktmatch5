@@ -1,9 +1,0 @@
-﻿<svg viewBox="0 0 1280 800" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1280" height="800" fill="#f8fafc"/>
-  <rect width="1280" height="80" fill="#1e40af"/>
-  <text x="640" y="50" font-size="32" font-weight="bold" fill="white" text-anchor="middle">Ranking - Ihre Position</text>
-  <rect x="100" y="120" width="350" height="130" rx="12" fill="white" stroke="#d4af37" stroke-width="3"/>
-  <text x="140" y="155" font-size="48"></text>
-  <text x="220" y="165" font-size="18" font-weight="bold" fill="#1e40af">Team Alpha</text>
-  <text x="220" y="225" font-size="24" font-weight="bold" fill="#059669">€250.000</text>
-</svg>
