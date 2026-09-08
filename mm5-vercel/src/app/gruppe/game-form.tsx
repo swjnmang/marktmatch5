@@ -277,7 +277,12 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
         }
         const gameData = gameDoc.data() as GameDocument;
         const startingCapital = gameData.parameters?.startingCapital || 50000;
-        
+
+        // Späteinsteiger (Spiel läuft bereits): direkt in den Maschinenauswahl-Status
+        // versetzen, sonst bleibt die Gruppe für immer bei "waiting" hängen, weil der
+        // Batch-Übergang "waiting" -> "selecting" beim Spielstart bereits gelaufen ist.
+        const isLateJoin = gameData.status === "in_progress";
+
         const groupsRef = collection(db, "games", gameId, "groups");
         const newGroup: Omit<GroupState, "id"> = {
           name: tempName,
@@ -287,7 +292,7 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
           machines: [],
           cumulativeRndInvestment: 0,
           rndBenefitApplied: false,
-          status: "waiting",
+          status: isLateJoin ? "selecting" : "waiting",
           lastActivityTime: Date.now(),
         };
         const docRef = await addDoc(groupsRef, newGroup);
@@ -856,12 +861,13 @@ export function GruppeGameForm({ prefilledPin = "" }: { prefilledPin?: string })
 
       {/* Game Instructions Modal - Shows once at game start */}
       {(() => {
-        const shouldShow = joined && 
-                          groupData && 
-                          (game?.status === "in_progress" || game?.phase === "machine_selection") && 
-                          !groupData.instructionsAcknowledged && 
+        const shouldShow = joined &&
+                          groupData &&
+                          welcomePhase === "none" &&
+                          (game?.status === "in_progress" || game?.phase === "machine_selection") &&
+                          !groupData.instructionsAcknowledged &&
                           !currentTask;
-        console.log(`[Instructions Modal Check] joined=${joined}, groupData=${!!groupData}, status=${game?.status}, phase=${game?.phase}, instructionsAcknowledged=${groupData?.instructionsAcknowledged}, currentTask=${!!currentTask}, shouldShow=${shouldShow}`);
+        console.log(`[Instructions Modal Check] joined=${joined}, groupData=${!!groupData}, welcomePhase=${welcomePhase}, status=${game?.status}, phase=${game?.phase}, instructionsAcknowledged=${groupData?.instructionsAcknowledged}, currentTask=${!!currentTask}, shouldShow=${shouldShow}`);
         return shouldShow;
       })() && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">

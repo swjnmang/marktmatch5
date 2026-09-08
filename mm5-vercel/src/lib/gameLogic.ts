@@ -93,9 +93,10 @@ export function calculateMarket(
     // Kosten
 
     // Variable Produktionskosten (mit F&E-Vorteil)
-    let effectiveVariableCost = groupState.machines.reduce((sum, m) => {
-      return sum + m.variableCostPerUnit * m.capacity;
-    }, 0) / groupState.machines.reduce((sum, m) => sum + m.capacity, 0);
+    const totalMachineCapacity = groupState.machines.reduce((sum, m) => sum + m.capacity, 0);
+    let effectiveVariableCost = totalMachineCapacity > 0
+      ? groupState.machines.reduce((sum, m) => sum + m.variableCostPerUnit * m.capacity, 0) / totalMachineCapacity
+      : 0;
 
     if (groupState.rndBenefitApplied) {
       effectiveVariableCost *= 1 - parameters.rndVariableCostReduction;
