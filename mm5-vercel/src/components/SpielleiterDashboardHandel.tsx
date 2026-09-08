@@ -130,8 +130,8 @@ export function SpielleiterDashboardHandel({
         </div>
       </div>
 
-      {/* Aktionen-Grid: auf Mobile untereinander, ab sm zweispaltig */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {/* Aktionen-Grid: auf Mobile untereinander, ab sm zwei- und ab lg vierspaltig */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <button
           onClick={onShowActions}
           className="rounded-xl bg-white border border-neutral-200 px-4 py-3 text-left hover:border-neutral-400 transition"

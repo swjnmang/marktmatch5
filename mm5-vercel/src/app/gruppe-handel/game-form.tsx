@@ -233,7 +233,7 @@ export function GruppeGameFormHandel({ prefilledPin = "" }: { prefilledPin?: str
   };
 
   const shell = "min-h-screen bg-gradient-to-br from-neutral-100 via-neutral-100 to-neutral-200 px-3 py-6 sm:px-4 sm:py-10";
-  const container = "mx-auto flex w-full max-w-md flex-col gap-4";
+  const container = "mx-auto flex w-full max-w-3xl flex-col gap-4";
 
   if (checkingSession) {
     return (
@@ -432,11 +432,11 @@ export function GruppeGameFormHandel({ prefilledPin = "" }: { prefilledPin?: str
               </div>
             </div>
 
-            <div className="flex flex-col gap-2 mb-4">
+            <div className="grid gap-2 mb-4 sm:grid-cols-3">
               {game.qualityTiers.map((tier) => (
                 <div key={tier.id} className="rounded-xl border border-neutral-200 p-3">
                   <p className="font-semibold text-sm text-neutral-900">{tier.name}</p>
-                  <div className="grid grid-cols-3 gap-2 text-xs text-neutral-600 mt-1">
+                  <div className="flex flex-col gap-0.5 text-xs text-neutral-600 mt-1">
                     <span>Verkauft: {lastResult.soldUnitsByTier[tier.id]}</span>
                     <span>Umsatz: €{lastResult.revenueByTier[tier.id].toLocaleString("de-DE")}</span>
                     <span>Lager: {lastResult.endingInventoryByTier[tier.id]}</span>
@@ -536,127 +536,131 @@ export function GruppeGameFormHandel({ prefilledPin = "" }: { prefilledPin?: str
         )}
 
         <h2 className="text-sm font-bold uppercase tracking-wide text-neutral-500 mt-2">Einkauf</h2>
-        {game.qualityTiers.map((tier) => {
-          const boughtQty = groupData.currentPeriodPurchases[tier.id] || 0;
-          const boughtCost = groupData.currentPeriodPurchaseCosts[tier.id] || 0;
-          const alreadyBought = boughtQty > 0;
-          const inputQty = purchaseInputs[tier.id] || 0;
-          const unitPrice = effectivePurchaseUnitPrice(tier, inputQty || 1, groupData.negotiationBenefitApplied, game.parameters);
-          const nextDiscount = tier.volumeDiscounts.find((d) => inputQty < d.minQuantity);
-          const isBuying = buyingTier === tier.id;
+        <div className="grid gap-4 sm:grid-cols-3">
+          {game.qualityTiers.map((tier) => {
+            const boughtQty = groupData.currentPeriodPurchases[tier.id] || 0;
+            const boughtCost = groupData.currentPeriodPurchaseCosts[tier.id] || 0;
+            const alreadyBought = boughtQty > 0;
+            const inputQty = purchaseInputs[tier.id] || 0;
+            const unitPrice = effectivePurchaseUnitPrice(tier, inputQty || 1, groupData.negotiationBenefitApplied, game.parameters);
+            const nextDiscount = tier.volumeDiscounts.find((d) => inputQty < d.minQuantity);
+            const isBuying = buyingTier === tier.id;
 
-          return (
-            <div key={tier.id} className="rounded-2xl bg-white p-4 shadow-sm border border-neutral-200">
-              <div className="flex items-center justify-between mb-2">
-                <p className="font-semibold text-neutral-900">{tier.name}</p>
-                <p className="text-xs text-neutral-500">Lager: {groupData.inventory[tier.id]} Stk.</p>
-              </div>
-
-              {alreadyBought ? (
-                <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold text-emerald-800">✓ Gekauft: {boughtQty} Stk.</p>
-                    <p className="text-xs text-emerald-700">€{boughtCost.toLocaleString("de-DE")} bereits bezahlt</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handleUndoTier(tier.id)}
-                    disabled={isBuying}
-                    className="text-xs font-semibold text-neutral-500 hover:text-red-600 underline whitespace-nowrap"
-                  >
-                    Rückgängig
-                  </button>
+            return (
+              <div key={tier.id} className="rounded-2xl bg-white p-4 shadow-sm border border-neutral-200">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="font-semibold text-neutral-900">{tier.name}</p>
+                  <p className="text-xs text-neutral-500">Lager: {groupData.inventory[tier.id]} Stk.</p>
                 </div>
-              ) : (
-                <>
-                  <label className="block text-xs text-neutral-600 mb-1">Einkaufsmenge</label>
-                  <div className="flex gap-2">
-                    <input
-                      type="number"
-                      min={0}
-                      value={inputQty || ""}
-                      onChange={(e) =>
-                        setPurchaseInputs((prev) => ({ ...prev, [tier.id]: Math.max(0, parseInt(e.target.value) || 0) }))
-                      }
-                      className="flex-1 px-3 py-2.5 border border-neutral-300 rounded-lg text-lg"
-                      placeholder="0"
-                    />
+
+                {alreadyBought ? (
+                  <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-emerald-800">✓ Gekauft: {boughtQty} Stk.</p>
+                      <p className="text-xs text-emerald-700">€{boughtCost.toLocaleString("de-DE")} bereits bezahlt</p>
+                    </div>
                     <button
                       type="button"
-                      onClick={() => handleBuyTier(tier)}
-                      disabled={isBuying || inputQty <= 0}
-                      className="rounded-lg bg-emerald-600 px-4 text-sm font-bold text-white hover:bg-emerald-700 transition disabled:bg-neutral-300 whitespace-nowrap"
+                      onClick={() => handleUndoTier(tier.id)}
+                      disabled={isBuying}
+                      className="text-xs font-semibold text-neutral-500 hover:text-red-600 underline whitespace-nowrap"
                     >
-                      {isBuying ? "..." : "Einkaufen"}
+                      Rückgängig
                     </button>
                   </div>
-                  <p className="text-xs text-neutral-500 mt-1">
-                    €{unitPrice.toFixed(2)}/Stk. {inputQty > 0 && `(≈ €${Math.round(inputQty * unitPrice).toLocaleString("de-DE")} gesamt)`}
-                    {nextDiscount && ` · ab ${nextDiscount.minQuantity} Stk. −${Math.round(nextDiscount.discountPercent * 100)}%`}
-                  </p>
-                </>
-              )}
-            </div>
-          );
-        })}
+                ) : (
+                  <>
+                    <label className="block text-xs text-neutral-600 mb-1">Einkaufsmenge</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        min={0}
+                        value={inputQty || ""}
+                        onChange={(e) =>
+                          setPurchaseInputs((prev) => ({ ...prev, [tier.id]: Math.max(0, parseInt(e.target.value) || 0) }))
+                        }
+                        className="w-full min-w-0 flex-1 px-3 py-2.5 border border-neutral-300 rounded-lg text-lg"
+                        placeholder="0"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleBuyTier(tier)}
+                        disabled={isBuying || inputQty <= 0}
+                        className="rounded-lg bg-emerald-600 px-4 text-sm font-bold text-white hover:bg-emerald-700 transition disabled:bg-neutral-300 whitespace-nowrap"
+                      >
+                        {isBuying ? "..." : "Einkaufen"}
+                      </button>
+                    </div>
+                    <p className="text-xs text-neutral-500 mt-1">
+                      €{unitPrice.toFixed(2)}/Stk. {inputQty > 0 && `(≈ €${Math.round(inputQty * unitPrice).toLocaleString("de-DE")} gesamt)`}
+                      {nextDiscount && ` · ab ${nextDiscount.minQuantity} Stk. −${Math.round(nextDiscount.discountPercent * 100)}%`}
+                    </p>
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
 
         {error && <div className="rounded-xl bg-red-50 p-3 text-sm text-red-800 border border-red-200">{error}</div>}
 
         <form onSubmit={handleDecisionSubmit} className="flex flex-col gap-4">
           <h2 className="text-sm font-bold uppercase tracking-wide text-neutral-500 mt-2">Verkauf</h2>
-          {game.qualityTiers.map((tier) => {
-            const boughtQty = groupData.currentPeriodPurchases[tier.id] || 0;
-            const availableToSell = boughtQty + groupData.inventory[tier.id];
-            return (
-              <div key={tier.id} className="rounded-2xl bg-white p-4 shadow-sm border border-neutral-200">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="font-semibold text-neutral-900">{tier.name}</p>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {game.qualityTiers.map((tier) => {
+              const boughtQty = groupData.currentPeriodPurchases[tier.id] || 0;
+              const availableToSell = boughtQty + groupData.inventory[tier.id];
+              return (
+                <div key={tier.id} className="rounded-2xl bg-white p-4 shadow-sm border border-neutral-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="font-semibold text-neutral-900">{tier.name}</p>
+                  </div>
                   {availableToSell > 0 && (
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-neutral-500 mb-2">
                       Verfügbar: {availableToSell} Stk.
                       {boughtQty > 0 && ` (${boughtQty} neu + ${groupData.inventory[tier.id]} Lager)`}
                     </p>
                   )}
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs text-neutral-600 mb-1">Verkaufspreis (€)</label>
-                    <input
-                      type="number"
-                      min={0}
-                      step={0.5}
-                      value={pricesByTier[tier.id] || ""}
-                      onChange={(e) =>
-                        setPricesByTier((prev) => ({ ...prev, [tier.id]: Math.max(0, parseFloat(e.target.value) || 0) }))
-                      }
-                      className="w-full px-3 py-2.5 border border-neutral-300 rounded-lg text-lg"
-                      placeholder="0"
-                    />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-neutral-600 mb-1">Verkaufspreis (€)</label>
+                      <input
+                        type="number"
+                        min={0}
+                        step={0.5}
+                        value={pricesByTier[tier.id] || ""}
+                        onChange={(e) =>
+                          setPricesByTier((prev) => ({ ...prev, [tier.id]: Math.max(0, parseFloat(e.target.value) || 0) }))
+                        }
+                        className="w-full px-3 py-2.5 border border-neutral-300 rounded-lg text-lg"
+                        placeholder="0"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-neutral-600 mb-1">
+                        Aus Lager (max. {groupData.inventory[tier.id]})
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        max={groupData.inventory[tier.id]}
+                        value={sellFromInventoryByTier[tier.id] || ""}
+                        onChange={(e) =>
+                          setSellFromInventoryByTier((prev) => ({
+                            ...prev,
+                            [tier.id]: Math.max(0, Math.min(groupData.inventory[tier.id], parseInt(e.target.value) || 0)),
+                          }))
+                        }
+                        disabled={groupData.inventory[tier.id] === 0}
+                        className="w-full px-3 py-2.5 border border-neutral-300 rounded-lg text-lg disabled:bg-neutral-100"
+                        placeholder="0"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-xs text-neutral-600 mb-1">
-                      Aus Lager verkaufen (max. {groupData.inventory[tier.id]})
-                    </label>
-                    <input
-                      type="number"
-                      min={0}
-                      max={groupData.inventory[tier.id]}
-                      value={sellFromInventoryByTier[tier.id] || ""}
-                      onChange={(e) =>
-                        setSellFromInventoryByTier((prev) => ({
-                          ...prev,
-                          [tier.id]: Math.max(0, Math.min(groupData.inventory[tier.id], parseInt(e.target.value) || 0)),
-                        }))
-                      }
-                      disabled={groupData.inventory[tier.id] === 0}
-                      className="w-full px-3 py-2.5 border border-neutral-300 rounded-lg text-lg disabled:bg-neutral-100"
-                      placeholder="0"
-                    />
-                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
 
           <h2 className="text-sm font-bold uppercase tracking-wide text-neutral-500 mt-2">Weitere Investitionen</h2>
 
@@ -691,38 +695,42 @@ export function GruppeGameFormHandel({ prefilledPin = "" }: { prefilledPin?: str
             />
           </div>
 
-          <div className="rounded-2xl bg-white p-4 shadow-sm border border-neutral-200">
-            <p className="font-semibold text-neutral-900 mb-1">Marktanalyse</p>
-            <p className="text-xs text-neutral-600 mb-2">
-              €{game.parameters.marketAnalysisCost.toLocaleString("de-DE")} für Marktanteil, Ø Marktpreis und Gesamtnachfrage im Ergebnis.
-            </p>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={buyMarketAnalysis}
-                onChange={(e) => setBuyMarketAnalysis(e.target.checked)}
-                className="accent-emerald-600 w-5 h-5"
-              />
-              <span className="text-sm text-neutral-700">Marktanalyse kaufen</span>
-            </label>
-          </div>
-
-          {game.period >= 5 ? (
+          <div className="grid gap-4 sm:grid-cols-2">
             <div className="rounded-2xl bg-white p-4 shadow-sm border border-neutral-200">
-              <p className="font-semibold text-neutral-900 mb-1">Marketing</p>
-              <p className="text-xs text-neutral-600 mb-2">Erhöht euren Marktanteil zusätzlich zu Preis und Qualität.</p>
-              <input
-                type="number"
-                min={0}
-                value={marketingEffort || ""}
-                onChange={(e) => setMarketingEffort(Math.max(0, parseInt(e.target.value) || 0))}
-                className="w-full px-3 py-2.5 border border-neutral-300 rounded-lg text-lg"
-                placeholder="0"
-              />
+              <p className="font-semibold text-neutral-900 mb-1">Marktanalyse</p>
+              <p className="text-xs text-neutral-600 mb-2">
+                €{game.parameters.marketAnalysisCost.toLocaleString("de-DE")} für Marktanteil, Ø Marktpreis und Gesamtnachfrage im Ergebnis.
+              </p>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={buyMarketAnalysis}
+                  onChange={(e) => setBuyMarketAnalysis(e.target.checked)}
+                  className="accent-emerald-600 w-5 h-5"
+                />
+                <span className="text-sm text-neutral-700">Marktanalyse kaufen</span>
+              </label>
             </div>
-          ) : (
-            <p className="text-xs text-neutral-500 text-center">Marketing ist erst ab Periode 5 wirksam.</p>
-          )}
+
+            {game.period >= 5 ? (
+              <div className="rounded-2xl bg-white p-4 shadow-sm border border-neutral-200">
+                <p className="font-semibold text-neutral-900 mb-1">Marketing</p>
+                <p className="text-xs text-neutral-600 mb-2">Erhöht euren Marktanteil zusätzlich zu Preis und Qualität.</p>
+                <input
+                  type="number"
+                  min={0}
+                  value={marketingEffort || ""}
+                  onChange={(e) => setMarketingEffort(Math.max(0, parseInt(e.target.value) || 0))}
+                  className="w-full px-3 py-2.5 border border-neutral-300 rounded-lg text-lg"
+                  placeholder="0"
+                />
+              </div>
+            ) : (
+              <div className="rounded-2xl bg-neutral-50 border border-dashed border-neutral-300 p-4 flex items-center justify-center">
+                <p className="text-xs text-neutral-500 text-center">Marketing ist erst ab Periode 5 wirksam.</p>
+              </div>
+            )}
+          </div>
 
           <button
             type="submit"

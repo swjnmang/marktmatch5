@@ -253,7 +253,7 @@ export default function GameDashboardHandelPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-neutral-100 via-neutral-100 to-neutral-200 px-3 py-5 sm:px-4 sm:py-8">
-      <section className="mx-auto max-w-2xl flex flex-col gap-4">
+      <section className="mx-auto max-w-6xl flex flex-col gap-4">
         {/* Spiel beendet */}
         {game.status === "finished" && (
           <>
