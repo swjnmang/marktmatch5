@@ -114,102 +114,44 @@ export function SpielleiterDashboard({
         </div>
       </div>
 
-      {/* Hauptinhalt 2-spaltig */}
-      <div className="grid grid-cols-3 gap-6">
-        {/* Linke Spalte: Spielstand - Kompakt */}
-        <div className="col-span-2">
-          <div className="bg-white rounded-lg shadow">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">Spielstand</h2>
-            </div>
-            <div className="p-6 space-y-2">
-              {groups.map((group) => (
-                <div
-                  key={group.id}
-                  className="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 hover:bg-neutral-100 transition"
-                >
-                  <div className="flex items-center gap-3 flex-1">
-                    <span
-                      className={`inline-block w-2.5 h-2.5 rounded-full ${
-                        getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).color === "emerald" ? "bg-emerald-500" : 
-                        getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).color === "blue" ? "bg-blue-500" :
-                        getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).color === "amber" ? "bg-amber-500" :
-                        "bg-orange-500"
-                      }`}
-                    ></span>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-sm text-gray-900">Gruppe: {group.name}</h3>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-semibold text-gray-700">
-                      {getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).label}
-                    </span>
-                    <button
-                      onClick={() => onEditGroup(group)}
-                      className="px-2 py-1 text-xs font-semibold text-white bg-gray-600 hover:bg-gray-700 rounded transition whitespace-nowrap"
-                    >
-                      ⚙️ Einstellungen
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+      {/* Spielstand - Gruppenliste (volle Breite) */}
+      <div className="bg-white rounded-lg shadow">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-xl font-bold text-gray-900">Spielstand</h2>
         </div>
+        <div className="p-6 space-y-2">
+          {groups.map((group) => (
+            <div
+              key={group.id}
+              className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 hover:bg-neutral-100 transition"
+            >
+              <div className="flex items-center gap-3 flex-1">
+                <span
+                  className={`inline-block w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                    getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).color === "emerald" ? "bg-emerald-500" :
+                    getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).color === "blue" ? "bg-blue-500" :
+                    getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).color === "amber" ? "bg-amber-500" :
+                    "bg-orange-500"
+                  }`}
+                ></span>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-sm text-gray-900">Gruppe: {group.name}</h3>
+                </div>
+              </div>
 
-        {/* Rechte Spalte: Schnell-Aktionen */}
-        <div>
-          <div className="bg-white rounded-lg shadow mb-6">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">Schnell-Aktionen</h2>
+              <div className="flex items-center gap-3 pl-5 sm:pl-0">
+                <span className="text-xs font-semibold text-gray-700">
+                  {getGroupStatusLabel(group.status, group.instructionsAcknowledged ?? false).label}
+                </span>
+                <button
+                  onClick={() => onEditGroup(group)}
+                  className="px-2 py-1 text-xs font-semibold text-white bg-gray-600 hover:bg-gray-700 rounded transition whitespace-nowrap"
+                >
+                  ⚙️ Einstellungen
+                </button>
+              </div>
             </div>
-            <div className="p-6 space-y-3">
-              <button
-                onClick={onStartPeriod}
-                disabled={!effectiveCanStartPeriod || startLoading}
-                className={`w-full text-white py-3 rounded-lg font-bold text-lg transition shadow-md ${
-                  !effectiveCanStartPeriod || startLoading
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-emerald-600 hover:bg-emerald-700"
-                }`}
-              >
-                {startLoading ? "⏳ Lädt..." : game.phase === "machine_selection" ? `▶ Start Periode ${game.period}` : game.phase === "decisions" ? `📊 Auswertung Periode ${game.period}` : `▶ Start Periode ${game.period + 1}`}
-              </button>
-              <button
-                onClick={onShowSettings}
-                className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded font-semibold transition"
-              >
-                ⚙ Einstellungen
-              </button>
-              <button
-                onClick={onShowRanking}
-                className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded font-semibold transition"
-              >
-                🏆 Ranking
-              </button>
-              <button
-                onClick={onEndGame}
-                className="w-full bg-gray-700 hover:bg-gray-800 text-white py-2 rounded font-semibold transition"
-              >
-                ⏹ Spiel beenden
-              </button>
-            </div>
-          </div>
-
-          <div className="bg-blue-50 border-l-4 border-gray-400 rounded-lg p-4">
-            <div className="text-sm font-semibold text-gray-900 mb-2">💡 Hinweis</div>
-            <div className="text-sm text-gray-700">
-              {hasActiveSpecialTask && !allGroupsCompletedSpecialTask
-                ? `⚠️ ${groups.filter(g => !g.specialTaskCompleted).length} Gruppe(n) müssen noch den Spezialauftrag abhaken.`
-                : effectiveCanStartPeriod
-                ? hasActiveSpecialTask 
-                  ? "✓ Alle Gruppen haben den Spezialauftrag erledigt! Du kannst jetzt die nächste Phase starten."
-                  : "Alle Gruppen sind bereit. Du kannst die nächste Phase starten!"
-                : `${groups.filter(g => game.phase === "machine_selection" ? g.status !== "ready" : g.status !== "submitted").length} Gruppe(n) müssen noch reagieren.`}
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 
@@ -400,6 +342,57 @@ export function SpielleiterDashboard({
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Schnell-Aktionen - ganz unten, volle Breite */}
+      <div className="bg-white rounded-lg shadow">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-xl font-bold text-gray-900">Schnell-Aktionen</h2>
+        </div>
+        <div className="p-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <button
+            onClick={onStartPeriod}
+            disabled={!effectiveCanStartPeriod || startLoading}
+            className={`w-full text-white py-3 rounded-lg font-bold text-lg transition shadow-md lg:col-span-1 sm:col-span-2 ${
+              !effectiveCanStartPeriod || startLoading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-emerald-600 hover:bg-emerald-700"
+            }`}
+          >
+            {startLoading ? "⏳ Lädt..." : game.phase === "machine_selection" ? `▶ Start Periode ${game.period}` : game.phase === "decisions" ? `📊 Auswertung Periode ${game.period}` : `▶ Start Periode ${game.period + 1}`}
+          </button>
+          <button
+            onClick={onShowSettings}
+            className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded font-semibold transition"
+          >
+            ⚙ Einstellungen
+          </button>
+          <button
+            onClick={onShowRanking}
+            className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded font-semibold transition"
+          >
+            🏆 Ranking
+          </button>
+          <button
+            onClick={onEndGame}
+            className="w-full bg-gray-700 hover:bg-gray-800 text-white py-2 rounded font-semibold transition"
+          >
+            ⏹ Spiel beenden
+          </button>
+        </div>
+      </div>
+
+      <div className="bg-blue-50 border-l-4 border-gray-400 rounded-lg p-4">
+        <div className="text-sm font-semibold text-gray-900 mb-2">💡 Hinweis</div>
+        <div className="text-sm text-gray-700">
+          {hasActiveSpecialTask && !allGroupsCompletedSpecialTask
+            ? `⚠️ ${groups.filter(g => !g.specialTaskCompleted).length} Gruppe(n) müssen noch den Spezialauftrag abhaken.`
+            : effectiveCanStartPeriod
+            ? hasActiveSpecialTask
+              ? "✓ Alle Gruppen haben den Spezialauftrag erledigt! Du kannst jetzt die nächste Phase starten."
+              : "Alle Gruppen sind bereit. Du kannst die nächste Phase starten!"
+            : `${groups.filter(g => game.phase === "machine_selection" ? g.status !== "ready" : g.status !== "submitted").length} Gruppe(n) müssen noch reagieren.`}
         </div>
       </div>
     </div>

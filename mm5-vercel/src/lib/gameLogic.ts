@@ -304,22 +304,34 @@ function calculateInversePriceAllocation(
   });
 
   // Schritt 8: Überschüssige Nachfrage, die die günstigste Gruppe wegen fehlender Kapazität
-  // nicht bedienen kann, wandert zur nächstgünstigeren Gruppe mit freier Kapazität - genau wie
-  // im Solo-Modus (market-calculation.ts). Ohne diesen Schritt verpufft die Nachfrage einfach,
-  // selbst wenn andere Gruppen problemlos hätten liefern können.
+  // nicht bedienen kann, wandert zur nächstgünstigeren Gruppe mit freier Kapazität. Diese
+  // Kaskade ist preissensitiv: Je größer der Preisabstand einer Gruppe zum günstigsten Angebot
+  // im Markt, desto kleiner der Anteil der Restnachfrage, den sie noch abbekommt (gleiche
+  // Elastizitäts-Formel wie bei der globalen Nachfrage weiter oben, nur pro Gruppe angewendet
+  // statt nur auf den Mindestpreis). Ohne diese Preissensitivität konnte eine Gruppe mit einem
+  // völlig unrealistischen Preis (z. B. dem 90-fachen der günstigsten Gruppe) trotzdem beliebig
+  // viel von der Restnachfrage abräumen, sobald die günstigeren Gruppen ausverkauft waren.
   let unallocatedDemand = totalDemand - totalSoldUnits;
   if (unallocatedDemand > 0) {
     const sortedByPrice = [...marketShares].sort((a, b) => a.price - b.price);
+    const cheapestPrice = sortedByPrice.length > 0 ? sortedByPrice[0].price : parameters.demandReferencePrice;
     for (const item of sortedByPrice) {
       if (unallocatedDemand <= 0) break;
       const alreadySold = soldUnits[item.id] || 0;
       const remainingCapacity = item.supply - alreadySold;
-      const canTake = Math.min(remainingCapacity, unallocatedDemand);
+
+      const priceRatioToCheapest = item.price / cheapestPrice;
+      const cascadeLinear = 1 - parameters.priceElasticityFactor * (priceRatioToCheapest - 1);
+      const cascadeFloor = 0.005 + 0.2 * Math.exp(-0.15 * Math.max(0, priceRatioToCheapest - 2));
+      const cascadeAcceptance = Math.max(cascadeFloor, Math.min(1.0, cascadeLinear));
+
+      const willingAtThisPrice = Math.floor(unallocatedDemand * cascadeAcceptance);
+      const canTake = Math.min(remainingCapacity, willingAtThisPrice);
       if (canTake > 0) {
         soldUnits[item.id] = alreadySold + canTake;
         totalSoldUnits += canTake;
         unallocatedDemand -= canTake;
-        console.log(`[Inverse Model] Group €${item.price.toFixed(2)}: Taking ${canTake} from overflow → ${soldUnits[item.id]} total`);
+        console.log(`[Inverse Model] Group €${item.price.toFixed(2)}: Taking ${canTake} from overflow (Preisverhältnis zum Günstigsten=${priceRatioToCheapest.toFixed(2)}, Akzeptanz=${(cascadeAcceptance * 100).toFixed(1)}%) → ${soldUnits[item.id]} total`);
       }
     }
   }

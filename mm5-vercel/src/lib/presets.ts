@@ -3,7 +3,7 @@ import type { GameParameters } from "./types";
 export const PRESET_PARAMETERS: Record<"easy" | "medium" | "hard", GameParameters> = {
   easy: {
     startingCapital: 50000,
-    periodDurationMinutes: 15,
+    periodDurationMinutes: 10,
     marketAnalysisCost: 2000,
     negativeCashInterestRate: 0.05,
     initialMarketSaturationFactor: 0.8,
@@ -23,7 +23,7 @@ export const PRESET_PARAMETERS: Record<"easy" | "medium" | "hard", GameParameter
   },
   medium: {
     startingCapital: 40000,
-    periodDurationMinutes: 12,
+    periodDurationMinutes: 8,
     marketAnalysisCost: 3000,
     negativeCashInterestRate: 0.08,
     initialMarketSaturationFactor: 0.7,
@@ -38,12 +38,12 @@ export const PRESET_PARAMETERS: Record<"easy" | "medium" | "hard", GameParameter
     freeMarketAnalysisNextPeriod: false,
     noInventoryCostsNextPeriod: false,
     customEventNextPeriod: "",
-    machineDepreciationEnabled: false,
+    machineDepreciationEnabled: true,
     machineDepreciationRate: 0.1,
   },
   hard: {
     startingCapital: 30000,
-    periodDurationMinutes: 10,
+    periodDurationMinutes: 5,
     marketAnalysisCost: 5000,
     negativeCashInterestRate: 0.12,
     initialMarketSaturationFactor: 0.6,
@@ -58,7 +58,7 @@ export const PRESET_PARAMETERS: Record<"easy" | "medium" | "hard", GameParameter
     freeMarketAnalysisNextPeriod: false,
     noInventoryCostsNextPeriod: false,
     customEventNextPeriod: "",
-    machineDepreciationEnabled: false,
+    machineDepreciationEnabled: true,
     machineDepreciationRate: 0.1,
   },
 };

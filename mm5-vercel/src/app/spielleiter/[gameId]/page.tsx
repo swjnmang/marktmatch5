@@ -317,7 +317,7 @@ export default function GameDashboardPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-neutral-100 via-neutral-100 to-neutral-200 px-4 py-6">
-      <section className="mx-auto max-w-4xl space-y-4">
+      <section className="mx-auto max-w-6xl space-y-4">
         {/* Game Finished - Show End Screen */}
         {game.status === "finished" && (
           <>
@@ -550,110 +550,6 @@ export default function GameDashboardPage() {
               </div>
             </div>
           </div>
-        )}
-
-        {/* Beitritts-Link bleibt auch während des laufenden Spiels abrufbar, damit die
-            Spielleitung Späteinsteigern jederzeit den Link geben kann - eingeklappt,
-            um das Dashboard nicht zu überladen. */}
-        {game.status === "in_progress" && (
-          <details className="rounded-xl bg-white p-4 shadow-sm ring-1 border border-neutral-200">
-            <summary className="cursor-pointer text-sm font-bold text-neutral-800">
-              🔗 Weitere Gruppen einladen (PIN & Link)
-            </summary>
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4 items-center">
-              {/* Gruppen-PIN mit QR */}
-              <div className="flex justify-center">
-                <div className="bg-white p-2 rounded-lg border-2 border-neutral-300">
-                  <QRCodeSVG 
-                    value={`${typeof window !== 'undefined' ? window.location.origin : 'https://marktmatch5.vercel.app'}/gruppe/${gameId}?pin=${game.joinPin}`} 
-                    size={140}
-                    level="H"
-                    includeMargin={false}
-                  />
-                </div>
-              </div>
-
-              {/* PIN zum Eingeben */}
-              <div className="flex flex-col gap-3">
-                <div>
-                  <p className="text-xs font-semibold text-neutral-600 mb-2">👥 Beitrittscode für Gruppen:</p>
-                  <div className="flex gap-2 items-center">
-                    <div className="font-mono text-3xl font-bold text-neutral-800 bg-white px-4 py-2 rounded-lg border-2 border-neutral-300">
-                      {game.joinPin}
-                    </div>
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(game.joinPin);
-                        alert("✅ PIN kopiert!");
-                      }}
-                      className="rounded-lg bg-neutral-400 px-3 py-2 text-sm text-white font-semibold hover:bg-neutral-600 transition whitespace-nowrap"
-                    >
-                      📋
-                    </button>
-                  </div>
-                  <p className="text-xs text-neutral-500 mt-1">
-                    QR-Code scannen oder PIN eingeben
-                  </p>
-                </div>
-
-                {/* Share Link */}
-                <div>
-                  <p className="text-xs font-semibold text-neutral-600 mb-2">🔗 Direkt-Link zum Beitreten:</p>
-                  <div className="flex gap-2 items-center">
-                    <input
-                      type="text"
-                      readOnly
-                      value={`${typeof window !== 'undefined' ? window.location.origin : 'https://marktmatch5.vercel.app'}/gruppe/${gameId}?pin=${game.joinPin}`}
-                      className="flex-1 text-xs bg-white px-3 py-2 rounded-lg border border-neutral-300 text-neutral-700 font-mono"
-                    />
-                    <button
-                      onClick={() => {
-                        const link = `${typeof window !== 'undefined' ? window.location.origin : 'https://marktmatch5.vercel.app'}/gruppe/${gameId}?pin=${game.joinPin}`;
-                        navigator.clipboard.writeText(link);
-                        alert("✅ Link kopiert!");
-                      }}
-                      className="rounded-lg bg-emerald-600 px-3 py-2 text-sm text-white font-semibold hover:bg-emerald-700 transition whitespace-nowrap"
-                    >
-                      📋
-                    </button>
-                  </div>
-                  <p className="text-xs text-neutral-500 mt-1">
-                    Link direkt teilen - PIN ist automatisch eingefügt
-                  </p>
-                </div>
-
-                {/* Admin-PIN Bereich inline */}
-                <div className="border-t pt-3">
-                  <button
-                    onClick={() => setShowAdminPin(!showAdminPin)}
-                    className="text-xs font-semibold text-neutral-700 hover:text-neutral-900 flex items-center gap-2"
-                  >
-                    {showAdminPin ? "▼" : "▶"} 🔑 Admin-PIN
-                  </button>
-                  
-                  {showAdminPin && game.adminPin && (
-                    <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
-                      <div className="flex gap-2 items-center">
-                        <div className="font-mono text-lg font-bold text-red-700 bg-white px-3 py-1 rounded border border-red-300">
-                          {game.adminPin}
-                        </div>
-                        <button
-                          onClick={() => {
-                            navigator.clipboard.writeText(game.adminPin);
-                            alert("✅ Admin-PIN kopiert!");
-                          }}
-                          className="rounded bg-red-600 px-2 py-1 text-xs text-white font-semibold hover:bg-red-700 transition"
-                        >
-                          📋
-                        </button>
-                      </div>
-                      <p className="text-xs text-red-700 mt-1">⚠️ Nur für Spielleitung</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </details>
         )}
 
         {/* NEW Modern Dashboard for In-Progress Games */}
@@ -1345,6 +1241,107 @@ export default function GameDashboardPage() {
                     💡 <strong>Hinweis:</strong> Änderungen werden sofort übernommen. Einige Einstellungen (Startkapital, Basis-Nachfrage) können nur vor Spielstart geändert werden.
                   </p>
                 </div>
+
+                {/* Weitere Gruppen einladen - hier statt als eigener Dashboard-Bereich,
+                    damit das laufende Spiel nur noch Spielstand/Aktionen zeigt. */}
+                {game.status === "in_progress" && (
+                  <div className="rounded-lg border border-neutral-200 p-4">
+                    <h3 className="text-sm font-bold text-neutral-800 mb-4">🔗 Weitere Gruppen einladen (PIN & Link)</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4 items-center">
+                      {/* Gruppen-PIN mit QR */}
+                      <div className="flex justify-center">
+                        <div className="bg-white p-2 rounded-lg border-2 border-neutral-300">
+                          <QRCodeSVG
+                            value={`${typeof window !== 'undefined' ? window.location.origin : 'https://marktmatch5.vercel.app'}/gruppe/${gameId}?pin=${game.joinPin}`}
+                            size={140}
+                            level="H"
+                            includeMargin={false}
+                          />
+                        </div>
+                      </div>
+
+                      {/* PIN zum Eingeben */}
+                      <div className="flex flex-col gap-3">
+                        <div>
+                          <p className="text-xs font-semibold text-neutral-600 mb-2">👥 Beitrittscode für Gruppen:</p>
+                          <div className="flex gap-2 items-center">
+                            <div className="font-mono text-3xl font-bold text-neutral-800 bg-white px-4 py-2 rounded-lg border-2 border-neutral-300">
+                              {game.joinPin}
+                            </div>
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(game.joinPin);
+                                alert("✅ PIN kopiert!");
+                              }}
+                              className="rounded-lg bg-neutral-400 px-3 py-2 text-sm text-white font-semibold hover:bg-neutral-600 transition whitespace-nowrap"
+                            >
+                              📋
+                            </button>
+                          </div>
+                          <p className="text-xs text-neutral-500 mt-1">
+                            QR-Code scannen oder PIN eingeben
+                          </p>
+                        </div>
+
+                        {/* Share Link */}
+                        <div>
+                          <p className="text-xs font-semibold text-neutral-600 mb-2">🔗 Direkt-Link zum Beitreten:</p>
+                          <div className="flex gap-2 items-center">
+                            <input
+                              type="text"
+                              readOnly
+                              value={`${typeof window !== 'undefined' ? window.location.origin : 'https://marktmatch5.vercel.app'}/gruppe/${gameId}?pin=${game.joinPin}`}
+                              className="flex-1 text-xs bg-white px-3 py-2 rounded-lg border border-neutral-300 text-neutral-700 font-mono"
+                            />
+                            <button
+                              onClick={() => {
+                                const link = `${typeof window !== 'undefined' ? window.location.origin : 'https://marktmatch5.vercel.app'}/gruppe/${gameId}?pin=${game.joinPin}`;
+                                navigator.clipboard.writeText(link);
+                                alert("✅ Link kopiert!");
+                              }}
+                              className="rounded-lg bg-emerald-600 px-3 py-2 text-sm text-white font-semibold hover:bg-emerald-700 transition whitespace-nowrap"
+                            >
+                              📋
+                            </button>
+                          </div>
+                          <p className="text-xs text-neutral-500 mt-1">
+                            Link direkt teilen - PIN ist automatisch eingefügt
+                          </p>
+                        </div>
+
+                        {/* Admin-PIN Bereich inline */}
+                        <div className="border-t pt-3">
+                          <button
+                            onClick={() => setShowAdminPin(!showAdminPin)}
+                            className="text-xs font-semibold text-neutral-700 hover:text-neutral-900 flex items-center gap-2"
+                          >
+                            {showAdminPin ? "▼" : "▶"} 🔑 Admin-PIN
+                          </button>
+
+                          {showAdminPin && game.adminPin && (
+                            <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                              <div className="flex gap-2 items-center">
+                                <div className="font-mono text-lg font-bold text-red-700 bg-white px-3 py-1 rounded border border-red-300">
+                                  {game.adminPin}
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(game.adminPin);
+                                    alert("✅ Admin-PIN kopiert!");
+                                  }}
+                                  className="rounded bg-red-600 px-2 py-1 text-xs text-white font-semibold hover:bg-red-700 transition"
+                                >
+                                  📋
+                                </button>
+                              </div>
+                              <p className="text-xs text-red-700 mt-1">⚠️ Nur für Spielleitung</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Periodendauer */}
                 <div>
