@@ -4,7 +4,6 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { QRCodeSVG } from "qrcode.react";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp, query, where, onSnapshot, getDocs } from "firebase/firestore";
 import { generateAdminPin, generateGroupCode, savePinToLocalStorage } from "@/lib/auth";
@@ -14,16 +13,12 @@ import { ui } from "@/lib/ui";
 
 export default function SpielleiterHandelPage() {
   const router = useRouter();
-  const [view, setView] = useState<"login" | "create" | "pins" | "list">("create");
+  const [view, setView] = useState<"login" | "create" | "list">("create");
   const [preset, setPreset] = useState<HandelPreset>("easy");
   const [parameters, setParameters] = useState<GameParametersHandel>(PRESET_PARAMETERS_HANDEL.easy);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [existingPin, setExistingPin] = useState("");
-  const [gameId, setGameId] = useState<string>("");
-  const [adminPin, setAdminPin] = useState<string>("");
-  const [joinPin, setJoinPin] = useState<string>("");
-  const [showAdminPin, setShowAdminPin] = useState(false);
   const [gameName, setGameName] = useState("");
   const [activeGames, setActiveGames] = useState<Array<{ id: string; gameName: string; status: string; period: number }>>([]);
 
@@ -72,10 +67,9 @@ export default function SpielleiterHandelPage() {
       const docRef = await addDoc(collection(db, "games_handel"), gameDoc);
       savePinToLocalStorage(newAdminPin, docRef.id);
 
-      setGameId(docRef.id);
-      setAdminPin(newAdminPin);
-      setJoinPin(newJoinPin);
-      setView("pins");
+      // Navigiere direkt zum Lobby-Dashboard - das zeigt QR-Code, PIN und
+      // wartende Gruppen bereits an, eine separate Zwischenseite wäre doppelt.
+      router.push(`/spielleiter-handel/${docRef.id}?showPins=true`);
     } catch (err) {
       console.error("Error creating game:", err);
       setError("Fehler beim Erstellen des Spiels. Versuche es erneut.");
@@ -133,109 +127,19 @@ export default function SpielleiterHandelPage() {
           </p>
         </div>
 
-        {view === "pins" && (
-          <div className="rounded-2xl bg-white p-5 sm:p-8 shadow-lg ring-2 ring-emerald-200">
-            <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 mb-6">Lobby erstellt!</h2>
-
-            <div className="space-y-4 mb-8">
-              <div className="flex flex-col sm:flex-row gap-5 items-center sm:items-start">
-                <div className="bg-white p-2 rounded-xl border-2 border-neutral-300 flex-none">
-                  <QRCodeSVG
-                    value={`${typeof window !== "undefined" ? window.location.origin : "https://marktmatch5.vercel.app"}/gruppe-handel/${gameId}?pin=${joinPin}`}
-                    size={140}
-                    level="H"
-                    includeMargin={false}
-                  />
-                </div>
-                <div className="flex-1 w-full">
-                  <p className="text-sm font-semibold text-neutral-600 mb-2">Gruppen-PIN (zum Beitreten)</p>
-                  <div className="flex flex-wrap gap-3 items-center">
-                    <div className="font-mono text-3xl sm:text-4xl font-bold text-neutral-700 bg-neutral-50 px-5 py-3 rounded-xl border-2 border-neutral-300">
-                      {joinPin}
-                    </div>
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(joinPin);
-                        alert("PIN kopiert!");
-                      }}
-                      className="rounded-xl bg-neutral-700 px-4 py-3 text-white font-semibold hover:bg-neutral-800 transition"
-                    >
-                      Kopieren
-                    </button>
-                  </div>
-                  <button
-                    onClick={() => {
-                      const link = `${window.location.origin}/gruppe-handel/${gameId}?pin=${joinPin}`;
-                      navigator.clipboard.writeText(link);
-                      alert("Beitritts-Link kopiert!");
-                    }}
-                    className="mt-3 w-full sm:w-auto rounded-xl border-2 border-neutral-300 px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:border-neutral-500 hover:bg-neutral-50 transition"
-                  >
-                    Link kopieren (zum Teilen)
-                  </button>
-                  <p className="text-xs text-neutral-600 mt-2">
-                    Gruppen scannen den QR-Code, öffnen den geteilten Link oder geben die PIN unter „Spiel beitreten" ein.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="border-t border-neutral-200 pt-6">
-              <button
-                onClick={() => setShowAdminPin(!showAdminPin)}
-                className="text-sm font-semibold text-neutral-700 hover:text-neutral-900"
-              >
-                {showAdminPin ? "▼" : "▶"} Admin-PIN (versteckt)
-              </button>
-
-              {showAdminPin && (
-                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl">
-                  <p className="text-xs text-neutral-600 mb-2">Dein Admin-PIN für dieses Spiel:</p>
-                  <div className="flex flex-wrap gap-3 items-center">
-                    <div className="font-mono text-2xl font-bold text-red-700 bg-white px-4 py-2 rounded-lg border-2 border-red-300">
-                      {adminPin}
-                    </div>
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(adminPin);
-                        alert("Admin-PIN kopiert!");
-                      }}
-                      className="rounded-lg bg-red-600 px-3 py-2 text-white text-sm font-semibold hover:bg-red-700 transition"
-                    >
-                      Kopieren
-                    </button>
-                  </div>
-                  <p className="text-xs text-red-700 mt-2 font-semibold">Speichere diese PIN sicher ab!</p>
-                </div>
-              )}
-            </div>
-
-            <div className="mt-8">
-              <button
-                onClick={() => router.push(`/spielleiter-handel/${gameId}`)}
-                className="w-full rounded-xl bg-emerald-600 px-6 py-4 text-white font-bold text-lg hover:bg-emerald-700 transition"
-              >
-                Zur Lobby
-              </button>
-            </div>
-          </div>
-        )}
-
-        {view !== "pins" && (
-          <div className="flex gap-1 rounded-xl bg-neutral-100 p-1">
-            {(["list", "create", "login"] as const).map((v) => (
-              <button
-                key={v}
-                onClick={() => setView(v)}
-                className={`flex-1 rounded-lg px-3 py-2.5 text-sm font-semibold transition ${
-                  view === v ? "bg-white text-neutral-800 shadow-sm" : "text-neutral-600 hover:text-neutral-900"
-                }`}
-              >
-                {v === "list" ? "Aktive Spiele" : v === "create" ? "Neues Spiel" : "Mit PIN beitreten"}
-              </button>
-            ))}
-          </div>
-        )}
+        <div className="flex gap-1 rounded-xl bg-neutral-100 p-1">
+          {(["list", "create", "login"] as const).map((v) => (
+            <button
+              key={v}
+              onClick={() => setView(v)}
+              className={`flex-1 rounded-lg px-3 py-2.5 text-sm font-semibold transition ${
+                view === v ? "bg-white text-neutral-800 shadow-sm" : "text-neutral-600 hover:text-neutral-900"
+              }`}
+            >
+              {v === "list" ? "Aktive Spiele" : v === "create" ? "Neues Spiel" : "Mit PIN beitreten"}
+            </button>
+          ))}
+        </div>
 
         {view === "list" && (
           <div className="rounded-2xl bg-white p-4 sm:p-6 shadow-lg ring-1 ring-neutral-200">
