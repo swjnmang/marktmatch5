@@ -36,6 +36,13 @@ export default function SpielleiterPage() {
     setParameters((prev) => ({ ...prev, [key]: value }));
   };
 
+  // Offene Spiele, die seit über 12h in "lobby"/"in_progress" hängen, sollen
+  // nicht mehr als aktiv auftauchen - stößt den serverseitigen Check an,
+  // sobald die Liste geladen wird (siehe api/admin/close-stale-games).
+  useEffect(() => {
+    fetch("/api/admin/close-stale-games", { method: "POST" }).catch(() => {});
+  }, []);
+
   // Lade aktive Spiele
   useEffect(() => {
     const q = query(collection(db, "games"), where("status", "in", ["lobby", "in_progress"]));

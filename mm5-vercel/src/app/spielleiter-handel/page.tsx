@@ -27,6 +27,13 @@ export default function SpielleiterHandelPage() {
     setParameters(PRESET_PARAMETERS_HANDEL[newPreset]);
   };
 
+  // Offene Spiele, die seit über 12h in "lobby"/"in_progress" hängen, sollen
+  // nicht mehr als aktiv auftauchen - stößt den serverseitigen Check an,
+  // sobald die Liste geladen wird (siehe api/admin/close-stale-games).
+  useEffect(() => {
+    fetch("/api/admin/close-stale-games", { method: "POST" }).catch(() => {});
+  }, []);
+
   useEffect(() => {
     const q = query(collection(db, "games_handel"), where("status", "in", ["lobby", "in_progress"]));
     const unsubscribe = onSnapshot(q, (snapshot) => {
